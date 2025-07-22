@@ -39,7 +39,7 @@ def pre_setup() -> object:
         sys.exit(1)
 
     env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
-
+    
     if not os.path.isdir('googletest'):
         print_error("googletest must be a submodule of the root repository.")
         sys.exit(1)
@@ -65,7 +65,7 @@ def pre_setup() -> object:
     return env
 
 
-def post_setup(*env: object, cpppaths: list[str], sources: list[str], libname: str, projectdir: str) -> None:
+def post_setup(*env: object, cpp_paths: list[str], sources: list[str], lib_name: str, addon_dir_name: str) -> None:
     if is_debug_build:
         try:
             doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=glob.glob("doc_classes/*.xml"))
@@ -73,27 +73,27 @@ def post_setup(*env: object, cpppaths: list[str], sources: list[str], libname: s
         except AttributeError:
             print("Not including class reference as we're targeting a pre-4.3 baseline.")
     
-    env.Append(CPPPATH=cpppaths)
+    env.Append(CPPPATH=cpp_paths)
 
     # .dev doesn't inhibit compatibility, so we don't need to key it.
     # .universal just means "compatible with all relevant arches" so we don't need to key it.
     suffix = env['suffix'].replace(".dev", "").replace(".universal", "")
 
-    lib_filename = "{}{}{}{}".format(env.subst('$SHLIBPREFIX'), libname, suffix, env.subst('$SHLIBSUFFIX'))
+    lib_filename = "{}{}{}{}".format(env.subst('$SHLIBPREFIX'), lib_name, suffix, env.subst('$SHLIBSUFFIX'))
 
     library = env.SharedLibrary(
         "bin/{}/{}".format(env['platform'], lib_filename),
         source=sources,
     )
 
-    copy = env.Install("{}/bin/{}/".format(projectdir, env["platform"]), library)
+    copy = env.Install("demo/addons/{}/bin/{}/".format(addon_dir_name, env["platform"]), library)
 
     default_args = [library, copy]
     Default(*default_args)
 
 
-def set_up_snore_core(*env: object, cpppaths: list[str], sources: list[str], path_prefix="snore_core/") -> None:
-    cpppaths.extend([
+def set_up(*env: object, cpp_paths: list[str], sources: list[str], path_prefix="snore_core/") -> None:
+    cpp_paths.extend([
         path_prefix + "src/",
     ])
 
@@ -102,7 +102,7 @@ def set_up_snore_core(*env: object, cpppaths: list[str], sources: list[str], pat
     )
 
     if includes_tests:
-        cpppaths.extend([
+        cpp_paths.extend([
             "googletest/googletest/",
             "googletest/googletest/include/",
             "googletest/googlemock/",
