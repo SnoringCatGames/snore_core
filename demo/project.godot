@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="SnoreCore Demo"
-run/main_scene="uid://dd6yp3qtgdlum"
-config/features=PackedStringArray("4.4", "Forward Plus")
+run/main_scene="res://src/main.tscn"
+config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
 [audio]
@@ -25,4 +25,4 @@ G="*res://src/demo_globals.gd"
 
 [native_extensions]
 
-paths=["res://bin/snore_core.gdextension"]
+paths=["res://addons/snore_core/bin/snore_core.gdextension"]

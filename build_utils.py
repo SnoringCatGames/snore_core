@@ -5,12 +5,7 @@ import sys
 from methods import print_error
 
 
-is_debug_build = ARGUMENTS.get("target", "") in ["editor", "template_debug"]
-is_continuous_integration = ARGUMENTS.get("ci", "") == "yes"
-includes_tests = ARGUMENTS.get("tests", "") == "yes"
-
-
-def pre_setup() -> object:
+def pre_setup(ARGUMENTS: dict, Environment: object, Variables: object, Help: object, SConscript: object) -> object:
     localEnv = Environment(tools=["default"], PLATFORM="")
 
     # Build profiles can be used to decrease compile times.
@@ -21,7 +16,7 @@ def pre_setup() -> object:
 
     # localEnv["build_profile"] = "build_profile.json"
 
-    customs = ["custom.py"]
+    customs = ['custom.py']
     customs = [os.path.abspath(path) for path in customs]
 
     opts = Variables(customs, ARGUMENTS)
@@ -31,6 +26,12 @@ def pre_setup() -> object:
 
     env = localEnv.Clone()
 
+    if not os.path.isdir('googletest'):
+        print_error("googletest must be a submodule of the root repository.")
+        sys.exit(1)
+    if not os.path.isdir('godot-cpp'):
+        print_error("godot-cpp must be a submodule of the root repository.")
+        sys.exit(1)
     if not (os.path.isdir("godot-cpp") and os.listdir("godot-cpp")):
         print_error("""godot-cpp is not available within this folder, as Git submodules haven't been initialized.
     Run the following command to download godot-cpp:
@@ -39,13 +40,16 @@ def pre_setup() -> object:
         sys.exit(1)
 
     env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
-    
-    if not os.path.isdir('googletest'):
-        print_error("googletest must be a submodule of the root repository.")
-        sys.exit(1)
-    if not os.path.isdir('godot-cpp'):
-        print_error("godot-cpp must be a submodule of the root repository.")
-        sys.exit(1)
+
+    env['is_debug_build'] = ARGUMENTS.get("target", "") in ["editor", "template_debug"]
+    env['is_continuous_integration'] = ARGUMENTS.get("ci", "") == "yes"
+    env['includes_tests'] = ARGUMENTS.get("tests", "") == "yes"
+
+    if env['is_continuous_integration']:
+        env.Append(CPPDEFINES=["SC_CI_ENABLED"])
+
+    if env['includes_tests']:
+        env.Append(CPPDEFINES=["SC_TESTS_ENABLED"])
 
     # Enable C++23.
     # if env.get("is_msvc", False):
@@ -56,23 +60,21 @@ def pre_setup() -> object:
     #     env["CXXFLAGS"].remove("-std=c++17")
     #     env["CXXFLAGS"].insert(0, "-std=c++23")
 
-    if is_continuous_integration:
-        env.Append(CPPDEFINES=["SC_CI_ENABLED"])
-
-    if includes_tests:
-        env.Append(CPPDEFINES=["SC_TESTS_ENABLED"])
-    
     return env
 
 
-def post_setup(*env: object, cpp_paths: list[str], sources: list[str], lib_name: str, addon_dir_name: str) -> None:
-    if is_debug_build:
+def post_setup(env: object, cpp_paths: list[str], sources: list[str], lib_name: str, addon_dir_name: str, Default: object) -> None:
+    if env['is_debug_build']:
         try:
             doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=glob.glob("doc_classes/*.xml"))
             sources.append(doc_data)
         except AttributeError:
             print("Not including class reference as we're targeting a pre-4.3 baseline.")
     
+    # Filter-out generated files.
+    sources_copy = sources.copy()
+    sources = [f for f in sources_copy if not str(f).endswith(".gen.cpp")]
+
     env.Append(CPPPATH=cpp_paths)
 
     # .dev doesn't inhibit compatibility, so we don't need to key it.
@@ -92,16 +94,23 @@ def post_setup(*env: object, cpp_paths: list[str], sources: list[str], lib_name:
     Default(*default_args)
 
 
-def set_up(*env: object, cpp_paths: list[str], sources: list[str], path_prefix="snore_core/") -> None:
-    cpp_paths.extend([
-        path_prefix + "src/",
-    ])
+def set_up(env: object, cpp_paths: list[str], sources: list[str], addon_dir_name: str, is_setup_for_self = False) -> None:
+    if is_setup_for_self:
+        cpp_paths.extend([
+            "src/",
+        ])
+        sources.extend(
+            glob.glob("src/**/*.cpp", recursive=True)
+        )
+    else:
+        cpp_paths.extend([
+            addon_dir_name + "/src/",
+        ])
+        sources.extend(
+            glob.glob(addon_dir_name + "/src/snore_core/**/*.cpp", recursive=True)
+        )
 
-    sources.extend(
-        glob.glob(path_prefix + "src/snore_core/**/*.cpp", recursive=True)
-    )
-
-    if includes_tests:
+    if env['includes_tests']:
         cpp_paths.extend([
             "googletest/googletest/",
             "googletest/googletest/include/",
@@ -122,4 +131,4 @@ def set_up(*env: object, cpp_paths: list[str], sources: list[str], path_prefix="
             # "googletest/googlemock/src/gmock-all.cc",
             # "googletest/googlemock/src/gmock_main.cc",
         ]
-        sources.append([x for x in googletest_sources if str(x) not in googletest_exclusions])
+        sources.extend([x for x in googletest_sources if str(x) not in googletest_exclusions])
