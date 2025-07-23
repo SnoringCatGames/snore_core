@@ -2,20 +2,23 @@
 import os
 import sys
 
-from build_utils import post_setup, pre_setup, set_up
+from build_utils import (
+    default_addon_dir_name as snore_core_addon_dir_name,
+    default_lib_name as snore_core_lib_name,
+    post_setup as post_setup_snore_core,
+    pre_setup as pre_setup_snore_core,
+    set_up as set_up_snore_core,
+)
 
 
-snore_core_lib_name = "SnoreCore"
-snore_core_addon_dir_name = "snore_core"
-
-env = pre_setup(ARGUMENTS, Environment, Variables, Help, SConscript)
+env = pre_setup_snore_core(ARGUMENTS, Environment, Variables, Help, SConscript)
 
 cpp_paths = []
 sources = []
 libs = []
 lib_paths = []
 
-set_up(
+set_up_snore_core(
     env,
     cpp_paths,
     sources,
@@ -25,7 +28,7 @@ set_up(
     is_setup_for_self=True,
 )
 
-post_setup(
+post_setup_snore_core(
     env,
     cpp_paths,
     sources,
