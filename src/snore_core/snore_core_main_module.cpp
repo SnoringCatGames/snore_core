@@ -263,8 +263,15 @@ static bool get_are_tests_enabled()
 bool SnoreCore::run_tests()
 {
 #ifdef SC_TESTS_ENABLED
+	// Only list passing tests when running in CI.
+#ifdef SC_CI_ENABLED
+	char brief_flag = '0';
+#else
+	char brief_flag = '1';
+#endif // SC_CI_ENABLED
+
 	int argc = 2;
-	char *argv[] = {"dummy", "--gtest_brief=1"};
+	char *argv[] = {"dummy", "--gtest_brief=" + brief_flag};
 
 	testing::InitGoogleMock(&argc, argv);
 
