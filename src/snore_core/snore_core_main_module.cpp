@@ -38,17 +38,14 @@ using namespace godot;
 
 bool SnoreCore::are_types_registered = false;
 
-void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level)
-{
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
+void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
 
 	// This method is idempotent, so we check here whether it has been called
 	// already.
-	if (are_types_registered)
-	{
+	if (are_types_registered) {
 		return;
 	}
 	are_types_registered = true;
@@ -72,27 +69,22 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level)
 #endif // SC_TESTS_ENABLED
 
 	snore_core_module_utils_internal::
-		register_snore_core_main_module_if_not_present();
+			register_snore_core_main_module_if_not_present();
 }
 
 void SnoreCore::unregister_gdextension_types(
-	ModuleInitializationLevel p_level)
-{
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
+		ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
 
 	// Unregister all modules.
 	SnoreCore *main = SnoreCore::get();
-	if (main)
-	{
+	if (main) {
 		// Unregister all other modules before SnoreCore.
 		for (const std::pair<const StringName, SnoreCoreModule *> &pair :
-			 main->modules)
-		{
-			if (pair.first != main->get_name())
-			{
+			 main->modules) {
+			if (pair.first != main->get_name()) {
 				pair.second->reset();
 				unregister_engine_singleton(pair.first);
 			}
@@ -101,59 +93,52 @@ void SnoreCore::unregister_gdextension_types(
 	}
 }
 
-void SnoreCore::_bind_methods()
-{
+void SnoreCore::_bind_methods() {
 	ClassDB::bind_static_method(
-		name, D_METHOD("set_up", "p_settings"),
-		&SnoreCore::set_up_from_binding);
+			name, D_METHOD("set_up", "p_settings"),
+			&SnoreCore::set_up_from_binding);
 	ClassDB::bind_static_method(
-		name, D_METHOD("get_module", "p_name"), &SnoreCore::get_module);
+			name, D_METHOD("get_module", "p_name"), &SnoreCore::get_module);
 	ClassDB::bind_static_method(
-		name, D_METHOD("get_modules"), &SnoreCore::get_modules);
+			name, D_METHOD("get_modules"), &SnoreCore::get_modules);
 	ClassDB::bind_static_method(
-		name, D_METHOD("run_tests"), &SnoreCore::run_tests);
+			name, D_METHOD("run_tests"), &SnoreCore::run_tests);
 
 	ADD_SIGNAL(MethodInfo(
-		"module_set_up_finished",
-		PropertyInfo(Variant::STRING_NAME, "name")));
+			"module_set_up_finished",
+			PropertyInfo(Variant::STRING_NAME, "name")));
 	ADD_SIGNAL(MethodInfo("all_modules_set_up_finished"));
 
 	ClassDB::bind_method(
-		D_METHOD("get_settings"), &SnoreCore::get_snore_core_settings);
+			D_METHOD("get_settings"), &SnoreCore::get_snore_core_settings);
 }
 
-SnoreCore *SnoreCore::get()
-{
+SnoreCore *SnoreCore::get() {
 	SnoreCore *snore_core = get_maybe();
-	if (!ENSURE(snore_core, "SnoreCore is not initialized."))
-	{
+	if (!ENSURE(snore_core, "SnoreCore is not initialized.")) {
 		return nullptr;
 	}
 	return snore_core;
 }
 
-SnoreCore *SnoreCore::get_maybe()
-{
+SnoreCore *SnoreCore::get_maybe() {
 	Engine *engine = Engine::get_singleton();
 	return engine->has_singleton(SnoreCore::name)
-			   ? static_cast<SnoreCore *>(engine->get_singleton(name))
-			   : nullptr;
+			? static_cast<SnoreCore *>(engine->get_singleton(name))
+			: nullptr;
 }
 
 void SnoreCore::set_up_from_binding(
-	const TypedArray<SnoreCoreSettings> &p_all_settings)
-{
+		const TypedArray<SnoreCoreSettings> &p_all_settings) {
 	SnoreCore *main = SnoreCore::get();
-	if (!ENSURE(main, "SnoreCore is not initialized."))
-	{
+	if (!ENSURE(main, "SnoreCore is not initialized.")) {
 		return;
 	}
 	main->set_up_main(p_all_settings);
 }
 
 void SnoreCore::set_up_main(
-	const TypedArray<SnoreCoreSettings> &p_all_settings)
-{
+		const TypedArray<SnoreCoreSettings> &p_all_settings) {
 	// Check that we're only setting up once at the start of the app.
 	const Time *time = Time::get_singleton();
 	const uint64_t current_time_msec = time->get_ticks_msec();
@@ -164,54 +149,44 @@ void SnoreCore::set_up_main(
 #endif // SC_TESTS_ENABLED
 	last_set_up_time_msec = current_time_msec;
 
-	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules)
-	{
+	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules) {
 		SnoreCoreSettings *settings =
-			pair.second->get_settings_from_list(p_all_settings);
+				pair.second->get_settings_from_list(p_all_settings);
 		pair.second->set_up_base(pair.second->cast_to_settings(settings));
 	}
 }
 
 void SnoreCore::set_up() {}
 
-void SnoreCore::reset()
-{
+void SnoreCore::reset() {
 	// Clear all modules to ensure proper cleanup.
 	static const StringName snore_core_name = StringName(SnoreCore::name);
-	for (auto &pair : modules)
-	{
-		if (pair.second && pair.first != snore_core_name)
-		{
+	for (auto &pair : modules) {
+		if (pair.second && pair.first != snore_core_name) {
 			pair.second->reset_base();
 		}
 	}
 }
 
-void SnoreCore::on_module_set_up_finished(const StringName &p_name)
-{
+void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 	SnoreCoreModule *module = get_module(p_name);
-	if (!ENSURE_SIMPLE(module))
-	{
+	if (!ENSURE_SIMPLE(module)) {
 		return;
 	}
 
-	if (!ENSURE_SIMPLE(module->get_set_up_phase() == SET_UP_PHASE::FINISHED))
-	{
+	if (!ENSURE_SIMPLE(module->get_set_up_phase() == SET_UP_PHASE::FINISHED)) {
 		return;
 	}
 
-	if (p_name != StringName(SnoreCore::name))
-	{
+	if (p_name != StringName(SnoreCore::name)) {
 		// For non-SnoreCore modules, emit the signal now, before a possible
 		// early-out.
 		emit_signal("module_set_up_finished", p_name);
 	}
 
-	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules)
-	{
+	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules) {
 		if (!pair.second->get_is_set_up_finished() &&
-			pair.first != StringName(SnoreCore::name))
-		{
+			pair.first != StringName(SnoreCore::name)) {
 			return;
 		}
 	}
@@ -227,21 +202,17 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name)
 	emit_signal("all_modules_set_up_finished");
 }
 
-void SnoreCore::register_module(Object *p_module)
-{
+void SnoreCore::register_module(Object *p_module) {
 	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
-	if (!ENSURE(module, "Cannot register a null module."))
-	{
+	if (!ENSURE(module, "Cannot register a null module.")) {
 		return;
 	}
 	modules[module->get_name()] = module;
 }
 
-void SnoreCore::unregister_module(Object *p_module)
-{
+void SnoreCore::unregister_module(Object *p_module) {
 	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
-	if (!ENSURE(module, "Cannot unregister a null module."))
-	{
+	if (!ENSURE(module, "Cannot unregister a null module.")) {
 		return;
 	}
 
@@ -251,8 +222,7 @@ void SnoreCore::unregister_module(Object *p_module)
 	modules.erase(module->get_name());
 }
 
-static bool get_are_tests_enabled()
-{
+static bool get_are_tests_enabled() {
 #ifdef SC_TESTS_ENABLED
 	return true;
 #else
@@ -260,18 +230,17 @@ static bool get_are_tests_enabled()
 #endif
 }
 
-bool SnoreCore::run_tests()
-{
+bool SnoreCore::run_tests() {
 #ifdef SC_TESTS_ENABLED
 	// Only list passing tests when running in CI.
 #ifdef SC_CI_ENABLED
-	char brief_flag = '0';
+	char *brief_flag = "--gtest_brief=0";
 #else
-	char brief_flag = '1';
+	char *brief_flag = "--gtest_brief=1";
 #endif // SC_CI_ENABLED
 
 	int argc = 2;
-	char *argv[] = {"dummy", "--gtest_brief=" + brief_flag};
+	char *argv[] = { "dummy", brief_flag };
 
 	testing::InitGoogleMock(&argc, argv);
 
@@ -280,12 +249,9 @@ bool SnoreCore::run_tests()
 	// NOTE: The GitHub Actions CI checks for the text "SnoreCore test result"
 	//       in order to determine whether the tests passed or failed.
 	LOG_EMPTY_LINE();
-	if (did_all_tests_pass)
-	{
+	if (did_all_tests_pass) {
 		LOG_PRINT("SnoreCore test result: ALL TESTS PASSED!");
-	}
-	else
-	{
+	} else {
 		LOG_PRINT("SnoreCore test result: SOME TESTS FAILED!");
 	}
 	LOG_EMPTY_LINE();
