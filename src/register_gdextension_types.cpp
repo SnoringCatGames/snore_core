@@ -13,7 +13,6 @@ void initialize_snore_core_gdextension_types(
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
-
 	SnoreCore::register_gdextension_types(p_level);
 }
 
@@ -22,7 +21,6 @@ void uninitialize_snore_core_gdextension_types(
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
-
 	SnoreCore::unregister_gdextension_types(p_level);
 }
 
