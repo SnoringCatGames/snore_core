@@ -163,7 +163,7 @@ def post_setup(
     env.Append(LIBS=libs)
     env.Append(LIBPATH=lib_paths)
 
-    lib_filename = create_lib_filename(env, lib_name)
+    lib_filename = create_lib_filename(env, lib_name, True)
     library = env.SharedLibrary(
         "bin/{}/{}".format(env["platform"], lib_filename),
         source=sources,
@@ -192,7 +192,7 @@ def set_up(
         cpp_paths.extend([snore_core_addon_dir_name + "/src/"])
         # Use a DLL rather than statically including .cpp files.
         # sources.extend([])
-        lib_filename = create_lib_filename(env, default_lib_name)
+        lib_filename = create_lib_filename(env, default_lib_name, False)
         libs.extend([lib_filename])
         addon_platform_dir_name = create_addon_platform_dir_name(
             env, snore_core_addon_dir_name
@@ -238,12 +238,15 @@ def create_symlink() -> None:
         os.symlink(original_path, link_path, target_is_directory=True)
 
 
-def create_lib_filename(env: object, lib_name: str) -> str:
+def create_lib_filename(
+    env: object, lib_name: str, includes_shared_lib_suffix=True
+) -> str:
     # .dev doesn't inhibit compatibility, so we don't need to key it.
     # .universal just means "compatible with all relevant arches" so we don't need to key it.
     suffix = env["suffix"].replace(".dev", "").replace(".universal", "")
+    shared_lib_suffix = includes_shared_lib_suffix and env.subst("$SHLIBSUFFIX") or ""
     return "{}{}{}{}".format(
-        env.subst("$SHLIBPREFIX"), lib_name, suffix, env.subst("$SHLIBSUFFIX")
+        env.subst("$SHLIBPREFIX"), lib_name, suffix, shared_lib_suffix
     )
 
 

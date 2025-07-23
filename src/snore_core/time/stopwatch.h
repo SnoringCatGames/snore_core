@@ -6,7 +6,7 @@
 
 namespace godot {
 
-class Stopwatch : public RefCounted {
+class GDE_EXPORT Stopwatch : public RefCounted {
 	GDCLASS(Stopwatch, RefCounted)
 
 protected:

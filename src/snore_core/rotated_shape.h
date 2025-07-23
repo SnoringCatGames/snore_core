@@ -10,7 +10,7 @@
 
 namespace godot {
 
-class RotatedShape : public RefCounted {
+class GDE_EXPORT RotatedShape : public RefCounted {
 	GDCLASS(RotatedShape, RefCounted)
 
 public:
