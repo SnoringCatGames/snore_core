@@ -6,6 +6,7 @@
 #include "snore_core/snore_core_module.h"
 
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 
 namespace godot {
 
