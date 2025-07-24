@@ -263,6 +263,7 @@ bool SnoreCore::run_tests() {
 		LOG_PRINT("SnoreCore test result: ALL TESTS PASSED!");
 	} else {
 		LOG_PRINT("SnoreCore test result: SOME TESTS FAILED!");
+		ENSURE_SIMPLE(false);
 	}
 	LOG_EMPTY_LINE();
 

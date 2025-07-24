@@ -215,3 +215,35 @@ def set_up(
         sources.extend(
             [x for x in googletest_sources if str(x) not in googletest_exclusions]
         )
+
+
+def create_submodule_addons_symlink(addon_dir_name: str) -> None:
+    """
+    Make the submodule's GDScript addon files accessible from the root module's demo.
+    """
+
+    parent_original_path = os.path.abspath(
+        "{}/demo/addons/{}".format(addon_dir_name, addon_dir_name)
+    )
+    parent_link_path = os.path.abspath("demo/addons/{}".format(addon_dir_name))
+
+    # Ensure the addons directory exists.
+    if not os.path.exists(parent_link_path):
+        os.makedirs(parent_link_path)
+
+    # - Create separate symlinks for each entry in the addons directory.
+    # - We don't link the parent directory itself, since we need to exclude the bin/ subdirectory.
+    with os.scandir(parent_original_path) as entries:
+        for entry in entries:
+            # Skip C++ logic from GDExtension dependencies.
+            if entry.name == "bin":
+                continue
+
+            entry_original_path = "{}/{}".format(parent_original_path, entry.name)
+            entry_link_path = "{}/{}".format(parent_link_path, entry.name)
+            if not os.path.exists(entry_link_path):
+                os.symlink(
+                    entry_original_path,
+                    entry_link_path,
+                    target_is_directory=entry.is_dir(),
+                )
