@@ -165,15 +165,19 @@ def post_setup(
     lib_filename = "{}{}{}{}".format(
         env.subst("$SHLIBPREFIX"), lib_name, suffix, env.subst("$SHLIBSUFFIX")
     )
-    lib_path = "bin/{}/{}".format(env["platform"], lib_filename)
+
+    # FIXME: Remove?
+    # lib_path = "bin/{}/{}".format(env["platform"], lib_filename)
+    # library = env.SharedLibrary(lib_path, source=sources)
+    # addon_platform_path = "demo/addons/{}/bin/{}/".format(
+    #     addon_dir_name, env["platform"]
+    # )
+    # copy = env.Install(addon_platform_path, library)
+
+    lib_path = "addon/bin/{}/{}".format(env["platform"], lib_filename)
     library = env.SharedLibrary(lib_path, source=sources)
 
-    addon_platform_path = "demo/addons/{}/bin/{}/".format(
-        addon_dir_name, env["platform"]
-    )
-    copy = env.Install(addon_platform_path, library)
-
-    default_args = [library, copy]
+    default_args = [library]
     Default(*default_args)
 
 
@@ -217,15 +221,21 @@ def set_up(
         )
 
 
-def create_submodule_addons_symlink(addon_dir_name: str) -> None:
+def create_submodule_addons_symlinks(
+    addon_dir_name: str,
+    is_setup_for_self=False,
+) -> None:
     """
     Make the submodule's GDScript addon files accessible from the root module's demo.
     """
 
-    parent_original_path = os.path.abspath(
-        "{}/demo/addons/{}".format(addon_dir_name, addon_dir_name)
+    parent_original_relative_path = (
+        is_setup_for_self and "addon" or "{}/addon".format(addon_dir_name)
     )
-    parent_link_path = os.path.abspath("demo/addons/{}".format(addon_dir_name))
+    parent_link_relative_path = "demo/addons/{}".format(addon_dir_name)
+
+    parent_original_path = os.path.abspath(parent_original_relative_path)
+    parent_link_path = os.path.abspath(parent_link_relative_path)
 
     # Ensure the addons directory exists.
     if not os.path.exists(parent_link_path):
@@ -236,7 +246,7 @@ def create_submodule_addons_symlink(addon_dir_name: str) -> None:
     with os.scandir(parent_original_path) as entries:
         for entry in entries:
             # Skip C++ logic from GDExtension dependencies.
-            if entry.name == "bin":
+            if not is_setup_for_self and entry.name == "bin":
                 continue
 
             entry_original_path = "{}/{}".format(parent_original_path, entry.name)

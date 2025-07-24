@@ -3,6 +3,7 @@ import os
 import sys
 
 from build_utils import (
+    create_submodule_addons_symlinks,
     default_addon_dir_name as snore_core_addon_dir_name,
     default_lib_name as snore_core_lib_name,
     post_setup as post_setup_snore_core,
@@ -32,3 +33,5 @@ post_setup_snore_core(
     snore_core_addon_dir_name,
     Default,
 )
+
+create_submodule_addons_symlinks(snore_core_addon_dir_name, True)
