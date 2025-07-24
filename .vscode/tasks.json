@@ -8,7 +8,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         // "buildGodot",
-        "buildSnoreCore",
+        "build",
         "buildDocs"
       ],
     },
@@ -17,7 +17,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "buildGodotRelease",
-        "buildSnoreCoreRelease",
+        "buildRelease",
         "buildDocs"
       ],
     },
@@ -26,17 +26,17 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "buildGodot",
-        "buildSnoreCore",
+        "build",
         "buildDocs"
       ],
     },
     {
-      "label": "buildSnoreCore",
+      "label": "build",
       "group": "build",
       "type": "shell",
       "command": "scons",
       "args": [
-        // Include and run SnoreCore tests
+        // Include and run SnoreCore tests.
         "tests=yes",
         // Disable SnoreCore breakpoints when running in CI.
         // "ci=yes",
@@ -61,12 +61,12 @@
       }
     },
     {
-      "label": "buildSnoreCoreRelease",
+      "label": "buildRelease",
       "group": "build",
       "type": "shell",
       "command": "scons",
       "args": [
-        // Include and run SnoreCore tests
+        // Include and run SnoreCore tests.
         // "tests=yes",
         // Disable SnoreCore breakpoints when running in CI.
         // "ci=yes",
@@ -113,7 +113,7 @@
       "type": "shell",
       "command": "scons",
       "args": [
-        // Include and run SnoreCore tests
+        // Include and run SnoreCore tests.
         // "tests=yes",
         // Disable SnoreCore breakpoints when running in CI.
         // "ci=yes",
