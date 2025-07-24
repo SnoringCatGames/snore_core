@@ -203,23 +203,33 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 }
 
 void SnoreCore::register_module(Object *p_module) {
-	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
+	SnoreCoreModule *module = Object::cast_to<SnoreCoreModule>(p_module);
 	if (!ENSURE(module, "Cannot register a null module.")) {
 		return;
 	}
-	modules[module->get_name()] = module;
+
+	const StringName module_name = module->get_name();
+	modules[module_name] = module;
 }
 
 void SnoreCore::unregister_module(Object *p_module) {
-	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
+	SnoreCoreModule *module = Object::cast_to<SnoreCoreModule>(p_module);
 	if (!ENSURE(module, "Cannot unregister a null module.")) {
+		return;
+	}
+
+	const StringName module_name = module->get_name();
+
+	// Check if the module exists in our map before proceeding.
+	if (!ENSURE(modules.find(module_name) != modules.end(),
+				"Module not found in registry: " + module_name)) {
 		return;
 	}
 
 	// Reset the module before removing it to ensure proper cleanup.
 	module->reset_base();
 
-	modules.erase(module->get_name());
+	modules.erase(module_name);
 }
 
 static bool get_are_tests_enabled() {
