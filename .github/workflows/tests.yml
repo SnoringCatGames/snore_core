@@ -23,8 +23,8 @@ jobs:
           #   lfs: true
           token: ${{ secrets.PRIVATECHECKOUTACCESSTOKEN}}
 
-      # Setup dependencies (like installing scons).
-      - name: Setup godot-cpp
+      # Set up dependencies (like installing scons).
+      - name: Set up godot-cpp
         uses: ./godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: windows
