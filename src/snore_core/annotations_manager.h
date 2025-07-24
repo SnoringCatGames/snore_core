@@ -5,7 +5,7 @@
 
 namespace godot {
 
-class GDE_EXPORT AnnotationsManager : public RefCounted {
+class AnnotationsManager : public RefCounted {
 	GDCLASS(AnnotationsManager, RefCounted)
 
 public:

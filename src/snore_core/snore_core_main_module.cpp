@@ -203,7 +203,7 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 }
 
 void SnoreCore::register_module(Object *p_module) {
-	SnoreCoreModule *module = Object::cast_to<SnoreCoreModule>(p_module);
+	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
 	if (!ENSURE(module, "Cannot register a null module.")) {
 		return;
 	}
@@ -213,7 +213,7 @@ void SnoreCore::register_module(Object *p_module) {
 }
 
 void SnoreCore::unregister_module(Object *p_module) {
-	SnoreCoreModule *module = Object::cast_to<SnoreCoreModule>(p_module);
+	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
 	if (!ENSURE(module, "Cannot unregister a null module.")) {
 		return;
 	}

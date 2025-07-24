@@ -15,15 +15,11 @@ env = pre_setup_snore_core(ARGUMENTS, Environment, Variables, Help, SConscript)
 
 cpp_paths = []
 sources = []
-libs = []
-lib_paths = []
 
 set_up_snore_core(
     env,
     cpp_paths,
     sources,
-    libs,
-    lib_paths,
     snore_core_addon_dir_name,
     is_setup_for_self=True,
 )
@@ -32,8 +28,6 @@ post_setup_snore_core(
     env,
     cpp_paths,
     sources,
-    libs,
-    lib_paths,
     snore_core_lib_name,
     snore_core_addon_dir_name,
     Default,

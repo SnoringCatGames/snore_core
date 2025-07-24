@@ -19,8 +19,7 @@ void GDE_EXPORT
 notify_main_module_of_module_set_up_finished(const StringName &p_name);
 } // namespace SnoreCoreModuleInternal
 
-template <typename SettingsType>
-class GDE_EXPORT SnoreCoreModule : public Object {
+template <typename SettingsType> class SnoreCoreModule : public Object {
 	GDCLASS(SnoreCoreModule, Object)
 
 	static_assert(

@@ -14,7 +14,7 @@ namespace godot {
 	"[color=purple]=[/color][color=blue]=[/color][color=green]=[/color]"       \
 	"[color=yellow]=[/color][color=orange]=[/color][color=red]=[/color]"
 
-String GDE_EXPORT get_stack_trace();
+String get_stack_trace();
 
 #define PRINT_STACK_TRACE()                                                    \
 	godot::UtilityFunctions::print_rich(                                       \

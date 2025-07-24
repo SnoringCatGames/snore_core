@@ -16,7 +16,7 @@ namespace godot {
 class RotatedShape;
 class Shape2D;
 
-class GDE_EXPORT Geometry : public Object {
+class Geometry : public Object {
 	GDCLASS(Geometry, Object)
 
 public:

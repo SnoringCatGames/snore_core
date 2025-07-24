@@ -7,10 +7,10 @@ namespace godot {
 
 namespace snore_core_module_utils_internal {
 
-void GDE_EXPORT register_snore_core_main_module_if_not_present();
-void GDE_EXPORT register_snore_core_module_to_snore_core_main_module(
+void register_snore_core_main_module_if_not_present();
+void register_snore_core_module_to_snore_core_main_module(
 		const StringName &p_module_name);
-void GDE_EXPORT unregister_snore_core_module_from_snore_core_main_module(
+void unregister_snore_core_module_from_snore_core_main_module(
 		const StringName &p_module_name);
 
 } // namespace snore_core_module_utils_internal
@@ -21,7 +21,7 @@ void GDE_EXPORT unregister_snore_core_module_from_snore_core_main_module(
 				#m_class, memnew(m_class));                                    \
 	} while (0)
 
-void GDE_EXPORT unregister_engine_singleton(const StringName &p_class_name);
+void unregister_engine_singleton(const StringName &p_class_name);
 
 #define REGISTER_SNORE_CORE_MODULE(m_class)                                    \
 	do {                                                                       \

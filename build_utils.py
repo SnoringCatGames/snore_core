@@ -138,8 +138,6 @@ def post_setup(
     env: object,
     cpp_paths: list[str],
     sources: list[str],
-    libs: list[str],
-    lib_paths: list[str],
     lib_name: str,
     addon_dir_name: str,
     Default: object,
@@ -160,17 +158,20 @@ def post_setup(
     sources = [f for f in sources_copy if not str(f).endswith(".gen.cpp")]
 
     env.Append(CPPPATH=cpp_paths)
-    env.Append(LIBS=libs)
-    env.Append(LIBPATH=lib_paths)
 
-    lib_filename = create_lib_filename(env, lib_name, True)
-    library = env.SharedLibrary(
-        "bin/{}/{}".format(env["platform"], lib_filename),
-        source=sources,
+    # .dev doesn't inhibit compatibility, so we don't need to key it.
+    # .universal just means "compatible with all relevant arches" so we don't need to key it.
+    suffix = env["suffix"].replace(".dev", "").replace(".universal", "")
+    lib_filename = "{}{}{}{}".format(
+        env.subst("$SHLIBPREFIX"), lib_name, suffix, env.subst("$SHLIBSUFFIX")
     )
+    lib_path = "bin/{}/{}".format(env["platform"], lib_filename)
+    library = env.SharedLibrary(lib_path, source=sources)
 
-    addon_platform_dir_name = create_addon_platform_dir_name(env, addon_dir_name)
-    copy = env.Install(addon_platform_dir_name, library)
+    addon_platform_path = "demo/addons/{}/bin/{}/".format(
+        addon_dir_name, env["platform"]
+    )
+    copy = env.Install(addon_platform_path, library)
 
     default_args = [library, copy]
     Default(*default_args)
@@ -180,28 +181,12 @@ def set_up(
     env: object,
     cpp_paths: list[str],
     sources: list[str],
-    libs: list[str],
-    lib_paths: list[str],
     snore_core_addon_dir_name: str,
     is_setup_for_self=False,
 ) -> None:
-    if is_setup_for_self:
-        cpp_paths.extend(["src/"])
-        sources.extend(glob.glob("src/**/*.cpp", recursive=True))
-    else:
-        cpp_paths.extend([snore_core_addon_dir_name + "/src/"])
-        # Use a DLL rather than statically including .cpp files.
-        # sources.extend([])
-        lib_filename = create_lib_filename(env, default_lib_name, False)
-        libs.extend([lib_filename])
-        addon_platform_dir_name = create_addon_platform_dir_name(
-            env, snore_core_addon_dir_name
-        )
-        lib_paths.extend([addon_platform_dir_name])
-        # FIXME: ------------------------------
-        print_warning(">>>>>>>>>>>>>>>>>>>>>")
-        print_warning(">> " + addon_platform_dir_name)
-        print_warning(">> " + lib_filename)
+    src_path = is_setup_for_self and "src/" or snore_core_addon_dir_name + "/src/"
+    cpp_paths.extend([src_path])
+    sources.extend(glob.glob(src_path + "**/*.cpp", recursive=True))
 
     if env["includes_tests"]:
         cpp_paths.extend(
@@ -230,29 +215,3 @@ def set_up(
         sources.extend(
             [x for x in googletest_sources if str(x) not in googletest_exclusions]
         )
-
-
-def create_symlink(includes_shared_library=False) -> None:
-    """
-    Make the SnoreCore GDScript addon files (and maybe the GDExtension shared library) accessible from the root module's demo.
-    """
-    original_path = os.path.abspath("snore_core/demo/addons/snore_core")
-    link_path = os.path.abspath("demo/addons/snore_core")
-    if not os.path.lexists(link_path):
-        os.symlink(original_path, link_path, target_is_directory=True)
-
-
-def create_lib_filename(
-    env: object, lib_name: str, includes_shared_lib_suffix=True
-) -> str:
-    # .dev doesn't inhibit compatibility, so we don't need to key it.
-    # .universal just means "compatible with all relevant arches" so we don't need to key it.
-    suffix = env["suffix"].replace(".dev", "").replace(".universal", "")
-    shared_lib_suffix = includes_shared_lib_suffix and env.subst("$SHLIBSUFFIX") or ""
-    return "{}{}{}{}".format(
-        env.subst("$SHLIBPREFIX"), lib_name, suffix, shared_lib_suffix
-    )
-
-
-def create_addon_platform_dir_name(env: object, addon_dir_name: str) -> str:
-    return "demo/addons/{}/bin/{}/".format(addon_dir_name, env["platform"])

@@ -11,11 +11,11 @@ namespace godot {
 
 extern String GDE_EXPORT
 join_strings(const char **p_strings, int p_size, const char *p_delimiter);
-extern String GDE_EXPORT join_strings(
+extern String join_strings(
 		const char *const p_strings[],
 		int p_size,
 		const char *p_delimiter);
-extern String GDE_EXPORT join_strings(
+extern String join_strings(
 		const std::vector<std::string> &p_strings,
 		const char *p_delimiter);
 extern String GDE_EXPORT

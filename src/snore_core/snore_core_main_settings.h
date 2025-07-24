@@ -8,7 +8,7 @@
 
 namespace godot {
 
-class GDE_EXPORT SnoreCoreMainSettings : public SnoreCoreSettings {
+class SnoreCoreMainSettings : public SnoreCoreSettings {
 	GDCLASS(SnoreCoreMainSettings, SnoreCoreSettings)
 
 public:

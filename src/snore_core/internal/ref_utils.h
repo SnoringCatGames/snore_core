@@ -9,7 +9,7 @@ namespace godot {
 	((m_ref).is_valid() && IS_VALID_OBJECT((m_ref).ptr()))
 #define IS_VALID_OBJECT(m_object_ptr) ((m_object_ptr) != nullptr)
 
-template <typename T> Ref<T> GDE_EXPORT instantiate_ref() {
+template <typename T> Ref<T> instantiate_ref() {
 	Ref<T> ref;
 	ref.instantiate();
 	return ref;
@@ -23,8 +23,7 @@ template <typename T> Ref<T> GDE_EXPORT instantiate_ref() {
 //
 // This function will both instantiate a Ref containing the object and call
 // set_up with the given arguments.
-template <typename T, typename... Args>
-Ref<T> GDE_EXPORT set_up_ref(Args... args) {
+template <typename T, typename... Args> Ref<T> set_up_ref(Args... args) {
 	Ref<T> ref;
 	ref.instantiate();
 	ref->set_up(args...);

@@ -8,7 +8,7 @@
 
 namespace godot {
 
-class GDE_EXPORT CanvasLayerConfig : public Resource {
+class CanvasLayerConfig : public Resource {
 	GDCLASS(CanvasLayerConfig, Resource)
 
 public:
