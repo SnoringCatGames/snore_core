@@ -113,14 +113,18 @@ def pre_setup(
     env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 
     env["is_debug_build"] = ARGUMENTS.get("target", "") in ["editor", "template_debug"]
-    env["is_continuous_integration"] = ARGUMENTS.get("ci", "") == "yes"
-    env["includes_tests"] = ARGUMENTS.get("tests", "") == "yes"
+    env["is_continuous_integration"] = ARGUMENTS.get("sc_ci", "") == "yes"
+    env["includes_tests"] = ARGUMENTS.get("sc_tests", "") == "yes"
+    env["includes_dev"] = ARGUMENTS.get("sc_dev", "") == "yes"
 
     if env["is_continuous_integration"]:
         env.Append(CPPDEFINES=["SC_CI_ENABLED"])
 
     if env["includes_tests"]:
         env.Append(CPPDEFINES=["SC_TESTS_ENABLED"])
+
+    if env["includes_dev"]:
+        env.Append(CPPDEFINES=["SC_DEV_ENABLED"])
 
     # Enable C++23.
     # if env.get("is_msvc", False):

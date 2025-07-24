@@ -30,7 +30,7 @@ String get_stack_trace();
 #define DEBUG_BREAK()
 #define DEBUG_BREAK_OR_FALSE() false
 #else
-#ifdef DEBUG_ENABLED
+#ifdef SC_DEV_ENABLED
 #ifdef _MSC_VER
 #define DEBUG_BREAK() __debugbreak()
 #else
@@ -41,7 +41,7 @@ String get_stack_trace();
 // Disable breakpoints when running in release mode.
 #define DEBUG_BREAK()
 #define DEBUG_BREAK_OR_FALSE() false
-#endif // DEBUG_ENABLED
+#endif // SC_DEV_ENABLED
 #endif // SC_CI_ENABLED
 
 // Ensures `m_cond` is true.
@@ -82,13 +82,13 @@ String get_stack_trace();
 #define CHECK(m_cond, m_msg) CRASH_COND_MSG(!m_cond, m_msg)
 #else
 #define CHECK(m_cond, m_msg)
-#endif
+#endif // DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define CHECK_SIMPLE(m_cond) CRASH_COND(!m_cond)
 #else
 #define CHECK_SIMPLE(m_cond)
-#endif
+#endif // DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
 #define LOG_DEBUG(m_msg)                                                       \
@@ -96,7 +96,7 @@ String get_stack_trace();
 			godot::vformat("[color=white]S: %s[/color]", m_msg))
 #else
 #define LOG_DEBUG(m_msg)
-#endif
+#endif // DEBUG_ENABLED
 
 #define LOG_PRINT(m_msg)                                                       \
 	godot::UtilityFunctions::print_rich(                                       \

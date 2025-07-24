@@ -80,7 +80,7 @@ String godot::get_stack_trace() {
 
 	return result;
 }
-#endif
+#endif // _MSC_VER
 #else
 String godot::get_stack_trace() { return String(); }
-#endif
+#endif // DEBUG_ENABLED
