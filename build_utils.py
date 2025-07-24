@@ -198,6 +198,10 @@ def set_up(
             env, snore_core_addon_dir_name
         )
         lib_paths.extend([addon_platform_dir_name])
+        # FIXME: ------------------------------
+        print_warning(">>>>>>>>>>>>>>>>>>>>>")
+        print_warning(">> " + addon_platform_dir_name)
+        print_warning(">> " + lib_filename)
 
     if env["includes_tests"]:
         cpp_paths.extend(
@@ -232,17 +236,8 @@ def create_symlink(includes_shared_library=False) -> None:
     """
     Make the SnoreCore GDScript addon files (and maybe the GDExtension shared library) accessible from the root module's demo.
     """
-    original_path = (
-        includes_shared_library
-        and os.path.abspath("snore_core/demo/addons/snore_core")
-        or os.path.abspath("snore_core/demo/addons/snore_core/src")
-    )
-    link_path = (
-        includes_shared_library
-        and os.path.abspath("demo/addons/snore_core")
-        or os.path.abspath("demo/addons/snore_core/src")
-    )
-    # FIXME: LEFT OFF HERE: Create demo/addons/ and demo/addons/snore_core/ if it doesn't exist.
+    original_path = os.path.abspath("snore_core/demo/addons/snore_core")
+    link_path = os.path.abspath("demo/addons/snore_core")
     if not os.path.lexists(link_path):
         os.symlink(original_path, link_path, target_is_directory=True)
 
