@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 import sys
 from enum import Enum
 import zipfile
@@ -96,22 +97,26 @@ def pre_setup(
 
     env = localEnv.Clone()
 
-    if not os.path.isdir("googletest"):
-        print_error("googletest must be a submodule of the root repository.")
+    if not os.path.isdir("submodules/googletest"):
+        print_error("submodules/googletest must be a submodule of the root repository.")
         sys.exit(1)
-    if not os.path.isdir("godot-cpp"):
-        print_error("godot-cpp must be a submodule of the root repository.")
+    if not os.path.isdir("submodules/godot-cpp"):
+        print_error("submodules/godot-cpp must be a submodule of the root repository.")
         sys.exit(1)
-    if not (os.path.isdir("godot-cpp") and os.listdir("godot-cpp")):
+    if not (
+        os.path.isdir("submodules/godot-cpp") and os.listdir("submodules/godot-cpp")
+    ):
         print_error(
-            """godot-cpp is not available within this folder, as Git submodules haven't been initialized.
+            """submodules/godot-cpp is not available within this folder, as Git submodules haven't been initialized.
     Run the following command to download godot-cpp:
 
         git submodule update --init --recursive"""
         )
         sys.exit(1)
 
-    env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
+    env = SConscript(
+        "submodules/godot-cpp/SConstruct", {"env": env, "customs": customs}
+    )
 
     env["is_debug_build"] = ARGUMENTS.get("target", "") in ["editor", "template_debug"]
     env["is_continuous_integration"] = ARGUMENTS.get("sc_ci", "") == "yes"
@@ -185,6 +190,7 @@ def post_setup(
     # )
     # copy = env.Install(addon_platform_path, library)
 
+    # FIXME: LEFT OFF HERE: Will this fail for squirrel_away?
     lib_path = "addon/bin/{}/{}".format(env["platform"], lib_filename)
     library = env.SharedLibrary(lib_path, source=sources)
 
@@ -200,7 +206,9 @@ def set_up(
     is_setup_for_self=False,
 ) -> None:
     src_path = (
-        is_setup_for_self and "src/" or "{}/src/".format(snore_core_addon_dir_name)
+        is_setup_for_self
+        and "src/"
+        or "submodules/{}/src/".format(snore_core_addon_dir_name)
     )
     cpp_paths.extend([src_path])
     sources.extend(glob.glob("{}**/*.cpp".format(src_path), recursive=True))
@@ -208,26 +216,26 @@ def set_up(
     if env["includes_tests"]:
         cpp_paths.extend(
             [
-                "googletest/googletest/",
-                "googletest/googletest/include/",
-                "googletest/googlemock/",
-                "googletest/googlemock/include/",
+                "submodules/googletest/googletest/",
+                "submodules/googletest/googletest/include/",
+                "submodules/googletest/googlemock/",
+                "submodules/googletest/googlemock/include/",
             ]
         )
 
         googletest_sources = (
             [
-                "googletest/googletest/src/gtest-all.cc",
-                "googletest/googlemock/src/gmock-all.cc",
+                "submodules/googletest/googletest/src/gtest-all.cc",
+                "submodules/googletest/googlemock/src/gmock-all.cc",
             ]
-            # glob.glob("googletest/googletest/src/*.cc") +
-            # glob.glob("googletest/googlemock/src/*.cc")
+            # glob.glob("submodules/googletest/googletest/src/*.cc") +
+            # glob.glob("submodules/googletest/googlemock/src/*.cc")
         )
         googletest_exclusions = [
-            # "googletest/googletest/src/gtest-all.cc",
-            # "googletest/googletest/src/gtest_main.cc",
-            # "googletest/googlemock/src/gmock-all.cc",
-            # "googletest/googlemock/src/gmock_main.cc",
+            # "submodules/googletest/googletest/src/gtest-all.cc",
+            # "submodules/googletest/googletest/src/gtest_main.cc",
+            # "submodules/googletest/googlemock/src/gmock-all.cc",
+            # "submodules/googletest/googlemock/src/gmock_main.cc",
         ]
         sources.extend(
             [x for x in googletest_sources if str(x) not in googletest_exclusions]
@@ -243,16 +251,18 @@ def create_submodule_addons_symlinks(
     """
 
     parent_original_relative_path = (
-        is_setup_for_self and "addon" or "{}/addon".format(addon_dir_name)
+        is_setup_for_self and "addon" or "submodules/{}/addon".format(addon_dir_name)
     )
+    # FIXME: LEFT OFF HERE: Will this fail for squirrel_away?
     parent_link_relative_path = "demo/addons/{}".format(addon_dir_name)
 
     parent_original_path = os.path.abspath(parent_original_relative_path)
     parent_link_path = os.path.abspath(parent_link_relative_path)
 
-    # Ensure the addons directory exists.
-    if not os.path.exists(parent_link_path):
-        os.makedirs(parent_link_path)
+    # Clear the addons directory.
+    if os.path.exists(parent_link_path):
+        shutil.rmtree(parent_link_path)
+    os.makedirs(parent_link_path)
 
     # - Create separate symlinks for each entry in the addons directory.
     # - We don't link the parent directory itself, since we need to exclude the bin/ subdirectory.
@@ -260,6 +270,9 @@ def create_submodule_addons_symlinks(
         for entry in entries:
             # Skip C++ logic from GDExtension dependencies.
             if not is_setup_for_self and entry.name == "bin":
+                continue
+            # Skip top-level .gdignore files.
+            if entry.name == ".gdignore":
                 continue
 
             entry_original_path = "{}/{}".format(parent_original_path, entry.name)
@@ -291,7 +304,9 @@ def add_submodule_to_zip(
     addon_dir_name: str,
     is_setup_for_self=False,
 ) -> None:
-    source_path_prefix = "" if is_setup_for_self else "{}/".format(addon_dir_name)
+    source_path_prefix = (
+        "" if is_setup_for_self else "submodules/{}/".format(addon_dir_name)
+    )
     destination_path_prefix = "addons/{}/".format(addon_dir_name)
 
     addon_path = "{}addon".format(source_path_prefix)
@@ -304,6 +319,9 @@ def add_submodule_to_zip(
         for entry in entries:
             # Skip C++ logic from GDExtension dependencies.
             if not is_setup_for_self and entry.name == "bin":
+                continue
+            # Skip top-level .gdignore files.
+            if entry.name == ".gdignore":
                 continue
 
             if entry.is_dir():
