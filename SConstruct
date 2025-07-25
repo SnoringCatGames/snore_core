@@ -40,6 +40,7 @@ post_setup_snore_core(
     sources,
     snore_core_lib_name,
     snore_core_addon_dir_name,
+    True,
     Default,
 )
 

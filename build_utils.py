@@ -142,11 +142,6 @@ def pre_setup(
     #     env["CXXFLAGS"].remove("-std=c++17")
     #     env["CXXFLAGS"].insert(0, "-std=c++23")
 
-    # Ensure the build directory exists.
-    build_path = os.path.abspath("build")
-    if not os.path.exists(build_path):
-        os.makedirs(build_path)
-
     return env
 
 
@@ -156,6 +151,7 @@ def post_setup(
     sources: list[str],
     lib_name: str,
     addon_dir_name: str,
+    is_setup_for_self: bool,
     Default: object,
 ) -> None:
     if env["is_debug_build"]:
@@ -182,7 +178,17 @@ def post_setup(
         env.subst("$SHLIBPREFIX"), lib_name, suffix, env.subst("$SHLIBSUFFIX")
     )
 
-    lib_path = "addon/bin/{}/{}".format(env["platform"], lib_filename)
+    lib_path_prefix = (
+        "addon/bin/"
+        if is_setup_for_self
+        else "demo/addons/{}/bin/".format(addon_dir_name)
+    )
+
+    # Clear the bin directory.
+    if os.path.exists(lib_path_prefix):
+        shutil.rmtree(lib_path_prefix)
+
+    lib_path = "{}{}/{}".format(lib_path_prefix, env["platform"], lib_filename)
     library = env.SharedLibrary(lib_path, source=sources)
 
     default_args = [library]
@@ -242,7 +248,7 @@ def create_submodule_addons_symlinks(
     """
 
     parent_original_relative_path = (
-        is_setup_for_self and "addon" or "submodules/{}/addon".format(addon_dir_name)
+        "addon" if is_setup_for_self else "submodules/{}/addon".format(addon_dir_name)
     )
     parent_link_relative_path = "demo/addons/{}".format(addon_dir_name)
 
