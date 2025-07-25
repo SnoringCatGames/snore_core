@@ -2,6 +2,7 @@ import glob
 import os
 import sys
 from enum import Enum
+import zipfile
 
 
 default_lib_name = "SnoreCore"
@@ -116,6 +117,7 @@ def pre_setup(
     env["is_continuous_integration"] = ARGUMENTS.get("sc_ci", "") == "yes"
     env["includes_tests"] = ARGUMENTS.get("sc_tests", "") == "yes"
     env["includes_dev"] = ARGUMENTS.get("sc_dev", "") == "yes"
+    env["is_zipping"] = ARGUMENTS.get("sc_zip", "") == "yes"
 
     if env["is_continuous_integration"]:
         env.Append(CPPDEFINES=["SC_CI_ENABLED"])
@@ -134,6 +136,11 @@ def pre_setup(
     # else:
     #     env["CXXFLAGS"].remove("-std=c++17")
     #     env["CXXFLAGS"].insert(0, "-std=c++23")
+
+    # Ensure the build directory exists.
+    build_path = os.path.abspath("build")
+    if not os.path.exists(build_path):
+        os.makedirs(build_path)
 
     return env
 
@@ -192,9 +199,11 @@ def set_up(
     snore_core_addon_dir_name: str,
     is_setup_for_self=False,
 ) -> None:
-    src_path = is_setup_for_self and "src/" or snore_core_addon_dir_name + "/src/"
+    src_path = (
+        is_setup_for_self and "src/" or "{}/src/".format(snore_core_addon_dir_name)
+    )
     cpp_paths.extend([src_path])
-    sources.extend(glob.glob(src_path + "**/*.cpp", recursive=True))
+    sources.extend(glob.glob("{}**/*.cpp".format(src_path), recursive=True))
 
     if env["includes_tests"]:
         cpp_paths.extend(
@@ -261,3 +270,49 @@ def create_submodule_addons_symlinks(
                     entry_link_path,
                     target_is_directory=entry.is_dir(),
                 )
+
+
+def zip_directory(
+    zf: zipfile.ZipFile,
+    directory_path: str,
+    arcname_prefix: str,
+) -> None:
+    for root, _, files in os.walk(directory_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            # Preserve folder structure in the ZIP file.
+            relative_path = os.path.relpath(file_path, os.path.dirname(directory_path))
+            relative_path = os.path.join(arcname_prefix, relative_path)
+            zf.write(file_path, relative_path)
+
+
+def add_submodule_to_zip(
+    zf: zipfile.ZipFile,
+    addon_dir_name: str,
+    is_setup_for_self=False,
+) -> None:
+    source_path_prefix = "" if is_setup_for_self else "{}/".format(addon_dir_name)
+    destination_path_prefix = "addons/{}/".format(addon_dir_name)
+
+    addon_path = "{}addon".format(source_path_prefix)
+    license_path = "{}LICENSE".format(source_path_prefix)
+    readme_path = "{}README.md".format(source_path_prefix)
+
+    # - Add each entry in the addon directory.
+    # - We don't add the addon directory itself, since we need to exclude the bin/ subdirectory.
+    with os.scandir(addon_path) as entries:
+        for entry in entries:
+            # Skip C++ logic from GDExtension dependencies.
+            if not is_setup_for_self and entry.name == "bin":
+                continue
+
+            if entry.is_dir():
+                # If it's a directory, zip its contents recursively.
+                zip_directory(zf, entry.path, destination_path_prefix)
+            else:
+                zf.write(
+                    entry, arcname="{}{}".format(destination_path_prefix, entry.name)
+                )
+
+    zf.write(license_path, arcname="{}LICENSE".format(destination_path_prefix))
+    zf.write(readme_path, arcname="{}README.md".format(destination_path_prefix))
