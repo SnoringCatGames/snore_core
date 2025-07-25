@@ -182,15 +182,6 @@ def post_setup(
         env.subst("$SHLIBPREFIX"), lib_name, suffix, env.subst("$SHLIBSUFFIX")
     )
 
-    # FIXME: Remove?
-    # lib_path = "bin/{}/{}".format(env["platform"], lib_filename)
-    # library = env.SharedLibrary(lib_path, source=sources)
-    # addon_platform_path = "demo/addons/{}/bin/{}/".format(
-    #     addon_dir_name, env["platform"]
-    # )
-    # copy = env.Install(addon_platform_path, library)
-
-    # FIXME: LEFT OFF HERE: Will this fail for squirrel_away?
     lib_path = "addon/bin/{}/{}".format(env["platform"], lib_filename)
     library = env.SharedLibrary(lib_path, source=sources)
 
@@ -253,7 +244,6 @@ def create_submodule_addons_symlinks(
     parent_original_relative_path = (
         is_setup_for_self and "addon" or "submodules/{}/addon".format(addon_dir_name)
     )
-    # FIXME: LEFT OFF HERE: Will this fail for squirrel_away?
     parent_link_relative_path = "demo/addons/{}".format(addon_dir_name)
 
     parent_original_path = os.path.abspath(parent_original_relative_path)
@@ -271,8 +261,11 @@ def create_submodule_addons_symlinks(
             # Skip C++ logic from GDExtension dependencies.
             if not is_setup_for_self and entry.name == "bin":
                 continue
-            # Skip top-level .gdignore files.
+            # Skip .gdignore files.
             if entry.name == ".gdignore":
+                continue
+            # Skip project files.
+            if entry.name.endswith(".godot"):
                 continue
 
             entry_original_path = "{}/{}".format(parent_original_path, entry.name)
