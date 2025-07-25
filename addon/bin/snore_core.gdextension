@@ -27,5 +27,6 @@ android.release.arm64 = "res://addons/snore_core/bin/android/SnoreCore.android.t
 
 [icons]
 
+; FIXME
 ; TODO: Add other icons.
 GDExample = "res://addons/snore_core/addons/scaffolder2/assets/editor_icons/ScaffolderNode.svg"
