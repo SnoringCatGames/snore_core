@@ -1,0 +1,21 @@
+class_name DemoMain
+extends Node
+
+
+@export var snore_core_settings: SnoreCoreMainSettings
+
+@export var run_tests := true
+
+
+func _ready() -> void:
+    G.snore_core = SnoreCore.get_module("SnoreCore")
+
+    G.snore_core.connect("all_modules_set_up_finished", _on_snore_core_set_up_finished)
+    SnoreCore.set_up([snore_core_settings])
+
+    if run_tests:
+        var tests_passed = SnoreCore.run_tests()
+
+
+func _on_snore_core_set_up_finished() -> void:
+    G.snore_core_settings = G.snore_core.get_settings()

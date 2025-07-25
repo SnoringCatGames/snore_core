@@ -1,0 +1,7 @@
+#ifndef REGISTER_SNORE_CORE_GDEXTENSION_TYPES_H
+#define REGISTER_SNORE_CORE_GDEXTENSION_TYPES_H
+
+void initialize_snore_core_gdextension_types();
+void uninitialize_snore_core_gdextension_types();
+
+#endif // REGISTER_SNORE_CORE_GDEXTENSION_TYPES_H
