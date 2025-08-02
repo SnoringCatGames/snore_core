@@ -1,4 +1,4 @@
-#include "snore_core/snore_core_module_utils.h"
+#include "snore_core/internal/snore_core_module_utils.h"
 
 #include "snore_core/snore_core_main_module.h"
 
@@ -9,13 +9,13 @@ void snore_core_module_utils_internal::
 	if (!Engine::get_singleton()->has_singleton(SnoreCore::name)) {
 		REGISTER_ENGINE_SINGLETON(SnoreCore);
 		snore_core_module_utils_internal::
-				register_snore_core_module_to_snore_core_main_module(
+				register_snore_core_root_module_to_snore_core_main_module(
 						SnoreCore::name);
 	}
 }
 
 void snore_core_module_utils_internal::
-		register_snore_core_module_to_snore_core_main_module(
+		register_snore_core_root_module_to_snore_core_main_module(
 				const StringName &p_module_name) {
 	Engine *engine = Engine::get_singleton();
 	if (!ENSURE(engine->has_singleton(SnoreCore::name),
@@ -33,7 +33,7 @@ void snore_core_module_utils_internal::
 }
 
 void snore_core_module_utils_internal::
-		unregister_snore_core_module_from_snore_core_main_module(
+		unregister_snore_core_root_module_from_snore_core_main_module(
 				const StringName &p_module_name) {
 	Engine *engine = Engine::get_singleton();
 	if (!engine->has_singleton(SnoreCore::name)) {

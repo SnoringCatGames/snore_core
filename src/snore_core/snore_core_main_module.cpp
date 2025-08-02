@@ -3,18 +3,33 @@
 #include "snore_core/annotation.h"
 #include "snore_core/annotations_manager.h"
 #include "snore_core/canvas_layer_config.h"
+#include "snore_core/circular_buffer.h"
 #include "snore_core/geometry.h"
 #include "snore_core/internal/registration_utils.h"
+#include "snore_core/internal/snore_core_module_utils.h"
+#include "snore_core/logger.h"
 #include "snore_core/rotated_shape.h"
 #include "snore_core/snore_core_main_settings.h"
-#include "snore_core/snore_core_module.h"
-#include "snore_core/snore_core_module_utils.h"
+#include "snore_core/snore_core_root_module.h"
 #include "snore_core/snore_core_settings.h"
+#include "snore_core/snore_core_utils.h"
+#include "snore_core/time/snore_core_time.h"
 #include "snore_core/time/stopwatch.h"
+#include "snore_core/time/time_debouncer.h"
+#include "snore_core/time/time_interval.h"
+#include "snore_core/time/time_throttler.h"
+#include "snore_core/time/time_timeout.h"
+#include "snore_core/time/time_tracker.h"
+#include "snore_core/time/time_type.h"
 
+#include <godot_cpp/classes/Node.hpp>
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/time.hpp>
+#include <godot_cpp/classes/viewport.hpp>
+#include <godot_cpp/classes/window.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/core/object.hpp>
 
 // Only include test files in debug builds.
 #ifdef SC_TESTS_ENABLED
@@ -25,13 +40,22 @@
 #include "snore_core/test_annotation.h"
 #include "snore_core/test_annotations_manager.h"
 #include "snore_core/test_canvas_layer_config.h"
+#include "snore_core/test_circular_buffer.h"
 #include "snore_core/test_geometry.h"
+#include "snore_core/test_logger.h"
 #include "snore_core/test_rotated_shape.h"
 #include "snore_core/test_snore_core_main_module.h"
 #include "snore_core/test_snore_core_main_settings.h"
-#include "snore_core/test_snore_core_module.h"
+#include "snore_core/test_snore_core_root_module.h"
 #include "snore_core/test_snore_core_settings.h"
+#include "snore_core/test_snore_core_utils.h"
+#include "snore_core/time/test_snore_core_time.h"
 #include "snore_core/time/test_stopwatch.h"
+#include "snore_core/time/test_time_debouncer.h"
+#include "snore_core/time/test_time_interval.h"
+#include "snore_core/time/test_time_throttler.h"
+#include "snore_core/time/test_time_timeout.h"
+#include "snore_core/time/test_time_tracker.h"
 #endif // SC_TESTS_ENABLED
 
 using namespace godot;
@@ -51,16 +75,26 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	are_types_registered = true;
 
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSettings);
-	GDREGISTER_ABSTRACT_CLASS(SnoreCoreModule);
+	GDREGISTER_ABSTRACT_CLASS(SnoreCoreRootModule);
 	GDREGISTER_VIRTUAL_CLASS(Annotation);
 
 	GDREGISTER_CLASS(AnnotationsManager);
 	GDREGISTER_CLASS(CanvasLayerConfig);
+	GDREGISTER_CLASS(CircularBuffer);
 	GDREGISTER_CLASS(Geometry);
+	GDREGISTER_CLASS(Logger);
 	GDREGISTER_CLASS(RotatedShape);
+	GDREGISTER_CLASS(SnoreCoreTime);
+	GDREGISTER_CLASS(SnoreCoreUtils);
 	GDREGISTER_CLASS(SnoreCore);
 	GDREGISTER_CLASS(SnoreCoreMainSettings);
 	GDREGISTER_CLASS(Stopwatch);
+	GDREGISTER_CLASS(TimeDebouncer);
+	GDREGISTER_CLASS(TimeInterval);
+	GDREGISTER_CLASS(TimeThrottler);
+	GDREGISTER_CLASS(TimeTimeout);
+	GDREGISTER_CLASS(TimeTracker);
+	GDREGISTER_CLASS(TimeType);
 
 	// Only include test classes in debug builds.
 #ifdef SC_TESTS_ENABLED
@@ -82,7 +116,7 @@ void SnoreCore::unregister_gdextension_types(
 	SnoreCore *main = SnoreCore::get();
 	if (main) {
 		// Unregister all other modules before SnoreCore.
-		for (const std::pair<const StringName, SnoreCoreModule *> &pair :
+		for (const std::pair<const StringName, SnoreCoreRootModule *> &pair :
 			 main->modules) {
 			if (pair.first != main->get_name()) {
 				pair.second->reset();
@@ -91,41 +125,6 @@ void SnoreCore::unregister_gdextension_types(
 		}
 		unregister_engine_singleton(SnoreCore::name);
 	}
-}
-
-void SnoreCore::_bind_methods() {
-	ClassDB::bind_static_method(
-			name, D_METHOD("set_up", "p_settings"),
-			&SnoreCore::set_up_from_binding);
-	ClassDB::bind_static_method(
-			name, D_METHOD("get_module", "p_name"), &SnoreCore::get_module);
-	ClassDB::bind_static_method(
-			name, D_METHOD("get_modules"), &SnoreCore::get_modules);
-	ClassDB::bind_static_method(
-			name, D_METHOD("run_tests"), &SnoreCore::run_tests);
-
-	ADD_SIGNAL(MethodInfo(
-			"module_set_up_finished",
-			PropertyInfo(Variant::STRING_NAME, "name")));
-	ADD_SIGNAL(MethodInfo("all_modules_set_up_finished"));
-
-	ClassDB::bind_method(
-			D_METHOD("get_settings"), &SnoreCore::get_snore_core_settings);
-}
-
-SnoreCore *SnoreCore::get() {
-	SnoreCore *snore_core = get_maybe();
-	if (!ENSURE(snore_core, "SnoreCore is not initialized.")) {
-		return nullptr;
-	}
-	return snore_core;
-}
-
-SnoreCore *SnoreCore::get_maybe() {
-	Engine *engine = Engine::get_singleton();
-	return engine->has_singleton(SnoreCore::name)
-			? static_cast<SnoreCore *>(engine->get_singleton(name))
-			: nullptr;
 }
 
 void SnoreCore::set_up_from_binding(
@@ -149,11 +148,28 @@ void SnoreCore::set_up_main(
 #endif // SC_TESTS_ENABLED
 	last_set_up_time_msec = current_time_msec;
 
-	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules) {
+	for (int i = 0; i < p_all_settings.size(); ++i) {
 		SnoreCoreSettings *settings =
-				pair.second->get_settings_from_list(p_all_settings);
-		pair.second->set_up_base(pair.second->cast_to_settings(settings));
+				Object::cast_to<SnoreCoreSettings>(p_all_settings[i]);
+		if (!ENSURE(settings,
+					"Element in settings array is not a SnoreCoreSettings.")) {
+			continue;
+		}
+		// FIXME: Test that get_class() works as expected. Else, record
+		//        name on settings class with macro.
+		SnoreCoreRootModule *module =
+				get_module_for_settings(settings->get_class());
+		module->set_up_base(module->cast_to_settings(settings));
 	}
+}
+
+std::vector<SnoreCoreSubmodule *> SnoreCore::instantiate_submodules() {
+	return {
+		memnew(Logger),
+		memnew(SnoreCoreUtils),
+		memnew(SnoreCoreTime),
+		memnew(AnnotationsManager),
+	};
 }
 
 void SnoreCore::set_up() {}
@@ -169,7 +185,7 @@ void SnoreCore::reset() {
 }
 
 void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
-	SnoreCoreModule *module = get_module(p_name);
+	SnoreCoreRootModule *module = get_module(p_name);
 	if (!ENSURE_SIMPLE(module)) {
 		return;
 	}
@@ -184,7 +200,8 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 		emit_signal("module_set_up_finished", p_name);
 	}
 
-	for (const std::pair<const StringName, SnoreCoreModule *> &pair : modules) {
+	for (const std::pair<const StringName, SnoreCoreRootModule *> &pair :
+		 modules) {
 		if (!pair.second->get_is_set_up_finished() &&
 			pair.first != StringName(SnoreCore::name)) {
 			return;
@@ -203,7 +220,7 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 }
 
 void SnoreCore::register_module(Object *p_module) {
-	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
+	SnoreCoreRootModule *module = static_cast<SnoreCoreRootModule *>(p_module);
 	if (!ENSURE(module, "Cannot register a null module.")) {
 		return;
 	}
@@ -213,7 +230,7 @@ void SnoreCore::register_module(Object *p_module) {
 }
 
 void SnoreCore::unregister_module(Object *p_module) {
-	SnoreCoreModule *module = static_cast<SnoreCoreModule *>(p_module);
+	SnoreCoreRootModule *module = static_cast<SnoreCoreRootModule *>(p_module);
 	if (!ENSURE(module, "Cannot unregister a null module.")) {
 		return;
 	}
@@ -232,7 +249,40 @@ void SnoreCore::unregister_module(Object *p_module) {
 	modules.erase(module_name);
 }
 
-static bool get_are_tests_enabled() {
+SceneTree *SnoreCore::get_scene_tree() const {
+	SceneTree *tree = Object::cast_to<SceneTree>(
+			Engine::get_singleton()->get_main_loop());
+	if (!ENSURE(tree, "SceneTree is not available.")) {
+		return nullptr;
+	}
+	return tree;
+}
+
+Viewport *SnoreCore::get_viewport() const {
+	SceneTree *tree = Object::cast_to<SceneTree>(
+			Engine::get_singleton()->get_main_loop());
+	if (!ENSURE(tree, "SceneTree is not available.")) {
+		return nullptr;
+	}
+	Window *root = tree->get_root();
+	if (!ENSURE(root, "Root window is not available.")) {
+		return nullptr;
+	}
+	return root->get_viewport();
+}
+
+void SnoreCore::add_node_to_root(Node *p_node, const StringName &p_name) {
+	p_node->set_name(p_name);
+	SceneTree *tree = get_scene_tree();
+	if (tree) {
+		Window *root = tree->get_root();
+		if (root) {
+			root->add_child(p_node);
+		}
+	}
+}
+
+bool SnoreCore::are_tests_enabled() {
 #ifdef SC_TESTS_ENABLED
 	return true;
 #else
@@ -249,6 +299,8 @@ bool SnoreCore::run_tests() {
 	char *brief_flag = "--gtest_brief=1";
 #endif // SC_CI_ENABLED
 
+	are_tests_running = true;
+
 	int argc = 2;
 	char *argv[] = { "dummy", brief_flag };
 
@@ -256,22 +308,45 @@ bool SnoreCore::run_tests() {
 
 	const bool did_all_tests_pass = RUN_ALL_TESTS() == 0;
 
+	are_tests_running = false;
+
 	// NOTE: The GitHub Actions CI checks for the text "SnoreCore test result"
 	//       in order to determine whether the tests passed or failed.
-	LOG_EMPTY_LINE();
+	Log::empty_line();
 	if (did_all_tests_pass) {
-		LOG_PRINT("SnoreCore test result: ALL TESTS PASSED!");
+		Log::print("SnoreCore test result: ALL TESTS PASSED!");
 	} else {
-		LOG_PRINT("SnoreCore test result: SOME TESTS FAILED!");
+		Log::print("SnoreCore test result: SOME TESTS FAILED!");
 		ENSURE_SIMPLE(false);
 	}
-	LOG_EMPTY_LINE();
+	Log::empty_line();
 
 	return did_all_tests_pass;
 #else
-	LOG_EMPTY_LINE();
-	LOG_PRINT("SnoreCore test result: TESTS NOT INCLUDED IN RELEASE BUILDS!");
-	LOG_EMPTY_LINE();
+	Log::empty_line();
+	Log::print("SnoreCore test result: TESTS NOT INCLUDED IN RELEASE BUILDS!");
+	Log::empty_line();
 	return false;
 #endif // SC_TESTS_ENABLED
+}
+
+void SnoreCore::_bind_methods() {
+	ClassDB::bind_static_method(
+			name, D_METHOD("set_up", "p_settings"),
+			&SnoreCore::set_up_from_binding);
+	ClassDB::bind_static_method(
+			name, D_METHOD("get_module", "p_name"), &SnoreCore::get_module);
+	ClassDB::bind_static_method(
+			name, D_METHOD("get_modules"), &SnoreCore::get_modules);
+	ClassDB::bind_static_method(
+			name, D_METHOD("are_tests_enabled"), &SnoreCore::are_tests_enabled);
+	ClassDB::bind_static_method(
+			name, D_METHOD("run_tests"), &SnoreCore::run_tests);
+
+	ADD_SIGNAL(MethodInfo(
+			"module_set_up_finished",
+			PropertyInfo(Variant::STRING_NAME, "name")));
+	ADD_SIGNAL(MethodInfo("all_modules_set_up_finished"));
+
+	ClassDB::bind_method(D_METHOD("get_settings"), &SnoreCore::get_settings);
 }

@@ -8,9 +8,9 @@
 #include "snore_core/internal/test_utils.h"
 #include <godot_cpp/classes/ref.hpp>
 
-using namespace godot;
+namespace godot {
 
-TEST(StopwatchTest, TestBasicStartStop) {
+TEST(StopwatchTest, BasicStartStop) {
 	Ref<Stopwatch> stopwatch;
 	stopwatch.instantiate();
 
@@ -28,7 +28,7 @@ TEST(StopwatchTest, TestBasicStartStop) {
 	EXPECT_LT(elapsed_time, 1000.0); // Less than 1 second in milliseconds.
 }
 
-TEST(StopwatchTest, TestMultipleMetrics) {
+TEST(StopwatchTest, MultipleMetrics) {
 	Ref<Stopwatch> stopwatch;
 	stopwatch.instantiate();
 
@@ -50,6 +50,8 @@ TEST(StopwatchTest, TestMultipleMetrics) {
 	// metric1 should have taken longer (started first, stopped last).
 	EXPECT_GE(elapsed1, elapsed2);
 }
+
+} // namespace godot
 
 #endif // SC_TESTS_ENABLED
 

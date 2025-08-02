@@ -7,6 +7,57 @@
 
 using namespace godot;
 
+bool RotatedShape::get_is_rotated_90_degrees() const {
+	return !Math::is_inf(rotation) &&
+			ABS(fmod(rotation + tau, pi) - HALF_PI) < float_epsilon;
+}
+
+bool RotatedShape::get_is_axially_aligned() const {
+	if (Math::is_inf(rotation)) {
+		return false;
+	}
+	const float remainder = fmod(rotation + tau, pi);
+	return ABS(remainder) < float_epsilon ||
+			ABS(remainder - HALF_PI) < float_epsilon;
+}
+
+void RotatedShape::set_up(const Ref<Shape2D> &p_shape, double p_rotation) {
+	if (p_shape.is_valid()) {
+		shape = p_shape;
+	}
+	if (!Math::is_inf(p_rotation)) {
+		rotation = p_rotation;
+	}
+
+	if (!shape.is_valid() || Math::is_inf(rotation)) {
+		return;
+	}
+
+	if (!get_is_axially_aligned()) {
+		// TODO: Add suppport (and tests) for non-axially-aligned shapes.
+		ENSURE(false,
+			   "RotatedShape::update: Non-axially-aligned shapes are not "
+			   "currently supported.");
+		half_width_height = vector2_invalid;
+		return;
+	}
+
+	half_width_height = Geometry::calculate_half_width_height(
+			shape, get_is_rotated_90_degrees());
+}
+
+void RotatedShape::reset() {
+	shape.unref();
+	rotation = infinity;
+	half_width_height = vector2_invalid;
+}
+
+void RotatedShape::set_shape(const Ref<Shape2D> &p_shape) { set_up(p_shape); }
+
+void RotatedShape::set_rotation(double p_rotation) {
+	set_up(nullptr, p_rotation);
+}
+
 void RotatedShape::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_shape"), &RotatedShape::get_shape);
 	ClassDB::bind_method(
@@ -47,57 +98,6 @@ void RotatedShape::_bind_methods() {
 
 	ClassDB::bind_method(
 			D_METHOD("set_up", "shape", "rotation"), &RotatedShape::set_up,
-			DEFVAL(Ref<Shape2D>()), DEFVAL(INFINITY));
+			DEFVAL(Ref<Shape2D>()), DEFVAL(infinity));
 	ClassDB::bind_method(D_METHOD("reset"), &RotatedShape::reset);
-}
-
-bool RotatedShape::get_is_rotated_90_degrees() const {
-	return !Math::is_inf(rotation) &&
-			ABS(fmod(rotation + Math_TAU, Math_PI) - HALF_PI) < float_epsilon;
-}
-
-bool RotatedShape::get_is_axially_aligned() const {
-	if (Math::is_inf(rotation)) {
-		return false;
-	}
-	const float remainder = fmod(rotation + Math_TAU, Math_PI);
-	return ABS(remainder) < float_epsilon ||
-			ABS(remainder - HALF_PI) < float_epsilon;
-}
-
-void RotatedShape::set_up(const Ref<Shape2D> &p_shape, double p_rotation) {
-	if (p_shape.is_valid()) {
-		shape = p_shape;
-	}
-	if (!Math::is_inf(p_rotation)) {
-		rotation = p_rotation;
-	}
-
-	if (!shape.is_valid() || Math::is_inf(rotation)) {
-		return;
-	}
-
-	if (!get_is_axially_aligned()) {
-		// TODO: Add suppport (and tests) for non-axially-aligned shapes.
-		ENSURE(false,
-			   "RotatedShape::update: Non-axially-aligned shapes are not "
-			   "currently supported.");
-		half_width_height = vector2_invalid;
-		return;
-	}
-
-	half_width_height = Geometry::calculate_half_width_height(
-			shape, get_is_rotated_90_degrees());
-}
-
-void RotatedShape::reset() {
-	shape.unref();
-	rotation = INFINITY;
-	half_width_height = vector2_invalid;
-}
-
-void RotatedShape::set_shape(const Ref<Shape2D> &p_shape) { set_up(p_shape); }
-
-void RotatedShape::set_rotation(double p_rotation) {
-	set_up(nullptr, p_rotation);
 }

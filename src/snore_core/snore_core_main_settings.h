@@ -10,10 +10,9 @@ namespace godot {
 
 class SnoreCoreMainSettings : public SnoreCoreSettings {
 	GDCLASS(SnoreCoreMainSettings, SnoreCoreSettings)
+	SC_SETTINGS_CLASS_DECLARATION(SnoreCoreMainSettings)
 
 public:
-	static Ref<SnoreCoreMainSettings> get();
-
 	SnoreCoreMainSettings() = default;
 	~SnoreCoreMainSettings() = default;
 
@@ -30,6 +29,13 @@ public:
 	}
 	void set_log_snore_core_events_verbose(bool p_value) {
 		log_snore_core_events_verbose = p_value;
+	}
+
+	bool get_log_initialization_events() const {
+		return log_initialization_events;
+	}
+	void set_log_initialization_events(bool p_value) {
+		log_initialization_events = p_value;
 	}
 
 	TypedArray<CanvasLayerConfig> get_canvas_layers() const {
@@ -60,8 +66,10 @@ protected:
 private:
 	bool dev_mode = true;
 
-	bool log_snore_core_events = false;
-	bool log_snore_core_events_verbose = false;
+	// TODO: Once the framework is stable, flip these to default to false.
+	bool log_snore_core_events = true;
+	bool log_snore_core_events_verbose = true;
+	bool log_initialization_events = true;
 
 	TypedArray<CanvasLayerConfig> canvas_layers;
 

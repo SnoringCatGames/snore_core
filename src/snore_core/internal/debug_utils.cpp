@@ -1,10 +1,66 @@
 #include "snore_core/internal/debug_utils.h"
 
 #include "snore_core/internal/string_utils.h"
+#include "snore_core/internal/test_utils.h"
+#include "snore_core/logger.h"
 
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
+
+void godot::Log::Internal::print(const String &p_message) {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->print(p_message);
+	} else {
+	}
+}
+
+void godot::Log::Internal::warning(const String &p_message) {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->print(p_message);
+	} else {
+	}
+}
+
+void godot::Log::Internal::error(const String &p_message) {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->error_skip_assert(p_message);
+	} else {
+	}
+}
+
+void godot::Log::empty_line() {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->print();
+	} else {
+	}
+}
+
+void godot::Log::stack_trace() {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->error(get_stack_trace());
+	} else {
+	}
+}
+
+void godot::Log::print_rich(const String &p_message) {
+	Logger *logger = Logger::get_maybe();
+	if (logger) {
+		logger->print_rich(p_message);
+	} else {
+	}
+}
+
+void godot::Log::print_with_color(
+		const String &p_message,
+		const String &p_color) {
+	print_rich(vformat("[color=%s]%s[/color]", p_color, p_message));
+}
 
 #if DEBUG_ENABLED
 #ifdef _MSC_VER

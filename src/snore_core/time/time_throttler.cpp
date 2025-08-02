@@ -1,0 +1,107 @@
+#include "snore_core/time/throttler.h"
+
+#include "snore_core/time/snore_core_time.h"
+
+#include <godot_cpp/core/class_db.hpp>
+
+using namespace godot;
+
+// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
+
+TimeThrottler::TimeThrottler() {
+	snore_core_time = nullptr;
+	time_type = 0;
+	time_tracker = nullptr;
+	interval = 0.0;
+	invokes_at_end = true;
+	parent = nullptr;
+	last_timeout_id = -1;
+	last_call_time = -infinity;
+	is_callback_scheduled = false;
+}
+
+TimeThrottler::~TimeThrottler() {
+	// Destructor implementation.
+}
+
+void TimeThrottler::initialize(
+		SnoreCoreTime *p_snore_core_time,
+		Object *p_parent,
+		int p_time_type,
+		const Callable &p_callback,
+		float p_interval,
+		bool p_invokes_at_end) {
+	snore_core_time = p_snore_core_time;
+	parent = p_parent;
+	time_type = p_time_type;
+
+	if (snore_core_time) {
+		time_tracker =
+				snore_core_time->_get_time_tracker_for_time_type(p_time_type);
+		elapsed_time_key = snore_core_time->_get_elapsed_time_key_for_time_type(
+				p_time_type);
+	} else {
+		time_tracker = nullptr;
+		elapsed_time_key = "elapsed_physics_time";
+	}
+
+	callback = p_callback;
+	interval = p_interval;
+	invokes_at_end = p_invokes_at_end;
+}
+
+Callable TimeThrottler::get_on_call() const {
+	return callable_mp(
+			const_cast<TimeThrottler *>(this), &TimeThrottler::on_call);
+}
+
+void TimeThrottler::on_call() {
+	if (!is_callback_scheduled) {
+		if (!snore_core_time || !time_tracker) {
+			// Fallback behavior - just trigger immediately
+			_trigger_callback();
+			return;
+		}
+
+		float current_call_time = snore_core_time->get_elapsed_time(time_type);
+		float next_call_time = last_call_time + interval;
+
+		if (current_call_time > next_call_time) {
+			_trigger_callback();
+		} else if (invokes_at_end) {
+			last_timeout_id = snore_core_time->set_timeout(
+					callable_mp(this, &TimeThrottler::_trigger_callback),
+					next_call_time - current_call_time, Array(), time_type);
+			is_callback_scheduled = true;
+		}
+	}
+}
+
+void TimeThrottler::cancel() {
+	if (snore_core_time) {
+		snore_core_time->clear_timeout(last_timeout_id);
+	}
+	is_callback_scheduled = false;
+}
+
+void TimeThrottler::_trigger_callback() {
+	if (snore_core_time && time_tracker) {
+		last_call_time = snore_core_time->get_elapsed_time(time_type);
+	}
+	is_callback_scheduled = false;
+	if (callback.is_valid()) {
+		callback.call();
+	}
+}
+
+void TimeThrottler::_bind_methods() {
+	ClassDB::bind_method(
+			D_METHOD(
+					"initialize", "parent", "time_type", "callback", "interval",
+					"invokes_at_end"),
+			&TimeThrottler::initialize);
+	ClassDB::bind_method(D_METHOD("get_on_call"), &TimeThrottler::get_on_call);
+	ClassDB::bind_method(D_METHOD("on_call"), &TimeThrottler::on_call);
+	ClassDB::bind_method(D_METHOD("cancel"), &TimeThrottler::cancel);
+	ClassDB::bind_method(D_METHOD("get_parent"), &TimeThrottler::get_parent);
+}

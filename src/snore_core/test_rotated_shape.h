@@ -3,10 +3,11 @@
 
 #ifdef SC_TESTS_ENABLED
 
+#include "snore_core/rotated_shape.h"
+
 #include "snore_core/geometry_constants.h"
 #include "snore_core/internal/ref_utils.h"
 #include "snore_core/internal/test_utils.h"
-#include "snore_core/rotated_shape.h"
 
 #include "snore_core/internal/test_utils.h"
 #include <godot_cpp/classes/capsule_shape2d.hpp>
@@ -16,9 +17,9 @@
 
 namespace godot {
 
-class RotatedShapeTest : public ::testing::Test {
+class RotatedShapeTest : public SnoreCoreTest {
 protected:
-	void SetUp() override {
+	void BeforeEach() override {
 		// Create shape objects.
 		Ref<RectangleShape2D> rectangle = instantiate_ref<RectangleShape2D>();
 		rectangle->set_size(Vector2(1, 2));
@@ -33,7 +34,7 @@ protected:
 		// Create RotatedShape objects with different rotations.
 		rect_0_degrees = set_up_ref<RotatedShape>(rectangle, 0.0);
 		rect_90_degrees = set_up_ref<RotatedShape>(rectangle, HALF_PI);
-		rect_180_degrees = set_up_ref<RotatedShape>(rectangle, Math_PI);
+		rect_180_degrees = set_up_ref<RotatedShape>(rectangle, pi);
 		rect_270_degrees = set_up_ref<RotatedShape>(rectangle, -HALF_PI);
 		capsule_0_degrees = set_up_ref<RotatedShape>(capsule, 0.0);
 		capsule_90_degrees = set_up_ref<RotatedShape>(capsule, HALF_PI);
@@ -41,7 +42,7 @@ protected:
 		circle_90_degrees = set_up_ref<RotatedShape>(circle, HALF_PI);
 	}
 
-	void TearDown() override {
+	void AfterEach() override {
 		// Clean up references.
 		rect_0_degrees.unref();
 		rect_90_degrees.unref();

@@ -2,16 +2,11 @@
 
 #include "snore_core/internal/debug_utils.h"
 
-#include <godot_cpp/classes/time.hpp>
+#include <godot_cpp/classes/snore_core_time.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/error_macros.hpp>
 
 using namespace godot;
-
-void Stopwatch::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("start", "metric_key"), &Stopwatch::start);
-	ClassDB::bind_method(D_METHOD("stop", "metric_key"), &Stopwatch::stop);
-}
 
 void Stopwatch::start(const StringName &p_metric_key) {
 	const int64_t start_time_usec = Time::get_singleton()->get_ticks_usec();
@@ -39,4 +34,9 @@ double Stopwatch::stop(const StringName &p_metric_key) {
 
 	// Return the elapsed time in milliseconds.
 	return static_cast<double>(elapsed_time_usec) / 1000.0;
+}
+
+void Stopwatch::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("start", "metric_key"), &Stopwatch::start);
+	ClassDB::bind_method(D_METHOD("stop", "metric_key"), &Stopwatch::stop);
 }

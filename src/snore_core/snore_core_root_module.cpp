@@ -1,4 +1,4 @@
-#include "snore_core/snore_core_module.h"
+#include "snore_core/snore_core_root_module.h"
 
 #include "snore_core/snore_core_main_module.h"
 

@@ -18,6 +18,19 @@ constexpr uint64_t PROPERTY_USAGE_EXPORTED_ITEM = PROPERTY_USAGE_STORAGE |
 	PropertyInfo(                                                              \
 			type, name, hint_type, hint_string, PROPERTY_USAGE_EXPORTED_ITEM)
 
+#define BIND_LOGGING_FLAG(m_settings_class, m_category)                        \
+	do {                                                                       \
+		ClassDB::bind_method(                                                  \
+				D_METHOD("get_log_" #m_category),                              \
+				&m_settings_class::get_log_##m_category);                      \
+		ClassDB::bind_method(                                                  \
+				D_METHOD("set_log_" #m_category, "p_value"),                   \
+				&m_settings_class::set_log_##m_category);                      \
+		ADD_PROPERTY(                                                          \
+				EXPORTED_PROPERTY_INFO(Variant::BOOL, "log_" #m_category),     \
+				"set_log_" #m_category, "get_log_" #m_category);               \
+	} while (false)
+
 } //namespace godot
 
 #endif // REGISTRATION_UTILS_H

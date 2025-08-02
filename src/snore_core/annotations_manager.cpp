@@ -6,4 +6,8 @@ using namespace godot;
 
 // TODO: Implement.
 
+void AnnotationsManager::set_up() {}
+
+void AnnotationsManager::reset() {}
+
 void AnnotationsManager::_bind_methods() {}

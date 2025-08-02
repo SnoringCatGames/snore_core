@@ -1,12 +1,13 @@
-#ifndef TEST_SNORE_CORE_MODULE_H
-#define TEST_SNORE_CORE_MODULE_H
+#ifndef TEST_SNORE_CORE_ROOT_MODULE_H
+#define TEST_SNORE_CORE_ROOT_MODULE_H
 
 #ifdef SC_TESTS_ENABLED
+
+#include "snore_core/snore_core_root_module.h"
 
 #include "snore_core/internal/ref_utils.h"
 #include "snore_core/internal/string_utils.h"
 #include "snore_core/internal/test_utils.h"
-#include "snore_core/snore_core_module.h"
 #include "snore_core/snore_core_settings.h"
 
 #include "snore_core/internal/test_utils.h"
@@ -16,9 +17,9 @@
 #include <string>
 #include <vector>
 
-using namespace godot;
+namespace godot {
 
-// Test settings class for testing SnoreCoreModule.
+// Test settings class for testing SnoreCoreRootModule.
 class FakeSnoreCoreSettings : public SnoreCoreSettings {
 	GDCLASS(FakeSnoreCoreSettings, SnoreCoreSettings)
 
@@ -36,33 +37,14 @@ private:
 	bool test_flag = false;
 };
 
-// Test module class for testing SnoreCoreModule template functionality.
-class FakeSnoreCoreModule : public SnoreCoreModule<FakeSnoreCoreSettings> {
-	GDCLASS(FakeSnoreCoreModule, SnoreCoreModule)
+// Test module class for testing SnoreCoreRootModule template functionality.
+class FakeSnoreCoreModule : public SnoreCoreRootModule<FakeSnoreCoreSettings> {
+	GDCLASS(FakeSnoreCoreModule, SnoreCoreRootModule)
+	SC_ROOT_MODULE_CLASS(FakeSnoreCoreModule, FakeSnoreCoreSettings)
 
 public:
-	static const constexpr char *name = "TestModule";
-
 	FakeSnoreCoreModule() = default;
 	virtual ~FakeSnoreCoreModule() = default;
-
-	virtual const StringName &get_name() const override {
-		static const StringName string_name = StringName(name);
-		return string_name;
-	}
-
-	virtual const StringName &get_settings_class_name() const override {
-		return FakeSnoreCoreSettings::get_class_static();
-	}
-
-	virtual FakeSnoreCoreSettings *cast_to_settings(
-			Object *p_object) const override {
-		return Object::cast_to<FakeSnoreCoreSettings>(p_object);
-	}
-
-	virtual void set_settings(FakeSnoreCoreSettings *p_settings) override {
-		settings = Ref<FakeSnoreCoreSettings>(p_settings);
-	}
 
 	virtual void set_up() override {
 		set_up_called = true;
@@ -97,14 +79,14 @@ private:
 };
 
 // Test fixtures for SnoreCore module testing.
-class SnoreCoreModuleTest : public ::testing::Test {
+class SnoreCoreModuleTest : public SnoreCoreTest {
 protected:
-	void SetUp() override {
+	void BeforeEach() override {
 		test_module = memnew(FakeSnoreCoreModule);
 		test_settings.instantiate();
 	}
 
-	void TearDown() override {
+	void AfterEach() override {
 		memdelete(test_module);
 		test_module = nullptr;
 		test_settings.unref();
@@ -114,10 +96,11 @@ protected:
 	Ref<FakeSnoreCoreSettings> test_settings;
 };
 
-// Test cases for SnoreCoreModule functionality.
+// Test cases for SnoreCoreRootModule functionality.
 TEST_F(SnoreCoreModuleTest, InitialState) {
 	EXPECT_EQ(
-			SnoreCoreModule<FakeSnoreCoreSettings>::SET_UP_PHASE::NOT_STARTED,
+			SnoreCoreRootModule<
+					FakeSnoreCoreSettings>::SET_UP_PHASE::NOT_STARTED,
 			test_module->get_set_up_phase());
 	EXPECT_FALSE(test_module->get_is_set_up_started());
 	EXPECT_FALSE(test_module->get_is_set_up_finished());
@@ -141,15 +124,15 @@ TEST_F(SnoreCoreModuleTest, SetUpBase) {
 	test_module->set_up_base(test_settings.ptr());
 
 	EXPECT_EQ(
-			SnoreCoreModule<FakeSnoreCoreSettings>::SET_UP_PHASE::FINISHED,
+			SnoreCoreRootModule<FakeSnoreCoreSettings>::SET_UP_PHASE::FINISHED,
 			test_module->get_set_up_phase());
 	EXPECT_TRUE(test_module->get_is_set_up_started());
 	EXPECT_TRUE(test_module->get_is_set_up_finished());
 	EXPECT_TRUE(test_module->get_set_up_called());
 	EXPECT_TRUE(test_module->get_reset_called());
 
-	Ref<FakeSnoreCoreSettings> retrieved_settings = test_module->get_settings();
-	EXPECT_TRUE(retrieved_settings.is_valid());
+	FakeSnoreCoreSettings *retrieved_settings = test_module->get_settings();
+	EXPECT_TRUE(retrieved_settings);
 	EXPECT_TRUE(retrieved_settings->get_test_flag());
 }
 
@@ -162,7 +145,8 @@ TEST_F(SnoreCoreModuleTest, ResetBase) {
 	test_module->reset_base();
 
 	EXPECT_EQ(
-			SnoreCoreModule<FakeSnoreCoreSettings>::SET_UP_PHASE::NOT_STARTED,
+			SnoreCoreRootModule<
+					FakeSnoreCoreSettings>::SET_UP_PHASE::NOT_STARTED,
 			test_module->get_set_up_phase());
 	EXPECT_FALSE(test_module->get_is_set_up_started());
 	EXPECT_FALSE(test_module->get_is_set_up_finished());
@@ -170,16 +154,8 @@ TEST_F(SnoreCoreModuleTest, ResetBase) {
 	EXPECT_TRUE(test_module->get_reset_called());
 }
 
-TEST_F(SnoreCoreModuleTest, GetSettingsFromList) {
-	TypedArray<SnoreCoreSettings> settings_list;
-	settings_list.push_back(test_settings);
-
-	FakeSnoreCoreSettings *found_settings =
-			test_module->get_settings_from_list(settings_list);
-
-	EXPECT_EQ(test_settings.ptr(), found_settings);
-}
+} // namespace godot
 
 #endif // SC_TESTS_ENABLED
 
-#endif // TEST_SNORE_CORE_MODULE_H
+#endif // TEST_SNORE_CORE_ROOT_MODULE_H

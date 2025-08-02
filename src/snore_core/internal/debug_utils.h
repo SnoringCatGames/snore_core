@@ -1,8 +1,13 @@
 #ifndef DEBUG_UTILS_H
 #define DEBUG_UTILS_H
 
+#include "snore_core/internal/test_utils.h"
+
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/variant.hpp>
+
+#include <vector>
 
 namespace godot {
 
@@ -14,11 +19,58 @@ namespace godot {
 	"[color=purple]=[/color][color=blue]=[/color][color=green]=[/color]"       \
 	"[color=yellow]=[/color][color=orange]=[/color][color=red]=[/color]"
 
-String get_stack_trace();
+namespace Log {
 
-#define PRINT_STACK_TRACE()                                                    \
-	godot::UtilityFunctions::print_rich(                                       \
-			"[color=gray]" + get_stack_trace() + "[/color]")
+namespace Internal {
+void print(const String &p_message);
+void warning(const String &p_message);
+void error(const String &p_message);
+void error_skip_assert(const String &p_message);
+} // namespace Internal
+
+template <typename... VarArgs>
+void debug(const String &p_message = String(), const VarArgs... p_args) {
+#ifdef DEBUG_ENABLED
+	const String message = vformat(p_message, p_args...);
+	Internal::print(message);
+#endif // DEBUG_ENABLED
+}
+
+template <typename... VarArgs>
+void print(const String &p_message = String(), const VarArgs... p_args) {
+	const String message = vformat(p_message, p_args...);
+	Internal::print(message);
+}
+
+template <typename... VarArgs>
+String warning(const String &p_message, const VarArgs... p_args) {
+	const String message = vformat(p_message, p_args...);
+	Internal::warning(message);
+}
+
+template <typename... VarArgs>
+String error(const String &p_message, const VarArgs... p_args) {
+	const String message = vformat(p_message, p_args...);
+	Internal::error(message);
+}
+
+template <typename... VarArgs>
+String error_skip_assert(const String &p_message, const VarArgs... p_args) {
+	const String message = vformat(p_message, p_args...);
+	Internal::error_skip_assert(message);
+}
+
+void empty_line();
+
+void stack_trace();
+
+void print_rich(const String &p_message);
+
+void print_with_color(const String &p_message, const String &p_color);
+
+} // namespace Log
+
+String get_stack_trace();
 
 // - DEBUG_BREAK pauses execution if this isn't a release version of the
 //   Surfacer framework.
@@ -44,6 +96,29 @@ String get_stack_trace();
 #endif // SC_DEV_ENABLED
 #endif // SC_CI_ENABLED
 
+void report_ensure(
+		const char *p_function,
+		const char *p_file,
+		int p_line,
+		const char *p_condition,
+		const String &p_message = String()) {
+	const String message_delimiter = p_message.is_empty() ? "" : "\n";
+	const String message_formatted = vformat(
+			"%s [%s:%s]\nENSURE failed `%s` is false.%s%s", p_function, p_file,
+			p_line, _STR(p_condition), message_delimiter, p_message);
+#ifdef SC_TESTS_ENABLED
+	godot::TestUtilsInternal::recent_ensures.push_back(message_formatted);
+#endif // SC_TESTS_ENABLED
+	Log::error_skip_assert(message_formatted);
+	Log::stack_trace();
+	// FIXME: LEFT OFF HERE: Remove this after verifying the format of the new
+	// 						 string above.
+	// ::godot::_err_print_error(
+	// 		p_function, p_file, p_line,
+	// 		"ENSURE failed  \"" _STR(p_condition) "\" is false.", p_message);
+	// ::godot::_err_flush_stdout();
+}
+
 // Ensures `m_cond` is true.
 // - If `m_cond` is false, this prints `m_msg`, pauses execution, and returns
 //   false.
@@ -51,14 +126,11 @@ String get_stack_trace();
 // - Use `CHECK` instead if the error is unrecoverable.
 #ifdef DEBUG_ENABLED
 #define ENSURE(m_cond, m_msg)                                                  \
-	(unlikely(!(m_cond))                                                       \
-			 ? (::godot::_err_print_error(                                     \
-						FUNCTION_STR, __FILE__, __LINE__,                      \
-						"ENSURE failed  \"" _STR(m_cond) "\" is false.",       \
-						m_msg),                                                \
-				::godot::_err_flush_stdout(), PRINT_STACK_TRACE(),             \
-				DEBUG_BREAK_OR_FALSE(), false)                                 \
-			 : true)
+	(unlikely(!(m_cond)) ? (report_ensure(                                     \
+									FUNCTION_STR, __FILE__, __LINE__,          \
+									_STR(m_cond), m_msg),                      \
+							DEBUG_BREAK_OR_FALSE(), false)                     \
+						 : true)
 #else
 #define ENSURE(m_cond, m_msg) (m_cond)
 #endif
@@ -66,10 +138,7 @@ String get_stack_trace();
 #ifdef DEBUG_ENABLED
 #define ENSURE_SIMPLE(m_cond)                                                  \
 	(unlikely(!(m_cond))                                                       \
-			 ? (::godot::_err_print_error(                                     \
-						FUNCTION_STR, __FILE__, __LINE__,                      \
-						"ENSURE failed  \"" _STR(m_cond) "\" is false."),      \
-				::godot::_err_flush_stdout(), PRINT_STACK_TRACE(),             \
+			 ? (report_ensure(FUNCTION_STR, __FILE__, __LINE__, _STR(m_cond)), \
 				DEBUG_BREAK_OR_FALSE(), false)                                 \
 			 : true)
 #else
@@ -79,38 +148,16 @@ String get_stack_trace();
 // This checks whether the condition is true. If not, the program will crash.
 // Use `ENSURE` instead, if the error is recoverable.
 #ifdef DEBUG_ENABLED
-#define CHECK(m_cond, m_msg) CRASH_COND_MSG(!m_cond, m_msg)
+#define CHECK(m_cond, m_msg) CRASH_COND_MSG(!(m_cond), m_msg)
 #else
 #define CHECK(m_cond, m_msg)
 #endif // DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
-#define CHECK_SIMPLE(m_cond) CRASH_COND(!m_cond)
+#define CHECK_SIMPLE(m_cond) CRASH_COND(!(m_cond))
 #else
 #define CHECK_SIMPLE(m_cond)
 #endif // DEBUG_ENABLED
-
-#ifdef DEBUG_ENABLED
-#define LOG_DEBUG(m_msg)                                                       \
-	godot::UtilityFunctions::print_rich(                                       \
-			godot::vformat("[color=white]S: %s[/color]", m_msg))
-#else
-#define LOG_DEBUG(m_msg)
-#endif // DEBUG_ENABLED
-
-#define LOG_PRINT(m_msg)                                                       \
-	godot::UtilityFunctions::print_rich(                                       \
-			godot::vformat("[color=white]S: %s[/color]", m_msg))
-
-#define LOG_WARNING(m_msg)                                                     \
-	godot::UtilityFunctions::print_rich(                                       \
-			godot::vformat("[color=yellow]WARNING S: %s[/color]", m_msg))
-
-#define LOG_ERROR(m_msg)                                                       \
-	godot::UtilityFunctions::print_rich(                                       \
-			godot::vformat("[color=red]ERROR S: %s[/color]", m_msg))
-
-#define LOG_EMPTY_LINE() LOG_PRINT("")
 
 } //namespace godot
 
