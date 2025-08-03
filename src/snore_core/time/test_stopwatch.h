@@ -14,7 +14,7 @@ TEST(StopwatchTest, BasicStartStop) {
 	Ref<Stopwatch> stopwatch;
 	stopwatch.instantiate();
 
-	String metric_key = "test_metric";
+	StringName metric_key = "test_metric";
 
 	// Start the stopwatch.
 	stopwatch->start(metric_key);
@@ -32,8 +32,8 @@ TEST(StopwatchTest, MultipleMetrics) {
 	Ref<Stopwatch> stopwatch;
 	stopwatch.instantiate();
 
-	String metric1 = "metric1";
-	String metric2 = "metric2";
+	StringNameName metric1 = "metric1";
+	StringName metric2 = "metric2";
 
 	// Start both metrics.
 	stopwatch->start(metric1);

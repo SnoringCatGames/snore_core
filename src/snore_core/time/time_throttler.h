@@ -22,7 +22,7 @@ private:
 	SnoreCoreTime *snore_core_time;
 	int time_type;
 	TimeTracker *time_tracker;
-	String elapsed_time_key;
+	StringName elapsed_time_key;
 	Callable callback;
 	float interval;
 	bool invokes_at_end;

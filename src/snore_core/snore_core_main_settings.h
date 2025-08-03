@@ -38,13 +38,6 @@ public:
 		log_initialization_events = p_value;
 	}
 
-	TypedArray<CanvasLayerConfig> get_canvas_layers() const {
-		return canvas_layers;
-	}
-	void set_canvas_layers(const TypedArray<CanvasLayerConfig> &p_layers) {
-		canvas_layers = p_layers;
-	}
-
 	double get_debug_time_scale() const { return debug_time_scale; }
 	void set_debug_time_scale(double p_scale) { debug_time_scale = p_scale; }
 
@@ -55,8 +48,8 @@ public:
 		render_debug_annotations = p_value;
 	}
 
-	String get_user_settings_path() const { return user_settings_path; }
-	void set_user_settings_path(String p_value) {
+	StringName get_user_settings_path() const { return user_settings_path; }
+	void set_user_settings_path(StringName p_value) {
 		user_settings_path = p_value;
 	}
 
@@ -71,12 +64,10 @@ private:
 	bool log_snore_core_events_verbose = true;
 	bool log_initialization_events = true;
 
-	TypedArray<CanvasLayerConfig> canvas_layers;
-
 	double debug_time_scale = 1.0;
 	bool render_debug_annotations = false;
 
-	String user_settings_path = "user://user_settings.tres";
+	StringName user_settings_path = "user://user_settings.tres";
 };
 
 } // namespace godot

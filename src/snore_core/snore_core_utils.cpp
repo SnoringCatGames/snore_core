@@ -2,6 +2,7 @@
 
 #include "snore_core/geometry_constants.h"
 #include "snore_core/internal/debug_utils.h"
+#include "snore_core/internal/ref_utils.h"
 #include "snore_core/logger.h"
 
 #include <godot_cpp/classes/button.hpp>
@@ -46,7 +47,7 @@ void SnoreCoreUtils::set_up() {
 	focus_releaser = memnew(Button);
 	focus_releaser->set_modulate(Color(1.0, 1.0, 1.0, 0.0));
 	focus_releaser->set_visible(false);
-	SnoreCore::get()->add_node_to_root(focus_releaser, "FocusReleaser");
+	SnoreCore::get()->add_utility_node(focus_releaser, "FocusReleaser");
 }
 
 void SnoreCoreUtils::reset() {
@@ -222,7 +223,7 @@ void SnoreCoreUtils::clear_children(Node *p_node) {
 	Array children = p_node->get_children();
 	for (int i = 0; i < children.size(); i++) {
 		Node *child = Object::cast_to<Node>(children[i]);
-		if (child) {
+		if (is_instance_valid(child)) {
 			child->queue_free();
 		}
 	}

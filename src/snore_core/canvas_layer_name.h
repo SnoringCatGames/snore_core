@@ -3,6 +3,8 @@
 
 #include <godot_cpp/variant/string_name.hpp>
 
+#include <vector>
+
 #define CANVAS_LAYER_NAME(m_name)                                              \
 	namespace Internal {                                                       \
 	static const constexpr char *m_name##_canvas_layer_name = #m_name;         \
@@ -17,6 +19,7 @@
 namespace godot {
 namespace CanvasLayerName {
 
+CANVAS_LAYER_NAME(utils)
 CANVAS_LAYER_NAME(top)
 CANVAS_LAYER_NAME(notifications)
 CANVAS_LAYER_NAME(super_hud)

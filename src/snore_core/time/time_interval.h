@@ -21,7 +21,7 @@ class TimeInterval : public RefCounted {
 private:
 	SnoreCoreTime *snore_core_time;
 	TimeTracker *time_tracker;
-	String elapsed_time_key;
+	StringName elapsed_time_key;
 	Callable callback;
 	float interval;
 	Array arguments;

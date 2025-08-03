@@ -86,11 +86,12 @@ TEST_F(SnoreCoreTimeTest, TimeTrackerAccess) {
 
 TEST_F(SnoreCoreTimeTest, ElapsedTimeKeys) {
 	// Test that elapsed time keys are returned correctly.
-	String physics_key = snore_core_time->_get_elapsed_time_key_for_time_type(
-			TimeType::APP_PHYSICS);
-	String clock_key = snore_core_time->_get_elapsed_time_key_for_time_type(
+	StringName physics_key =
+			snore_core_time->_get_elapsed_time_key_for_time_type(
+					TimeType::APP_PHYSICS);
+	StringName clock_key = snore_core_time->_get_elapsed_time_key_for_time_type(
 			TimeType::APP_CLOCK);
-	String frame_key = snore_core_time->_get_elapsed_time_key_for_time_type(
+	StringName frame_key = snore_core_time->_get_elapsed_time_key_for_time_type(
 			TimeType::APP_PHYSICS_FRAME_COUNT);
 
 	EXPECT_EQ(physics_key, "elapsed_physics_time");

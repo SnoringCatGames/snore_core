@@ -1,6 +1,8 @@
 #ifndef SNORE_CORE_SUBMODULE_H
 #define SNORE_CORE_SUBMODULE_H
 
+#include "snore_core/internal/ref_utils.h"
+
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/object.hpp>
 
@@ -57,11 +59,11 @@ public:                                                                        \
                                                                                \
 	virtual void instantiate_node() override {                                 \
 		node = memnew(m_node_type);                                            \
-		SnoreCore::get()->add_node_to_root(node, m_node_name);                 \
+		SnoreCore::get()->add_utility_node(node, m_node_name);                 \
 	}                                                                          \
                                                                                \
 	virtual void reset_node() override {                                       \
-		if (node) {                                                            \
+		if (is_instance_valid(node)) {                                         \
 			node->queue_free();                                                \
 			node = nullptr;                                                    \
 		}                                                                      \

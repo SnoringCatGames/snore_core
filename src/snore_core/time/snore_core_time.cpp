@@ -196,7 +196,7 @@ int SnoreCoreTime::get_play_physics_frame_count() const {
 
 float SnoreCoreTime::get_elapsed_time(int p_time_type) const {
 	TimeTracker *tracker = _get_time_tracker_for_time_type(p_time_type);
-	String key = _get_elapsed_time_key_for_time_type(p_time_type);
+	StringName key = _get_elapsed_time_key_for_time_type(p_time_type);
 
 	if (!tracker) {
 		return 0.0;
@@ -247,7 +247,7 @@ TimeTracker *SnoreCoreTime::_get_time_tracker_for_time_type(
 	}
 }
 
-String SnoreCoreTime::_get_elapsed_time_key_for_time_type(
+StringName SnoreCoreTime::_get_elapsed_time_key_for_time_type(
 		int p_time_type) const {
 	switch (p_time_type) {
 		case TimeType::APP_PHYSICS:
@@ -278,7 +278,7 @@ String SnoreCoreTime::_get_elapsed_time_key_for_time_type(
 }
 
 int SnoreCoreTime::_get_time_type_from_key(
-		const String &p_elapsed_time_key) const {
+		const StringName &p_elapsed_time_key) const {
 	if (p_elapsed_time_key == "elapsed_physics_time") {
 		return TimeType::APP_PHYSICS; // Default to APP_PHYSICS
 	} else if (p_elapsed_time_key == "elapsed_physics_scaled_time") {
@@ -335,11 +335,11 @@ void SnoreCoreTime::_set_additional_debug_time_scale(float p_value) {
 
 int SnoreCoreTime::tween_method(
 		Object *p_object,
-		const String &p_key,
+		const StringName &p_key,
 		const Variant &p_initial_val,
 		const Variant &p_final_val,
 		float p_duration,
-		const String &p_ease_name,
+		const StringName &p_ease_name,
 		float p_delay,
 		int p_time_type,
 		const Callable &p_on_completed_callback,
@@ -352,11 +352,11 @@ int SnoreCoreTime::tween_method(
 
 int SnoreCoreTime::tween_property(
 		Object *p_object,
-		const String &p_key,
+		const StringName &p_key,
 		const Variant &p_initial_val,
 		const Variant &p_final_val,
 		float p_duration,
-		const String &p_ease_name,
+		const StringName &p_ease_name,
 		float p_delay,
 		int p_time_type,
 		const Callable &p_on_completed_callback,
@@ -369,12 +369,12 @@ int SnoreCoreTime::tween_property(
 
 int SnoreCoreTime::_tween(
 		Object *p_object,
-		const String &p_key,
+		const StringName &p_key,
 		bool p_is_property,
 		const Variant &p_initial_val,
 		const Variant &p_final_val,
 		float p_duration,
-		const String &p_ease_name,
+		const StringName &p_ease_name,
 		float p_delay,
 		int p_time_type,
 		const Callable &p_on_completed_callback,

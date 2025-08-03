@@ -66,7 +66,7 @@ void stack_trace();
 
 void print_rich(const String &p_message);
 
-void print_with_color(const String &p_message, const String &p_color);
+void print_with_color(const String &p_message, const StringName &p_color);
 
 } // namespace Log
 

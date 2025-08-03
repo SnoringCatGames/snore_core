@@ -10,11 +10,7 @@ namespace godot {
 
 class AnnotationsManager : public SnoreCoreSubmoduleWithNode {
 	GDCLASS(AnnotationsManager, SnoreCoreSubmoduleWithNode)
-	SC_SUBMODULE_WITH_NODE_CLASS(
-			AnnotationsManager,
-			SnoreCore,
-			"AnnotationsManagerProxy",
-			Node2D)
+	SC_SUBMODULE_CLASS(AnnotationsManager, SnoreCore)
 
 public:
 	AnnotationsManager() = default;

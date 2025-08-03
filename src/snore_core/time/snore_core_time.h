@@ -107,9 +107,10 @@ public:
 	// Gets the time tracker for a specific time type.
 	TimeTracker *_get_time_tracker_for_time_type(int p_time_type) const;
 	// Gets the elapsed time key for a specific time type.
-	String _get_elapsed_time_key_for_time_type(int p_time_type) const;
+	StringName _get_elapsed_time_key_for_time_type(int p_time_type) const;
 	// Gets a time type that uses the given elapsed time key.
-	int _get_time_type_from_key(const String &p_elapsed_time_key) const;
+	int _get_time_type_from_key(
+			StringName const StringNameNameName &p_elapsed_time_key) const;
 
 	// Gets the combined time scale.
 	float get_combined_scale() const;
@@ -133,11 +134,11 @@ public:
 	// Tweens a method call over time.
 	int tween_method(
 			Object *p_object,
-			const String &p_key,
+			const StringNameName &p_key,
 			const Variant &p_initial_val,
 			const Variant &p_final_val,
 			float p_duration,
-			const String &p_ease_name = "ease_in_out",
+			const StringName &p_ease_name = "ease_in_out",
 			float p_delay = 0.0,
 			int p_time_type = 0,
 			const Callable &p_on_completed_callback = Callable(),
@@ -146,11 +147,11 @@ public:
 	// Tweens a property over time.
 	int tween_property(
 			Object *p_object,
-			const String &p_key,
+			const StringNameName &p_key,
 			const Variant &p_initial_val,
 			const Variant &p_final_val,
 			float p_duration,
-			const String &p_ease_name = "ease_in_out",
+			const StringName &p_ease_name = "ease_in_out",
 			float p_delay = 0.0,
 			int p_time_type = 0,
 			const Callable &p_on_completed_callback = Callable(),
@@ -159,12 +160,12 @@ public:
 	// Internal tween implementation.
 	int _tween(
 			Object *p_object,
-			const String &p_key,
+			const StringName &p_key,
 			bool p_is_property,
 			const Variant &p_initial_val,
 			const Variant &p_final_val,
 			float p_duration,
-			const String &p_ease_name,
+			const StringName &p_ease_name,
 			float p_delay,
 			int p_time_type,
 			const Callable &p_on_completed_callback,

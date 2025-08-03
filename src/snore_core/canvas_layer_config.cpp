@@ -6,8 +6,6 @@
 
 using namespace godot;
 
-CanvasLayerConfig::CanvasLayerConfig() {}
-
 CanvasLayerConfig::CanvasLayerConfig(
 		const StringName &p_name,
 		Node::ProcessMode p_process_mode) {

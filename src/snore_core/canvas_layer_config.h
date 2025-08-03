@@ -12,7 +12,7 @@ class CanvasLayerConfig : public Resource {
 	GDCLASS(CanvasLayerConfig, Resource)
 
 public:
-	CanvasLayerConfig();
+	CanvasLayerConfig() = default;
 	CanvasLayerConfig(
 			const StringName &p_name,
 			Node::ProcessMode p_process_mode);

@@ -58,7 +58,7 @@ void godot::Log::print_rich(const String &p_message) {
 
 void godot::Log::print_with_color(
 		const String &p_message,
-		const String &p_color) {
+		const StringName &p_color) {
 	print_rich(vformat("[color=%s]%s[/color]", p_color, p_message));
 }
 

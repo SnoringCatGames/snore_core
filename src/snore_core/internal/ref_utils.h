@@ -30,6 +30,14 @@ template <typename T, typename... Args> Ref<T> set_up_ref(Args... args) {
 	return ref;
 }
 
+bool is_instance_valid(const Object *p_object) {
+	return p_object && ObjectDB::get_instance(p_object->get_instance_id());
+}
+
+template <typename T> bool is_instance_valid(const Ref<T> &p_ref) {
+	return p_ref.is_valid() && ObjectDB::get_instance(p_ref->get_instance_id());
+}
+
 } //namespace godot
 
 #endif // REF_UTILS_H

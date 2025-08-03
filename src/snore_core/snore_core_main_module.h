@@ -79,15 +79,14 @@ public:
 
 	SceneTree *get_scene_tree() const;
 	Viewport *get_viewport() const;
-	void add_node_to_root(Node *p_node, const StringName &p_name);
+	void add_utility_node(Node *p_node, const StringName &p_name);
 
 protected:
 	static void _bind_methods();
 
 private:
 	static bool are_types_registered;
-
-	static bool are_tests_running = false;
+	static bool are_tests_running;
 
 	std::unordered_map<StringName, SnoreCoreRootModule *> modules;
 

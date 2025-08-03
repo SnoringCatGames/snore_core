@@ -14,18 +14,6 @@ SC_SETTINGS_CLASS_DEFINITION(SnoreCoreMainSettings, SnoreCore)
 
 void SnoreCoreMainSettings::_bind_methods() {
 	ClassDB::bind_method(
-			D_METHOD("get_canvas_layers"),
-			&SnoreCoreMainSettings::get_canvas_layers);
-	ClassDB::bind_method(
-			D_METHOD("set_canvas_layers", "p_layers"),
-			&SnoreCoreMainSettings::set_canvas_layers);
-	ADD_PROPERTY(
-			EXPORTED_PROPERTY_INFO_WITH_HINT(
-					Variant::ARRAY, "canvas_layers", PROPERTY_HINT_ARRAY_TYPE,
-					"SnoreCoreCanvasLayerConfig"),
-			"set_canvas_layers", "get_canvas_layers");
-
-	ClassDB::bind_method(
 			D_METHOD("get_debug_time_scale"),
 			&SnoreCoreMainSettings::get_debug_time_scale);
 	ClassDB::bind_method(

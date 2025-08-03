@@ -61,6 +61,7 @@
 using namespace godot;
 
 bool SnoreCore::are_types_registered = false;
+bool SnoreCore::are_tests_running = false;
 
 void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
@@ -271,15 +272,16 @@ Viewport *SnoreCore::get_viewport() const {
 	return root->get_viewport();
 }
 
-void SnoreCore::add_node_to_root(Node *p_node, const StringName &p_name) {
+void SnoreCore::add_utility_node(Node *p_node, const StringName &p_name) {
 	p_node->set_name(p_name);
-	SceneTree *tree = get_scene_tree();
-	if (tree) {
-		Window *root = tree->get_root();
-		if (root) {
-			root->add_child(p_node);
-		}
-	}
+	// FIXME: LEFT OFF HERE
+	// SceneTree *tree = get_scene_tree();
+	// if (tree) {
+	// 	Window *root = tree->get_root();
+	// 	if (root) {
+	// 		root->add_child(p_node);
+	// 	}
+	// }
 }
 
 bool SnoreCore::are_tests_enabled() {
