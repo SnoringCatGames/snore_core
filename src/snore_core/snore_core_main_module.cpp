@@ -3,6 +3,7 @@
 #include "snore_core/annotation.h"
 #include "snore_core/annotations_manager.h"
 #include "snore_core/canvas_layer_config.h"
+#include "snore_core/canvas_layer_service.h"
 #include "snore_core/circular_buffer.h"
 #include "snore_core/geometry.h"
 #include "snore_core/internal/registration_utils.h"
@@ -40,6 +41,7 @@
 #include "snore_core/test_annotation.h"
 #include "snore_core/test_annotations_manager.h"
 #include "snore_core/test_canvas_layer_config.h"
+#include "snore_core/test_canvas_layer_service.h"
 #include "snore_core/test_circular_buffer.h"
 #include "snore_core/test_geometry.h"
 #include "snore_core/test_logger.h"
@@ -81,6 +83,7 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 
 	GDREGISTER_CLASS(AnnotationsManager);
 	GDREGISTER_CLASS(CanvasLayerConfig);
+	GDREGISTER_CLASS(CanvasLayerService);
 	GDREGISTER_CLASS(CircularBuffer);
 	GDREGISTER_CLASS(Geometry);
 	GDREGISTER_CLASS(Logger);
