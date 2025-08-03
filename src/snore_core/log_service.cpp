@@ -1,4 +1,4 @@
-#include "snore_core/logger.h"
+#include "snore_core/log_service.h"
 
 #include "snore_core/internal/debug_utils.h"
 #include "snore_core/snore_core_main_settings.h"
@@ -13,16 +13,16 @@
 
 using namespace godot;
 
-void Logger::set_up() {
+void LogService::set_up() {
 	recent_logs.instantiate();
 	recent_logs->initialize(MAX_LOG_COUNT);
 
 	print_front_matter();
 }
 
-void Logger::reset() { recent_logs.unref(); }
+void LogService::reset() { recent_logs.unref(); }
 
-void Logger::script_print(const Variant &p_message = Variant()) {
+void LogService::script_print(const Variant &p_message = Variant()) {
 	String message;
 	if (p_message.get_type() == Variant::STRING) {
 		message = p_message;
@@ -32,7 +32,7 @@ void Logger::script_print(const Variant &p_message = Variant()) {
 	print_helper(message, true, false);
 }
 
-void Logger::script_warning(const Variant &p_message) {
+void LogService::script_warning(const Variant &p_message) {
 	String message;
 	if (p_message.get_type() == Variant::STRING) {
 		message = p_message;
@@ -42,7 +42,7 @@ void Logger::script_warning(const Variant &p_message) {
 	warning_helper(message);
 }
 
-void Logger::script_error(const Variant &p_message) {
+void LogService::script_error(const Variant &p_message) {
 	String message;
 	if (p_message.get_type() == Variant::STRING) {
 		message = p_message;
@@ -52,7 +52,7 @@ void Logger::script_error(const Variant &p_message) {
 	error_helper(message, true);
 }
 
-void Logger::script_error_skip_assert(const Variant &p_message) {
+void LogService::script_error_skip_assert(const Variant &p_message) {
 	String message;
 	if (p_message.get_type() == Variant::STRING) {
 		message = p_message;
@@ -62,15 +62,17 @@ void Logger::script_error_skip_assert(const Variant &p_message) {
 	error_helper(message, false);
 }
 
-void Logger::print_rich(const String &p_message) {
+void LogService::print_rich(const String &p_message) {
 	print_helper(p_message, true, true);
 }
 
-void Logger::print_with_color(const Variant &p_message, const String &p_color) {
+void LogService::print_with_color(
+		const Variant &p_message,
+		const String &p_color) {
 	print_rich(vformat("[color=%s]%s[/color]", p_color, p_message.stringify()));
 }
 
-void Logger::print_helper(
+void LogService::print_helper(
 		const String &p_message,
 		bool p_print_to_console,
 		bool p_is_rich) {
@@ -94,8 +96,8 @@ void Logger::print_helper(
 	}
 }
 
-void Logger::error_helper(const String &p_message, bool p_should_assert) {
-	// FIXME: Integrate with the SnoreCoreTime submodule.
+void LogService::error_helper(const String &p_message, bool p_should_assert) {
+	// FIXME: Integrate with the TimeService submodule.
 	// float play_time = S.time.get_play_time() if is_instance_valid(S.time)
 	// else -1.0;
 	const float play_time = -1.0;
@@ -113,7 +115,7 @@ void Logger::error_helper(const String &p_message, bool p_should_assert) {
 	}
 }
 
-void Logger::warning_helper(const String &p_message) {
+void LogService::warning_helper(const String &p_message) {
 	const String timestamped_message = prepend_time(p_message);
 	const String warning_message = vformat("WARNING: %s", timestamped_message);
 
@@ -121,13 +123,13 @@ void Logger::warning_helper(const String &p_message) {
 	print_skip_console(vformat("**WARNING**: %s", timestamped_message));
 }
 
-void Logger::report_submodule_initialized(const StringName &p_name) {
+void LogService::report_submodule_initialized(const StringName &p_name) {
 	if (SnoreCoreMainSettings::get()->get_log_initialization_events()) {
 		print("[INITIALIZED] %s", p_name);
 	}
 }
 
-void Logger::print_front_matter() {
+void LogService::print_front_matter() {
 	print(SnoreCoreUtils::get_datetime_string());
 
 	const Viewport *viewport = SnoreCore::get()->get_viewport();
@@ -146,27 +148,28 @@ void Logger::print_front_matter() {
 	}
 }
 
-String Logger::prepend_time(const String &p_message) {
+String LogService::prepend_time(const String &p_message) {
 	return vformat("[%s] %s", SnoreCoreUtils::get_time_string(), p_message);
 }
 
-void Logger::_bind_methods() {
+void LogService::_bind_methods() {
 	ClassDB::bind_method(
-			D_METHOD("print", "p_message"), &Logger::script_print,
+			D_METHOD("print", "p_message"), &LogService::script_print,
 			DEFVAL(Variant()));
 
 	ClassDB::bind_method(
-			D_METHOD("warning", "p_message"), &Logger::script_warning);
+			D_METHOD("warning", "p_message"), &LogService::script_warning);
 
-	ClassDB::bind_method(D_METHOD("error", "p_message"), &Logger::script_error);
+	ClassDB::bind_method(
+			D_METHOD("error", "p_message"), &LogService::script_error);
 
 	ClassDB::bind_method(
 			D_METHOD("error_skip_assert", "p_message"),
-			&Logger::script_error_skip_assert);
+			&LogService::script_error_skip_assert);
 
 	ClassDB::bind_method(
 			D_METHOD("report_submodule_initialized", "p_name"),
-			&Logger::report_submodule_initialized, DEFVAL(true));
+			&LogService::report_submodule_initialized, DEFVAL(true));
 
 	BIND_CONSTANT(MAX_LOG_COUNT);
 }

@@ -1,6 +1,6 @@
 #include "snore_core/time/time_tracker.h"
 
-#include <godot_cpp/classes/snore_core_time.hpp>
+#include <godot_cpp/classes/time_service.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
 using namespace godot;
@@ -8,7 +8,7 @@ using namespace godot;
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
 TimeTracker::TimeTracker() {
-	time_scale = SnoreCoreTime::DEFAULT_TIME_SCALE;
+	time_scale = TimeService::DEFAULT_TIME_SCALE;
 	start_clock_time = 0.0;
 	elapsed_clock_time = 0.0;
 	elapsed_physics_time = 0.0;

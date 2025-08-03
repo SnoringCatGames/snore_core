@@ -1,9 +1,9 @@
-#ifndef TEST_ANNOTATIONS_MANAGER_H
-#define TEST_ANNOTATIONS_MANAGER_H
+#ifndef TEST_ANNOTATIONS_SERVICE_H
+#define TEST_ANNOTATIONS_SERVICE_H
 
 #ifdef SC_TESTS_ENABLED
 
-#include "snore_core/annotations_manager.h"
+#include "snore_core/annotations_service.h"
 
 #include "snore_core/internal/test_utils.h"
 
@@ -15,4 +15,4 @@ namespace godot {
 
 #endif // SC_TESTS_ENABLED
 
-#endif // TEST_ANNOTATIONS_MANAGER_H
+#endif // TEST_ANNOTATIONS_SERVICE_H

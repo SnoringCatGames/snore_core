@@ -8,7 +8,7 @@
 #include <godot_cpp/variant/callable.hpp>
 
 // Forward declaration to avoid circular dependency
-class SnoreCoreTime;
+class TimeService;
 
 namespace godot {
 
@@ -20,7 +20,7 @@ class TimeDebouncer : public RefCounted {
 
 private:
 	int time_type;
-	SnoreCoreTime *snore_core_time;
+	TimeService *time_service;
 	TimeTracker *time_tracker;
 	StringName elapsed_time_key;
 	Callable callback;
@@ -42,7 +42,7 @@ public:
 	// Initializes the debouncer.
 	void initialize(
 			Object *p_parent,
-			SnoreCoreTime *p_snore_core_time,
+			TimeService *p_time_service,
 			int p_time_type,
 			const Callable &p_callback,
 			float p_interval,

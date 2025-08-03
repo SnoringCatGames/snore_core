@@ -3,7 +3,7 @@
 #include "snore_core/geometry_constants.h"
 #include "snore_core/internal/debug_utils.h"
 #include "snore_core/internal/ref_utils.h"
-#include "snore_core/logger.h"
+#include "snore_core/log_service.h"
 
 #include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/canvas_item.hpp>

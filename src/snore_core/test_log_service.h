@@ -1,16 +1,16 @@
-#ifndef TEST_LOGGER_H
-#define TEST_LOGGER_H
+#ifndef TEST_log_service_H
+#define TEST_log_service_H
 
 #ifdef SC_TESTS_ENABLED
 
-#include "snore_core/logger.h"
+#include "snore_core/log_service.h"
 
 #include <gtest/gtest.h>
 
 namespace godot {
 
-TEST(LoggerTest, PrintQueue) {
-	Logger *log = memnew(Logger);
+TEST(LogServiceTest, PrintQueue) {
+	LogService *log = memnew(LogService);
 	log->set_up();
 
 	log->print("Test message 1");
@@ -35,4 +35,4 @@ TEST(LoggerTest, PrintQueue) {
 
 #endif // SC_TESTS_ENABLED
 
-#endif // TEST_LOGGER_H
+#endif // TEST_log_service_H

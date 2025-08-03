@@ -3,8 +3,7 @@
 #include "snore_core/canvas_layer_config.h"
 #include "snore_core/canvas_layer_name.h"
 #include "snore_core/internal/debug_utils.h"
-#include "snore_core/logger.h"
-#include "snore_core/snore_core_utils.h"
+#include "snore_core/log_service.h"
 
 #include <godot_cpp/classes/canvas_layer.hpp>
 #include <godot_cpp/classes/control.hpp>
@@ -51,20 +50,6 @@ void CanvasLayerService::set_up() {
 	root->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 
 	create_canvas_layers();
-
-	// Create the HUDs.
-	if (!SnoreCoreUtils::is_running_in_isolated_scene_mode() ||
-		Object::cast_to<ScaffolderLevel>(
-				SnoreCore::get()->get_scene_tree()->get_current_scene())) {
-		Node *super_hud =
-				ScaffolderSettings::get()->get_super_hud_scene()->instantiate();
-		add_to_layer(CanvasLayerName::super_hud(), super_hud);
-		Scaffolder::get()->set_super_hud(super_hud);
-
-		Node *hud = ScaffolderSettings::get()->get_hud_scene()->instantiate();
-		add_to_layer(CanvasLayerName::hud(), hud);
-		Scaffolder::get()->set_hud(hud);
-	}
 }
 
 void CanvasLayerService::reset() {

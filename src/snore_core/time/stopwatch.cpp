@@ -2,7 +2,7 @@
 
 #include "snore_core/internal/debug_utils.h"
 
-#include <godot_cpp/classes/snore_core_time.hpp>
+#include <godot_cpp/classes/time_service.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/error_macros.hpp>
 

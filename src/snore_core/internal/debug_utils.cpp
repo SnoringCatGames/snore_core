@@ -2,56 +2,56 @@
 
 #include "snore_core/internal/string_utils.h"
 #include "snore_core/internal/test_utils.h"
-#include "snore_core/logger.h"
+#include "snore_core/log_service.h"
 
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 void godot::Log::Internal::print(const String &p_message) {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->print(p_message);
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->print(p_message);
 	} else {
 	}
 }
 
 void godot::Log::Internal::warning(const String &p_message) {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->print(p_message);
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->print(p_message);
 	} else {
 	}
 }
 
 void godot::Log::Internal::error(const String &p_message) {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->error_skip_assert(p_message);
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->error_skip_assert(p_message);
 	} else {
 	}
 }
 
 void godot::Log::empty_line() {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->print();
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->print();
 	} else {
 	}
 }
 
 void godot::Log::stack_trace() {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->error(get_stack_trace());
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->error(get_stack_trace());
 	} else {
 	}
 }
 
 void godot::Log::print_rich(const String &p_message) {
-	Logger *logger = Logger::get_maybe();
-	if (logger) {
-		logger->print_rich(p_message);
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		log_service->print_rich(p_message);
 	} else {
 	}
 }

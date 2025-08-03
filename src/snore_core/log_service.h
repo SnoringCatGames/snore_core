@@ -1,5 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOG_SERVICE_H
+#define LOG_SERVICE_H
 
 #include "snore_core/circular_buffer.h"
 #include "snore_core/snore_core_main_module.h"
@@ -12,15 +12,15 @@
 
 namespace godot {
 
-class Logger : public SnoreCoreSubmodule {
-	GDCLASS(Logger, SnoreCoreSubmodule)
-	SC_SUBMODULE_CLASS(Logger, SnoreCore)
+class LogService : public SnoreCoreSubmodule {
+	GDCLASS(LogService, SnoreCoreSubmodule)
+	SC_SUBMODULE_CLASS(LogService, SnoreCore)
 
 public:
 	static const constexpr int32_t MAX_LOG_COUNT = 200;
 
-	Logger() = default;
-	~Logger() = default;
+	LogService() = default;
+	~LogService() = default;
 
 	template <typename... VarArgs>
 	void print(const String &p_message = String(), const VarArgs... p_args) {
@@ -79,4 +79,4 @@ private:
 
 } // namespace godot
 
-#endif // LOGGER_H
+#endif // LOG_SERVICE_H

@@ -1,23 +1,23 @@
 #include "snore_core/snore_core_main_module.h"
 
 #include "snore_core/annotation.h"
-#include "snore_core/annotations_manager.h"
+#include "snore_core/annotations_service.h"
 #include "snore_core/canvas_layer_config.h"
 #include "snore_core/canvas_layer_service.h"
 #include "snore_core/circular_buffer.h"
 #include "snore_core/geometry.h"
 #include "snore_core/internal/registration_utils.h"
 #include "snore_core/internal/snore_core_module_utils.h"
-#include "snore_core/logger.h"
+#include "snore_core/log_service.h"
 #include "snore_core/rotated_shape.h"
 #include "snore_core/snore_core_main_settings.h"
 #include "snore_core/snore_core_root_module.h"
 #include "snore_core/snore_core_settings.h"
 #include "snore_core/snore_core_utils.h"
-#include "snore_core/time/snore_core_time.h"
 #include "snore_core/time/stopwatch.h"
 #include "snore_core/time/time_debouncer.h"
 #include "snore_core/time/time_interval.h"
+#include "snore_core/time/time_service.h"
 #include "snore_core/time/time_throttler.h"
 #include "snore_core/time/time_timeout.h"
 #include "snore_core/time/time_tracker.h"
@@ -39,22 +39,22 @@
 
 #include "snore_core/internal/test_internal_string_utils.h"
 #include "snore_core/test_annotation.h"
-#include "snore_core/test_annotations_manager.h"
+#include "snore_core/test_annotations_service.h"
 #include "snore_core/test_canvas_layer_config.h"
 #include "snore_core/test_canvas_layer_service.h"
 #include "snore_core/test_circular_buffer.h"
 #include "snore_core/test_geometry.h"
-#include "snore_core/test_logger.h"
+#include "snore_core/test_log_service.h"
 #include "snore_core/test_rotated_shape.h"
 #include "snore_core/test_snore_core_main_module.h"
 #include "snore_core/test_snore_core_main_settings.h"
 #include "snore_core/test_snore_core_root_module.h"
 #include "snore_core/test_snore_core_settings.h"
 #include "snore_core/test_snore_core_utils.h"
-#include "snore_core/time/test_snore_core_time.h"
 #include "snore_core/time/test_stopwatch.h"
 #include "snore_core/time/test_time_debouncer.h"
 #include "snore_core/time/test_time_interval.h"
+#include "snore_core/time/test_time_service.h"
 #include "snore_core/time/test_time_throttler.h"
 #include "snore_core/time/test_time_timeout.h"
 #include "snore_core/time/test_time_tracker.h"
@@ -81,14 +81,14 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreRootModule);
 	GDREGISTER_VIRTUAL_CLASS(Annotation);
 
-	GDREGISTER_CLASS(AnnotationsManager);
+	GDREGISTER_CLASS(AnnotationsService);
 	GDREGISTER_CLASS(CanvasLayerConfig);
 	GDREGISTER_CLASS(CanvasLayerService);
 	GDREGISTER_CLASS(CircularBuffer);
 	GDREGISTER_CLASS(Geometry);
-	GDREGISTER_CLASS(Logger);
+	GDREGISTER_CLASS(LogService);
 	GDREGISTER_CLASS(RotatedShape);
-	GDREGISTER_CLASS(SnoreCoreTime);
+	GDREGISTER_CLASS(TimeService);
 	GDREGISTER_CLASS(SnoreCoreUtils);
 	GDREGISTER_CLASS(SnoreCore);
 	GDREGISTER_CLASS(SnoreCoreMainSettings);
@@ -169,10 +169,10 @@ void SnoreCore::set_up_main(
 
 std::vector<SnoreCoreSubmodule *> SnoreCore::instantiate_submodules() {
 	return {
-		memnew(Logger),
+		memnew(LogService),
 		memnew(SnoreCoreUtils),
-		memnew(SnoreCoreTime),
-		memnew(AnnotationsManager),
+		memnew(TimeService),
+		memnew(AnnotationsService),
 	};
 }
 

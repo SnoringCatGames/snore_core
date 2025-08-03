@@ -1,5 +1,5 @@
-#ifndef SNORE_CORE_TIME_H
-#define SNORE_CORE_TIME_H
+#ifndef TIME_SERVICE_H
+#define TIME_SERVICE_H
 
 #include "snore_core/snore_core_main_module.h"
 #include "snore_core/snore_core_submodule.h"
@@ -33,10 +33,10 @@ namespace godot {
 //     timeouts, intervals, tweens, throttles, and debounces.
 // -   For an high-level description of this time-tracking, check-out this
 // post:
-// https://devlog.levi.dev/2021/05/wibbly-wobbly-timey-wimey-tracking-snore_core_time.html
-class SnoreCoreTime : public SnoreCoreSubmodule {
-	GDCLASS(SnoreCoreTime, SnoreCoreSubmodule)
-	SC_SUBMODULE_CLASS(SnoreCoreTime, SnoreCore)
+// https://devlog.levi.dev/2021/05/wibbly-wobbly-timey-wimey-tracking-time_service.html
+class TimeService : public SnoreCoreSubmodule {
+	GDCLASS(TimeService, SnoreCoreSubmodule)
+	SC_SUBMODULE_CLASS(TimeService, SnoreCore)
 
 public:
 	static const float PHYSICS_FPS;
@@ -76,8 +76,8 @@ public:
 	static float play_time();
 	static float scaled_play_time();
 
-	SnoreCoreTime();
-	~SnoreCoreTime();
+	TimeService();
+	~TimeService();
 
 	void _init() override;
 	void _ready() override;
@@ -225,4 +225,4 @@ protected:
 
 } // namespace godot
 
-#endif // SNORE_CORE_TIME_H
+#endif // TIME_SERVICE_H

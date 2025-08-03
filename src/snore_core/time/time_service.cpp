@@ -11,32 +11,32 @@ using namespace godot;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-const float SnoreCoreTime::PHYSICS_FPS = 60.0;
-const float SnoreCoreTime::PHYSICS_TIME_STEP = 1.0 / PHYSICS_FPS;
+const float TimeService::PHYSICS_FPS = 60.0;
+const float TimeService::PHYSICS_TIME_STEP = 1.0 / PHYSICS_FPS;
 
-const float SnoreCoreTime::DEFAULT_TIME_SCALE = 1.0;
-const float SnoreCoreTime::DEFAULT_ADDITIONAL_DEBUG_TIME_SCALE = 1.0;
-const float SnoreCoreTime::GARBAGE_COLLECTION_INTERVAL = 30.0;
+const float TimeService::DEFAULT_TIME_SCALE = 1.0;
+const float TimeService::DEFAULT_ADDITIONAL_DEBUG_TIME_SCALE = 1.0;
+const float TimeService::GARBAGE_COLLECTION_INTERVAL = 30.0;
 
-float SnoreCoreTime::play_time() {
-	if (SnoreCoreTime *time = SnoreCoreTime::get_maybe()) {
+float TimeService::play_time() {
+	if (TimeService *time = TimeService::get_maybe()) {
 		return time->get_play_time();
 	}
 	return 0.0;
 }
 
-float SnoreCoreTime::scaled_play_time() {
-	if (SnoreCoreTime *time = SnoreCoreTime::get_maybe()) {
+float TimeService::scaled_play_time() {
+	if (TimeService *time = TimeService::get_maybe()) {
 		return time->get_scaled_play_time();
 	}
 	return 0.0;
 }
 
-void SnoreCoreTime::set_up() {}
+void TimeService::set_up() {}
 
-void SnoreCoreTime::reset() {}
+void TimeService::reset() {}
 
-SnoreCoreTime::SnoreCoreTime() {
+TimeService::TimeService() {
 	time_scale = DEFAULT_TIME_SCALE;
 	additional_debug_time_scale = DEFAULT_ADDITIONAL_DEBUG_TIME_SCALE;
 	_app_time = nullptr;
@@ -44,13 +44,13 @@ SnoreCoreTime::SnoreCoreTime() {
 	_last_timeout_id = -1;
 }
 
-SnoreCoreTime::~SnoreCoreTime() {
+TimeService::~TimeService() {
 	// Destructor implementation.
 }
 
-void SnoreCoreTime::_init() { set_process_mode(PROCESS_MODE_ALWAYS); }
+void TimeService::_init() { set_process_mode(PROCESS_MODE_ALWAYS); }
 
-void SnoreCoreTime::_ready() {
+void TimeService::_ready() {
 	_app_time = memnew(TimeTracker);
 	_app_time->set_process_mode(PROCESS_MODE_ALWAYS);
 	add_child(_app_time);
@@ -60,17 +60,17 @@ void SnoreCoreTime::_ready() {
 	add_child(_play_time);
 
 	set_interval(
-			callable_mp(this, &SnoreCoreTime::collect_garbage),
+			callable_mp(this, &TimeService::collect_garbage),
 			GARBAGE_COLLECTION_INTERVAL);
 }
 
-void SnoreCoreTime::_process(double p_delta) {
+void TimeService::_process(double p_delta) {
 	_handle_tweens();
 	_handle_timeouts();
 	_handle_intervals();
 }
 
-void SnoreCoreTime::_handle_tweens() {
+void TimeService::_handle_tweens() {
 	Array finished_tween_ids;
 	for (int i = 0; i < _tweens.size(); ++i) {
 		Variant key = _tweens.get_key_list()[i];
@@ -89,7 +89,7 @@ void SnoreCoreTime::_handle_tweens() {
 	}
 }
 
-void SnoreCoreTime::_handle_timeouts() {
+void TimeService::_handle_timeouts() {
 	int expired_timeout_id = -1;
 	for (int i = 0; i < _timeouts.size(); ++i) {
 		Variant key = _timeouts.get_key_list()[i];
@@ -110,7 +110,7 @@ void SnoreCoreTime::_handle_timeouts() {
 	}
 }
 
-void SnoreCoreTime::_handle_intervals() {
+void TimeService::_handle_intervals() {
 	int triggered_interval_id = -1;
 	for (int i = 0; i < _intervals.size(); ++i) {
 		Variant key = _intervals.get_key_list()[i];
@@ -130,7 +130,7 @@ void SnoreCoreTime::_handle_intervals() {
 	}
 }
 
-void SnoreCoreTime::collect_garbage() {
+void TimeService::collect_garbage() {
 	Array collections = Array::make(
 			_timeouts, _intervals, _tweens, _throttled_callbacks,
 			_debounced_callbacks);
@@ -169,32 +169,32 @@ void SnoreCoreTime::collect_garbage() {
 	}
 }
 
-int SnoreCoreTime::get_next_task_id() {
+int TimeService::get_next_task_id() {
 	_last_timeout_id += 1;
 	return _last_timeout_id;
 }
 
-float SnoreCoreTime::get_app_time() const {
+float TimeService::get_app_time() const {
 	return get_elapsed_time(TimeType::APP_PHYSICS);
 }
 
-float SnoreCoreTime::get_clock_time() const {
+float TimeService::get_clock_time() const {
 	return get_elapsed_time(TimeType::APP_CLOCK);
 }
 
-float SnoreCoreTime::get_play_time() const {
+float TimeService::get_play_time() const {
 	return get_elapsed_time(TimeType::PLAY_PHYSICS);
 }
 
-float SnoreCoreTime::get_scaled_play_time() const {
+float TimeService::get_scaled_play_time() const {
 	return get_elapsed_time(TimeType::PLAY_PHYSICS_SCALED);
 }
 
-int SnoreCoreTime::get_play_physics_frame_count() const {
+int TimeService::get_play_physics_frame_count() const {
 	return _play_time ? _play_time->get_physics_frame_count() : 0;
 }
 
-float SnoreCoreTime::get_elapsed_time(int p_time_type) const {
+float TimeService::get_elapsed_time(int p_time_type) const {
 	TimeTracker *tracker = _get_time_tracker_for_time_type(p_time_type);
 	StringName key = _get_elapsed_time_key_for_time_type(p_time_type);
 
@@ -223,7 +223,7 @@ float SnoreCoreTime::get_elapsed_time(int p_time_type) const {
 	return 0.0;
 }
 
-TimeTracker *SnoreCoreTime::_get_time_tracker_for_time_type(
+TimeTracker *TimeService::_get_time_tracker_for_time_type(
 		int p_time_type) const {
 	switch (p_time_type) {
 		case TimeType::APP_PHYSICS:
@@ -247,7 +247,7 @@ TimeTracker *SnoreCoreTime::_get_time_tracker_for_time_type(
 	}
 }
 
-StringName SnoreCoreTime::_get_elapsed_time_key_for_time_type(
+StringName TimeService::_get_elapsed_time_key_for_time_type(
 		int p_time_type) const {
 	switch (p_time_type) {
 		case TimeType::APP_PHYSICS:
@@ -277,7 +277,7 @@ StringName SnoreCoreTime::_get_elapsed_time_key_for_time_type(
 	}
 }
 
-int SnoreCoreTime::_get_time_type_from_key(
+int TimeService::_get_time_type_from_key(
 		const StringName &p_elapsed_time_key) const {
 	if (p_elapsed_time_key == "elapsed_physics_time") {
 		return TimeType::APP_PHYSICS; // Default to APP_PHYSICS
@@ -301,19 +301,19 @@ int SnoreCoreTime::_get_time_type_from_key(
 	}
 }
 
-float SnoreCoreTime::get_combined_scale() const {
+float TimeService::get_combined_scale() const {
 	return time_scale * additional_debug_time_scale;
 }
 
-float SnoreCoreTime::scale_delta(float p_duration) const {
+float TimeService::scale_delta(float p_duration) const {
 	return p_duration * get_combined_scale();
 }
 
-float SnoreCoreTime::get_scaled_time_step() const {
+float TimeService::get_scaled_time_step() const {
 	return PHYSICS_TIME_STEP * get_combined_scale();
 }
 
-void SnoreCoreTime::_set_time_scale(float p_value) {
+void TimeService::_set_time_scale(float p_value) {
 	time_scale = p_value;
 	if (_app_time) {
 		_app_time->set_time_scale(get_combined_scale());
@@ -323,7 +323,7 @@ void SnoreCoreTime::_set_time_scale(float p_value) {
 	}
 }
 
-void SnoreCoreTime::_set_additional_debug_time_scale(float p_value) {
+void TimeService::_set_additional_debug_time_scale(float p_value) {
 	additional_debug_time_scale = p_value;
 	if (_app_time) {
 		_app_time->set_time_scale(get_combined_scale());
@@ -333,7 +333,7 @@ void SnoreCoreTime::_set_additional_debug_time_scale(float p_value) {
 	}
 }
 
-int SnoreCoreTime::tween_method(
+int TimeService::tween_method(
 		Object *p_object,
 		const StringName &p_key,
 		const Variant &p_initial_val,
@@ -350,7 +350,7 @@ int SnoreCoreTime::tween_method(
 			p_arguments);
 }
 
-int SnoreCoreTime::tween_property(
+int TimeService::tween_property(
 		Object *p_object,
 		const StringName &p_key,
 		const Variant &p_initial_val,
@@ -367,7 +367,7 @@ int SnoreCoreTime::tween_property(
 			p_arguments);
 }
 
-int SnoreCoreTime::_tween(
+int TimeService::_tween(
 		Object *p_object,
 		const StringName &p_key,
 		bool p_is_property,
@@ -385,7 +385,7 @@ int SnoreCoreTime::_tween(
 	// p_final_val, p_duration, p_ease_name, p_delay, p_time_type); if
 	// (p_on_completed_callback.is_valid()) {
 	//     tween->connect("tween_all_completed", callable_mp(this,
-	//     &SnoreCoreTime::_call_tween_completed_callback).bind(p_on_completed_callback,
+	//     &TimeService::_call_tween_completed_callback).bind(p_on_completed_callback,
 	//     p_arguments));
 	// }
 	// tween->start();
@@ -394,13 +394,13 @@ int SnoreCoreTime::_tween(
 	return -1; // Placeholder
 }
 
-void SnoreCoreTime::_call_tween_completed_callback(
+void TimeService::_call_tween_completed_callback(
 		const Callable &p_on_completed_callback,
 		const Array &p_arguments) {
 	p_on_completed_callback.callv(p_arguments);
 }
 
-bool SnoreCoreTime::clear_tween(int p_tween_id, bool p_triggers_completed) {
+bool TimeService::clear_tween(int p_tween_id, bool p_triggers_completed) {
 	if (!_tweens.has(p_tween_id)) {
 		return false;
 	}
@@ -417,7 +417,7 @@ bool SnoreCoreTime::clear_tween(int p_tween_id, bool p_triggers_completed) {
 	return true;
 }
 
-int SnoreCoreTime::set_timeout(
+int TimeService::set_timeout(
 		const Callable &p_callback,
 		float p_delay,
 		const Array &p_arguments,
@@ -430,7 +430,7 @@ int SnoreCoreTime::set_timeout(
 	return timeout->get_id();
 }
 
-bool SnoreCoreTime::clear_timeout(int p_timeout_id, bool p_triggers_timeout) {
+bool TimeService::clear_timeout(int p_timeout_id, bool p_triggers_timeout) {
 	if (!_timeouts.has(p_timeout_id)) {
 		return false;
 	}
@@ -445,7 +445,7 @@ bool SnoreCoreTime::clear_timeout(int p_timeout_id, bool p_triggers_timeout) {
 	return true;
 }
 
-int SnoreCoreTime::set_interval(
+int TimeService::set_interval(
 		const Callable &p_callback,
 		float p_period,
 		const Array &p_arguments,
@@ -458,9 +458,7 @@ int SnoreCoreTime::set_interval(
 	return interval->get_id();
 }
 
-bool SnoreCoreTime::clear_interval(
-		int p_interval_id,
-		bool p_triggers_interval) {
+bool TimeService::clear_interval(int p_interval_id, bool p_triggers_interval) {
 	if (!_intervals.has(p_interval_id)) {
 		return false;
 	}
@@ -475,7 +473,7 @@ bool SnoreCoreTime::clear_interval(
 	return true;
 }
 
-Callable SnoreCoreTime::throttle(
+Callable TimeService::throttle(
 		const Callable &p_callback,
 		float p_interval,
 		bool p_invokes_at_end,
@@ -488,7 +486,7 @@ Callable SnoreCoreTime::throttle(
 	return throttler->get_on_call();
 }
 
-bool SnoreCoreTime::clear_throttle(const Callable &p_throttled_callback) {
+bool TimeService::clear_throttle(const Callable &p_throttled_callback) {
 	if (!_throttled_callbacks.has(p_throttled_callback)) {
 		return false;
 	}
@@ -501,7 +499,7 @@ bool SnoreCoreTime::clear_throttle(const Callable &p_throttled_callback) {
 	return true;
 }
 
-Callable SnoreCoreTime::debounce(
+Callable TimeService::debounce(
 		const Callable &p_callback,
 		float p_interval,
 		bool p_invokes_at_start,
@@ -514,7 +512,7 @@ Callable SnoreCoreTime::debounce(
 	return debouncer->get_on_call();
 }
 
-bool SnoreCoreTime::clear_debounce(const Callable &p_debounced_callback) {
+bool TimeService::clear_debounce(const Callable &p_debounced_callback) {
 	if (!_debounced_callbacks.has(p_debounced_callback)) {
 		return false;
 	}
@@ -527,105 +525,104 @@ bool SnoreCoreTime::clear_debounce(const Callable &p_debounced_callback) {
 	return true;
 }
 
-void SnoreCoreTime::_bind_methods() {
+void TimeService::_bind_methods() {
 	ClassDB::bind_method(
-			D_METHOD("collect_garbage"), &SnoreCoreTime::collect_garbage);
+			D_METHOD("collect_garbage"), &TimeService::collect_garbage);
 	ClassDB::bind_method(
-			D_METHOD("get_next_task_id"), &SnoreCoreTime::get_next_task_id);
+			D_METHOD("get_next_task_id"), &TimeService::get_next_task_id);
 
+	ClassDB::bind_method(D_METHOD("get_app_time"), &TimeService::get_app_time);
 	ClassDB::bind_method(
-			D_METHOD("get_app_time"), &SnoreCoreTime::get_app_time);
+			D_METHOD("get_clock_time"), &TimeService::get_clock_time);
 	ClassDB::bind_method(
-			D_METHOD("get_clock_time"), &SnoreCoreTime::get_clock_time);
-	ClassDB::bind_method(
-			D_METHOD("get_play_time"), &SnoreCoreTime::get_play_time);
+			D_METHOD("get_play_time"), &TimeService::get_play_time);
 	ClassDB::bind_method(
 			D_METHOD("get_scaled_play_time"),
-			&SnoreCoreTime::get_scaled_play_time);
+			&TimeService::get_scaled_play_time);
 	ClassDB::bind_method(
 			D_METHOD("get_play_physics_frame_count"),
-			&SnoreCoreTime::get_play_physics_frame_count);
+			&TimeService::get_play_physics_frame_count);
 
 	ClassDB::bind_method(
 			D_METHOD("get_elapsed_time", "time_type"),
-			&SnoreCoreTime::get_elapsed_time);
+			&TimeService::get_elapsed_time);
 
 	ClassDB::bind_method(
-			D_METHOD("get_combined_scale"), &SnoreCoreTime::get_combined_scale);
+			D_METHOD("get_combined_scale"), &TimeService::get_combined_scale);
 	ClassDB::bind_method(
-			D_METHOD("scale_delta", "duration"), &SnoreCoreTime::scale_delta);
+			D_METHOD("scale_delta", "duration"), &TimeService::scale_delta);
 	ClassDB::bind_method(
 			D_METHOD("get_scaled_time_step"),
-			&SnoreCoreTime::get_scaled_time_step);
+			&TimeService::get_scaled_time_step);
 
 	ClassDB::bind_method(
-			D_METHOD("get_time_scale"), &SnoreCoreTime::get_time_scale);
+			D_METHOD("get_time_scale"), &TimeService::get_time_scale);
 	ClassDB::bind_method(
 			D_METHOD("set_time_scale", "time_scale"),
-			&SnoreCoreTime::_set_time_scale);
+			&TimeService::_set_time_scale);
 
 	ClassDB::bind_method(
 			D_METHOD("get_additional_debug_time_scale"),
-			&SnoreCoreTime::get_additional_debug_time_scale);
+			&TimeService::get_additional_debug_time_scale);
 	ClassDB::bind_method(
 			D_METHOD(
 					"set_additional_debug_time_scale",
 					"additional_debug_time_scale"),
-			&SnoreCoreTime::_set_additional_debug_time_scale);
+			&TimeService::_set_additional_debug_time_scale);
 
 	ClassDB::bind_method(
 			D_METHOD(
 					"tween_method", "object", "key", "initial_val", "final_val",
 					"duration", "ease_name", "delay", "time_type",
 					"on_completed_callback", "arguments"),
-			&SnoreCoreTime::tween_method, DEFVAL("ease_in_out"), DEFVAL(0.0),
+			&TimeService::tween_method, DEFVAL("ease_in_out"), DEFVAL(0.0),
 			DEFVAL(0), DEFVAL(Callable()), DEFVAL(Array()));
 	ClassDB::bind_method(
 			D_METHOD(
 					"tween_property", "object", "key", "initial_val",
 					"final_val", "duration", "ease_name", "delay", "time_type",
 					"on_completed_callback", "arguments"),
-			&SnoreCoreTime::tween_property, DEFVAL("ease_in_out"), DEFVAL(0.0),
+			&TimeService::tween_property, DEFVAL("ease_in_out"), DEFVAL(0.0),
 			DEFVAL(0), DEFVAL(Callable()), DEFVAL(Array()));
 	ClassDB::bind_method(
 			D_METHOD("clear_tween", "tween_id", "triggers_completed"),
-			&SnoreCoreTime::clear_tween, DEFVAL(false));
+			&TimeService::clear_tween, DEFVAL(false));
 
 	ClassDB::bind_method(
 			D_METHOD(
 					"set_timeout", "callback", "delay", "arguments",
 					"time_type"),
-			&SnoreCoreTime::set_timeout, DEFVAL(Array()), DEFVAL(0));
+			&TimeService::set_timeout, DEFVAL(Array()), DEFVAL(0));
 	ClassDB::bind_method(
 			D_METHOD("clear_timeout", "timeout_id", "triggers_timeout"),
-			&SnoreCoreTime::clear_timeout, DEFVAL(false));
+			&TimeService::clear_timeout, DEFVAL(false));
 
 	ClassDB::bind_method(
 			D_METHOD(
 					"set_interval", "callback", "period", "arguments",
 					"time_type"),
-			&SnoreCoreTime::set_interval, DEFVAL(Array()), DEFVAL(0));
+			&TimeService::set_interval, DEFVAL(Array()), DEFVAL(0));
 	ClassDB::bind_method(
 			D_METHOD("clear_interval", "interval_id", "triggers_interval"),
-			&SnoreCoreTime::clear_interval, DEFVAL(false));
+			&TimeService::clear_interval, DEFVAL(false));
 
 	ClassDB::bind_method(
 			D_METHOD(
 					"throttle", "callback", "interval", "invokes_at_end",
 					"time_type"),
-			&SnoreCoreTime::throttle, DEFVAL(true), DEFVAL(0));
+			&TimeService::throttle, DEFVAL(true), DEFVAL(0));
 	ClassDB::bind_method(
 			D_METHOD("clear_throttle", "throttled_callback"),
-			&SnoreCoreTime::clear_throttle);
+			&TimeService::clear_throttle);
 
 	ClassDB::bind_method(
 			D_METHOD(
 					"debounce", "callback", "interval", "invokes_at_start",
 					"time_type"),
-			&SnoreCoreTime::debounce, DEFVAL(false), DEFVAL(0));
+			&TimeService::debounce, DEFVAL(false), DEFVAL(0));
 	ClassDB::bind_method(
 			D_METHOD("clear_debounce", "debounced_callback"),
-			&SnoreCoreTime::clear_debounce);
+			&TimeService::clear_debounce);
 
 	ADD_PROPERTY(
 			PropertyInfo(Variant::FLOAT, "time_scale"), "set_time_scale",

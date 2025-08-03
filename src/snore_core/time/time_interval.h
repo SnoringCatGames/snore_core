@@ -12,14 +12,14 @@ namespace godot {
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
 // Forward declaration to avoid circular dependency
-class SnoreCoreTime;
+class TimeService;
 
 // Represents a repeating callback scheduled at regular intervals.
 class TimeInterval : public RefCounted {
 	GDCLASS(TimeInterval, RefCounted)
 
 private:
-	SnoreCoreTime *snore_core_time;
+	TimeService *time_service;
 	TimeTracker *time_tracker;
 	StringName elapsed_time_key;
 	Callable callback;
@@ -35,7 +35,7 @@ public:
 
 	// Initializes the interval.
 	void initialize(
-			SnoreCoreTime *p_snore_core_time,
+			TimeService *p_time_service,
 			Object *p_parent,
 			int p_time_type,
 			const Callable &p_callback,
