@@ -3,6 +3,7 @@
 #include "snore_core/annotation.h"
 #include "snore_core/annotations_service.h"
 #include "snore_core/canvas_layer_config.h"
+#include "snore_core/canvas_layer_name.h"
 #include "snore_core/canvas_layer_service.h"
 #include "snore_core/circular_buffer.h"
 #include "snore_core/geometry.h"
@@ -277,14 +278,7 @@ Viewport *SnoreCore::get_viewport() const {
 
 void SnoreCore::add_utility_node(Node *p_node, const StringName &p_name) {
 	p_node->set_name(p_name);
-	// FIXME: LEFT OFF HERE
-	// SceneTree *tree = get_scene_tree();
-	// if (tree) {
-	// 	Window *root = tree->get_root();
-	// 	if (root) {
-	// 		root->add_child(p_node);
-	// 	}
-	// }
+	CanvasLayerService::get()->add_to_layer(CanvasLayerName::utils(), p_node);
 }
 
 bool SnoreCore::are_tests_enabled() {

@@ -78,7 +78,6 @@ void CanvasLayerService::create_canvas_layers() {
 		layer->set_process_mode(config.get_process_mode());
 		layer->set_layer(z_index);
 		root->add_child(layer);
-		// FIXME: Is emplace the right API?
 		layers.emplace(config.get_name(), layer);
 	}
 }
