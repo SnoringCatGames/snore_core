@@ -4,6 +4,7 @@
 #include "snore_core/internal/debug_utils.h"
 #include "snore_core/internal/ref_utils.h"
 #include "snore_core/log_service.h"
+#include "snore_core/time/ease_type.h"
 
 #include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/canvas_item.hpp>
@@ -42,6 +43,8 @@
 #include <unordered_set>
 
 using namespace godot;
+
+bool SnoreCoreUtils::were_screenshots_taken = false;
 
 void SnoreCoreUtils::set_up() {
 	focus_releaser = memnew(Button);
@@ -229,43 +232,44 @@ void SnoreCoreUtils::clear_children(Node *p_node) {
 	}
 }
 
-float SnoreCoreUtils::ease_name_to_param(const StringName &p_name) {
-	if (p_name == StringName("linear")) {
-		return 1.0;
-	} else if (p_name == StringName("ease_in")) {
-		return 2.4;
-	} else if (p_name == StringName("ease_in_strong")) {
-		return 4.8;
-	} else if (p_name == StringName("ease_in_very_strong")) {
-		return 9.6;
-	} else if (p_name == StringName("ease_in_weak")) {
-		return 1.6;
-	} else if (p_name == StringName("ease_out")) {
-		return 0.4;
-	} else if (p_name == StringName("ease_out_strong")) {
-		return 0.2;
-	} else if (p_name == StringName("ease_out_very_strong")) {
-		return 0.1;
-	} else if (p_name == StringName("ease_out_weak")) {
-		return 0.6;
-	} else if (p_name == StringName("ease_in_out")) {
-		return -2.4;
-	} else if (p_name == StringName("ease_in_out_strong")) {
-		return -4.8;
-	} else if (p_name == StringName("ease_in_out_very_strong")) {
-		return -9.6;
-	} else if (p_name == StringName("ease_in_out_weak")) {
-		return -1.8;
-	} else {
-		ENSURE(false, "Unknown ease name: " + p_name);
-		return infinity;
+float SnoreCoreUtils::ease_type_to_param(EaseType p_type) {
+	switch (p_type) {
+		case EaseType::LINEAR:
+			return 1.0;
+		case EaseType::EASE_IN:
+			return 2.4;
+		case EaseType::EASE_IN_STRONG:
+			return 4.8;
+		case EaseType::EASE_IN_VERY_STRONG:
+			return 9.6;
+		case EaseType::EASE_IN_WEAK:
+			return 1.6;
+		case EaseType::EASE_OUT:
+			return 0.4;
+		case EaseType::EASE_OUT_STRONG:
+			return 0.2;
+		case EaseType::EASE_OUT_VERY_STRONG:
+			return 0.1;
+		case EaseType::EASE_OUT_WEAK:
+			return 0.6;
+		case EaseType::EASE_IN_OUT:
+			return -2.4;
+		case EaseType::EASE_IN_OUT_STRONG:
+			return -4.8;
+		case EaseType::EASE_IN_OUT_VERY_STRONG:
+			return -9.6;
+		case EaseType::EASE_IN_OUT_WEAK:
+			return -1.8;
+		default:
+			ENSURE(false, "Unknown ease type: " + ease_type_to_string(p_type));
+			return infinity;
 	}
 }
 
 // TODO: This was copied from Godot's Math::ease, because godot-cpp does not
 //       expose the `ease` API. If this gets added to godot-cpp, use that and
 //       remove this function.
-double ease(double p_x, double p_c) {
+double ease_by_param(double p_x, double p_c) {
 	if (p_x < 0) {
 		p_x = 0;
 	} else if (p_x > 1.0) {
@@ -278,7 +282,7 @@ double ease(double p_x, double p_c) {
 			return Math::pow(p_x, p_c);
 		}
 	} else if (p_c < 0) {
-		//inout ease
+		// inout ease
 		if (p_x < 0.5) {
 			return Math::pow(p_x * 2.0, -p_c) * 0.5;
 		} else {
@@ -290,10 +294,8 @@ double ease(double p_x, double p_c) {
 	}
 }
 
-float SnoreCoreUtils::ease_by_name(
-		float p_progress,
-		const StringName &p_ease_name) {
-	return ease(p_progress, ease_name_to_param(p_ease_name));
+float SnoreCoreUtils::ease(float p_progress, EaseType p_ease_type) {
+	return ease_by_param(p_progress, ease_type_to_param(p_ease_type));
 }
 
 bool SnoreCoreUtils::is_num(const Variant &p_v) {
@@ -775,11 +777,11 @@ void SnoreCoreUtils::_bind_methods() {
 			&SnoreCoreUtils::clear_children);
 
 	ClassDB::bind_static_method(
-			"SnoreCoreUtils", D_METHOD("ease_name_to_param", "name"),
-			&SnoreCoreUtils::ease_name_to_param);
+			"SnoreCoreUtils", D_METHOD("ease_type_to_param", "type"),
+			&SnoreCoreUtils::ease_type_to_param);
 	ClassDB::bind_static_method(
-			"SnoreCoreUtils", D_METHOD("ease_by_name", "progress", "ease_name"),
-			&SnoreCoreUtils::ease_by_name);
+			"SnoreCoreUtils", D_METHOD("ease", "progress", "ease_type"),
+			&SnoreCoreUtils::ease);
 
 	ClassDB::bind_static_method(
 			"SnoreCoreUtils", D_METHOD("is_num", "v"), &SnoreCoreUtils::is_num);

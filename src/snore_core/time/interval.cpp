@@ -1,4 +1,4 @@
-#include "snore_core/time/time_interval.h"
+#include "snore_core/time/interval.h"
 
 #include "snore_core/time/time_service.h"
 
@@ -8,7 +8,7 @@ using namespace godot;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-TimeInterval::TimeInterval() {
+Interval::Interval() {
 	time_service = nullptr;
 	time_tracker = nullptr;
 	interval = 0.0;
@@ -17,11 +17,11 @@ TimeInterval::TimeInterval() {
 	parent = nullptr;
 }
 
-TimeInterval::~TimeInterval() {
+Interval::~Interval() {
 	// Destructor implementation.
 }
 
-void TimeInterval::initialize(
+void Interval::initialize(
 		TimeService *p_time_service,
 		Object *p_parent,
 		int p_time_type,
@@ -33,9 +33,9 @@ void TimeInterval::initialize(
 
 	if (time_service) {
 		time_tracker =
-				time_service->_get_time_tracker_for_time_type(p_time_type);
+				time_service->get_time_tracker_for_time_type(p_time_type);
 		elapsed_time_key =
-				time_service->_get_elapsed_time_key_for_time_type(p_time_type);
+				time_service->get_elapsed_time_type_for_time_type(p_time_type);
 		id = time_service->get_next_task_id();
 
 		if (time_tracker) {
@@ -57,24 +57,26 @@ void TimeInterval::initialize(
 	arguments = p_arguments;
 }
 
-bool TimeInterval::get_has_reached_next_trigger_time() const {
+bool Interval::get_has_reached_next_trigger_time() const {
 	if (!time_service || !time_tracker) {
 		return false; // Cannot check trigger time without proper setup
 	}
 
 	float elapsed_time = time_service->get_elapsed_time(
-			time_service->_get_time_type_from_key(elapsed_time_key));
+			time_service->get_time_type_from_elapsed_time_type(
+					elapsed_time_key));
 	return elapsed_time >= next_trigger_time;
 }
 
-void TimeInterval::trigger() {
+void Interval::trigger() {
 	if (!callback.is_valid()) {
 		return;
 	}
 
 	if (time_service && time_tracker) {
 		float current_time = time_service->get_elapsed_time(
-				time_service->_get_time_type_from_key(elapsed_time_key));
+				time_service->get_time_type_from_elapsed_time_type(
+						elapsed_time_key));
 		next_trigger_time = current_time + interval;
 	} else {
 		next_trigger_time += interval;
@@ -83,18 +85,18 @@ void TimeInterval::trigger() {
 	callback.callv(arguments);
 }
 
-void TimeInterval::_bind_methods() {
+void Interval::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD(
 					"initialize", "time_service", "parent", "time_type",
 					"callback", "interval", "arguments"),
-			&TimeInterval::initialize);
+			&Interval::initialize);
 	ClassDB::bind_method(
 			D_METHOD("get_has_reached_next_trigger_time"),
-			&TimeInterval::get_has_reached_next_trigger_time);
-	ClassDB::bind_method(D_METHOD("trigger"), &TimeInterval::trigger);
-	ClassDB::bind_method(D_METHOD("get_id"), &TimeInterval::get_id);
-	ClassDB::bind_method(D_METHOD("get_parent"), &TimeInterval::get_parent);
+			&Interval::get_has_reached_next_trigger_time);
+	ClassDB::bind_method(D_METHOD("trigger"), &Interval::trigger);
+	ClassDB::bind_method(D_METHOD("get_id"), &Interval::get_id);
+	ClassDB::bind_method(D_METHOD("get_parent"), &Interval::get_parent);
 
 	ADD_PROPERTY(
 			PropertyInfo(

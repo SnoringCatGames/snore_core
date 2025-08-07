@@ -1,5 +1,5 @@
-#ifndef TIME_TIMEOUT_H
-#define TIME_TIMEOUT_H
+#ifndef INTERVAL_H
+#define INTERVAL_H
 
 #include "snore_core/time/time_tracker.h"
 
@@ -11,43 +11,39 @@ namespace godot {
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-// Forward declaration to avoid circular dependency
-class TimeService;
-
-// Represents a one-shot callback scheduled for a specific time.
-class TimeTimeout : public RefCounted {
-	GDCLASS(TimeTimeout, RefCounted)
+// Represents a repeating callback scheduled at regular intervals.
+class Interval : public RefCounted {
+	GDCLASS(Interval, RefCounted)
 
 private:
-	TimeService *time_service;
 	TimeTracker *time_tracker;
 	StringName elapsed_time_key;
 	Callable callback;
-	float time;
+	float interval;
 	Array arguments;
+	float next_trigger_time;
 	int id;
 	Object *parent;
 
 public:
-	TimeTimeout();
-	~TimeTimeout();
+	Interval();
+	~Interval();
 
-	// Initializes the timeout.
+	// Initializes the interval.
 	void initialize(
-			TimeService *p_time_service,
 			Object *p_parent,
 			int p_time_type,
 			const Callable &p_callback,
-			float p_delay,
+			float p_interval,
 			const Array &p_arguments);
 
-	// Checks if the timeout has expired.
-	bool get_has_expired() const;
+	// Checks if the interval has reached its next trigger time.
+	bool get_has_reached_next_trigger_time() const;
 
-	// Triggers the timeout callback.
+	// Triggers the interval callback and schedules the next trigger.
 	void trigger();
 
-	// Gets the timeout ID.
+	// Gets the interval ID.
 	int get_id() const { return id; }
 	// Gets the parent object.
 	Object *get_parent() const { return parent; }
@@ -58,4 +54,4 @@ protected:
 
 } // namespace godot
 
-#endif // TIME_TIMEOUT_H
+#endif // INTERVAL_H

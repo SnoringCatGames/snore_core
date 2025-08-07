@@ -62,8 +62,7 @@ public:
 
 	static void clear_children(Node *p_node);
 
-	static float ease_name_to_param(const StringName &p_name);
-	static float ease_by_name(float p_progress, const StringName &p_ease_name);
+	static float ease(float p_progress, EaseType p_ease_type);
 
 	static bool is_num(const Variant &p_v);
 	static Vector2 floor_vector(const Vector2 &p_v);
@@ -130,16 +129,16 @@ public:
 	static StringName get_type_string(int p_type);
 	static String get_display_name(const Variant &p_object);
 
-	static bool get_were_screenshots_taken() const {
-		return were_screenshots_taken;
-	}
+	static bool get_were_screenshots_taken() { return were_screenshots_taken; }
 
 protected:
 	void _bind_methods();
 
 private:
 	Control *focus_releaser = nullptr;
-	static bool were_screenshots_taken = false;
+	static bool were_screenshots_taken;
+
+	static float ease_type_to_param(EaseType p_type);
 };
 
 } //namespace godot

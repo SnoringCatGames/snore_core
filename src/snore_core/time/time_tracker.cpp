@@ -8,7 +8,7 @@ using namespace godot;
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
 TimeTracker::TimeTracker() {
-	time_scale = TimeService::DEFAULT_TIME_SCALE;
+	time_scale = TimeService::default_time_scale;
 	start_clock_time = 0.0;
 	elapsed_clock_time = 0.0;
 	elapsed_physics_time = 0.0;

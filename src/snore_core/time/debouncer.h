@@ -1,5 +1,5 @@
-#ifndef TIME_THROTTLER_H
-#define TIME_THROTTLER_H
+#ifndef DEBOUNCER_H
+#define DEBOUNCER_H
 
 #include "snore_core/time/time_tracker.h"
 
@@ -11,50 +11,45 @@ namespace godot {
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-// Forward declaration to avoid circular dependency
-class TimeService;
-
-// Throttles callback execution to limit frequency.
-class TimeThrottler : public RefCounted {
-	GDCLASS(TimeThrottler, RefCounted)
+// Debounces callback execution to prevent rapid successive calls.
+class Debouncer : public RefCounted {
+	GDCLASS(Debouncer, RefCounted)
 
 private:
-	TimeService *time_service;
 	int time_type;
 	TimeTracker *time_tracker;
 	StringName elapsed_time_key;
 	Callable callback;
 	float interval;
-	bool invokes_at_end;
+	bool invokes_at_start;
 	Object *parent;
 
 	int last_timeout_id;
 	float last_call_time;
 	bool is_callback_scheduled;
 
-	// Triggers the throttled callback.
+	// Triggers the debounced callback.
 	void _trigger_callback();
 
 public:
-	TimeThrottler();
-	~TimeThrottler();
+	Debouncer();
+	~Debouncer();
 
-	// Initializes the throttler.
+	// Initializes the debouncer.
 	void initialize(
-			TimeService *p_time_service,
 			Object *p_parent,
 			int p_time_type,
 			const Callable &p_callback,
 			float p_interval,
-			bool p_invokes_at_end);
+			bool p_invokes_at_start);
 
-	// The callable that should be used to trigger the throttled execution.
+	// The callable that should be used to trigger the debounced execution.
 	Callable get_on_call() const;
 
-	// Called when the throttled function should be executed.
+	// Called when the debounced function should be executed.
 	void on_call();
 
-	// Cancels any pending throttled callback.
+	// Cancels any pending debounced callback.
 	void cancel();
 
 	// Gets the parent object.
@@ -66,4 +61,4 @@ protected:
 
 } // namespace godot
 
-#endif // TIME_THROTTLER_H
+#endif // DEBOUNCER_H

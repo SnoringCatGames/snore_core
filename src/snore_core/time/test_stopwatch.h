@@ -32,7 +32,7 @@ TEST(StopwatchTest, MultipleMetrics) {
 	Ref<Stopwatch> stopwatch;
 	stopwatch.instantiate();
 
-	StringNameName metric1 = "metric1";
+	StringName metric1 = "metric1";
 	StringName metric2 = "metric2";
 
 	// Start both metrics.

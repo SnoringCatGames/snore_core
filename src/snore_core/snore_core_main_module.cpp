@@ -15,14 +15,13 @@
 #include "snore_core/snore_core_root_module.h"
 #include "snore_core/snore_core_settings.h"
 #include "snore_core/snore_core_utils.h"
+#include "snore_core/time/debouncer.h"
+#include "snore_core/time/interval.h"
 #include "snore_core/time/stopwatch.h"
-#include "snore_core/time/time_debouncer.h"
-#include "snore_core/time/time_interval.h"
+#include "snore_core/time/throttler.h"
 #include "snore_core/time/time_service.h"
-#include "snore_core/time/time_throttler.h"
-#include "snore_core/time/time_timeout.h"
 #include "snore_core/time/time_tracker.h"
-#include "snore_core/time/time_type.h"
+#include "snore_core/time/timeout.h"
 
 #include <godot_cpp/classes/Node.hpp>
 #include <godot_cpp/classes/engine.hpp>
@@ -52,13 +51,13 @@
 #include "snore_core/test_snore_core_root_module.h"
 #include "snore_core/test_snore_core_settings.h"
 #include "snore_core/test_snore_core_utils.h"
+#include "snore_core/time/test_debouncer.h"
+#include "snore_core/time/test_interval.h"
 #include "snore_core/time/test_stopwatch.h"
-#include "snore_core/time/test_time_debouncer.h"
-#include "snore_core/time/test_time_interval.h"
+#include "snore_core/time/test_throttler.h"
 #include "snore_core/time/test_time_service.h"
-#include "snore_core/time/test_time_throttler.h"
-#include "snore_core/time/test_time_timeout.h"
 #include "snore_core/time/test_time_tracker.h"
+#include "snore_core/time/test_timeout.h"
 #endif // SC_TESTS_ENABLED
 
 using namespace godot;
@@ -94,12 +93,11 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(SnoreCore);
 	GDREGISTER_CLASS(SnoreCoreMainSettings);
 	GDREGISTER_CLASS(Stopwatch);
-	GDREGISTER_CLASS(TimeDebouncer);
-	GDREGISTER_CLASS(TimeInterval);
-	GDREGISTER_CLASS(TimeThrottler);
-	GDREGISTER_CLASS(TimeTimeout);
+	GDREGISTER_CLASS(Debouncer);
+	GDREGISTER_CLASS(Interval);
+	GDREGISTER_CLASS(Throttler);
+	GDREGISTER_CLASS(Timeout);
 	GDREGISTER_CLASS(TimeTracker);
-	GDREGISTER_CLASS(TimeType);
 
 	// Only include test classes in debug builds.
 #ifdef SC_TESTS_ENABLED

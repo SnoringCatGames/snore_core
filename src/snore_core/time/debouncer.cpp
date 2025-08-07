@@ -8,7 +8,7 @@ using namespace godot;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-TimeDebouncer::TimeDebouncer() {
+Debouncer::Debouncer() {
 	time_type = 0;
 	time_service = nullptr;
 	time_tracker = nullptr;
@@ -20,11 +20,11 @@ TimeDebouncer::TimeDebouncer() {
 	is_callback_scheduled = false;
 }
 
-TimeDebouncer::~TimeDebouncer() {
+Debouncer::~Debouncer() {
 	// Destructor implementation.
 }
 
-void TimeDebouncer::initialize(
+void Debouncer::initialize(
 		Object *p_parent,
 		TimeService *p_time_service,
 		int p_time_type,
@@ -36,9 +36,9 @@ void TimeDebouncer::initialize(
 	time_type = p_time_type;
 	if (time_service) {
 		time_tracker =
-				time_service->_get_time_tracker_for_time_type(p_time_type);
+				time_service->get_time_tracker_for_time_type(p_time_type);
 		elapsed_time_key =
-				time_service->_get_elapsed_time_key_for_time_type(p_time_type);
+				time_service->get_elapsed_time_type_for_time_type(p_time_type);
 	} else {
 		time_tracker = nullptr;
 		elapsed_time_key = "elapsed_physics_time"; // Fallback
@@ -48,12 +48,11 @@ void TimeDebouncer::initialize(
 	invokes_at_start = p_invokes_at_start;
 }
 
-Callable TimeDebouncer::get_on_call() const {
-	return callable_mp(
-			const_cast<TimeDebouncer *>(this), &TimeDebouncer::on_call);
+Callable Debouncer::get_on_call() const {
+	return callable_mp(const_cast<Debouncer *>(this), &Debouncer::on_call);
 }
 
-void TimeDebouncer::on_call() {
+void Debouncer::on_call() {
 	if (!time_service || !time_tracker) {
 		// Fallback behavior - just trigger immediately
 		_trigger_callback();
@@ -70,19 +69,19 @@ void TimeDebouncer::on_call() {
 
 	time_service->clear_timeout(last_timeout_id);
 	last_timeout_id = time_service->set_timeout(
-			callable_mp(this, &TimeDebouncer::_trigger_callback), interval,
-			Array(), time_type);
+			callable_mp(this, &Debouncer::_trigger_callback), interval, Array(),
+			time_type);
 	is_callback_scheduled = true;
 }
 
-void TimeDebouncer::cancel() {
+void Debouncer::cancel() {
 	if (time_service) {
 		time_service->clear_timeout(last_timeout_id);
 	}
 	is_callback_scheduled = false;
 }
 
-void TimeDebouncer::_trigger_callback() {
+void Debouncer::_trigger_callback() {
 	if (time_service) {
 		time_service->clear_timeout(last_timeout_id);
 	}
@@ -96,14 +95,14 @@ void TimeDebouncer::_trigger_callback() {
 	}
 }
 
-void TimeDebouncer::_bind_methods() {
+void Debouncer::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD(
 					"initialize", "parent", "time_service", "time_type",
 					"callback", "interval", "invokes_at_start"),
-			&TimeDebouncer::initialize);
-	ClassDB::bind_method(D_METHOD("get_on_call"), &TimeDebouncer::get_on_call);
-	ClassDB::bind_method(D_METHOD("on_call"), &TimeDebouncer::on_call);
-	ClassDB::bind_method(D_METHOD("cancel"), &TimeDebouncer::cancel);
-	ClassDB::bind_method(D_METHOD("get_parent"), &TimeDebouncer::get_parent);
+			&Debouncer::initialize);
+	ClassDB::bind_method(D_METHOD("get_on_call"), &Debouncer::get_on_call);
+	ClassDB::bind_method(D_METHOD("on_call"), &Debouncer::on_call);
+	ClassDB::bind_method(D_METHOD("cancel"), &Debouncer::cancel);
+	ClassDB::bind_method(D_METHOD("get_parent"), &Debouncer::get_parent);
 }

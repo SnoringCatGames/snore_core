@@ -145,12 +145,6 @@ TEST_F(SnoreCoreUtilsTest, TranslatePolyline) {
 	EXPECT_EQ(result, expected);
 }
 
-TEST_F(SnoreCoreUtilsTest, EaseNameToParam) {
-	EXPECT_EQ(SnoreCoreUtils::ease_name_to_param("linear"), 1.0);
-	EXPECT_EQ(SnoreCoreUtils::ease_name_to_param("ease_in"), 2.4);
-	EXPECT_EQ(SnoreCoreUtils::ease_name_to_param("ease_out"), 0.4);
-}
-
 TEST_F(SnoreCoreUtilsTest, IsNum) {
 	EXPECT_TRUE(SnoreCoreUtils::is_num(42));
 	EXPECT_TRUE(SnoreCoreUtils::is_num(3.14));

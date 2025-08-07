@@ -29,8 +29,8 @@ protected:
 
 TEST_F(TimeServiceTest, Constants) {
 	// Test that constants are properly defined.
-	EXPECT_EQ(TimeService::PHYSICS_FPS, 60.0);
-	EXPECT_EQ(TimeService::PHYSICS_TIME_STEP, 1.0 / 60.0);
+	EXPECT_EQ(TimeService::physics_fps, 60.0);
+	EXPECT_EQ(TimeService::physics_time_step, 1.0 / 60.0);
 }
 
 TEST_F(TimeServiceTest, InitialState) {
@@ -42,25 +42,25 @@ TEST_F(TimeServiceTest, InitialState) {
 
 TEST_F(TimeServiceTest, TimeScaleSetting) {
 	// Test setting time scales.
-	time_service->_set_time_scale(2.0);
+	time_service->set_time_scale(2.0);
 	EXPECT_EQ(time_service->get_time_scale(), 2.0);
 	EXPECT_EQ(time_service->get_combined_scale(), 2.0);
 
-	time_service->_set_additional_debug_time_scale(0.5);
+	time_service->set_additional_debug_time_scale(0.5);
 	EXPECT_EQ(time_service->get_additional_debug_time_scale(), 0.5);
 	EXPECT_EQ(time_service->get_combined_scale(), 1.0);
 }
 
 TEST_F(TimeServiceTest, ScalingFunctions) {
 	// Test time scaling functions.
-	time_service->_set_time_scale(2.0);
+	time_service->set_time_scale(2.0);
 
 	float duration = 1.0;
 	float scaled_duration = time_service->scale_delta(duration);
 	EXPECT_EQ(scaled_duration, 2.0);
 
 	float scaled_time_step = time_service->get_scaled_time_step();
-	float expected = TimeService::PHYSICS_TIME_STEP * 2.0;
+	float expected = TimeService::physics_time_step * 2.0;
 	EXPECT_EQ(scaled_time_step, expected);
 }
 
@@ -73,9 +73,9 @@ TEST_F(TimeServiceTest, TaskIdGeneration) {
 
 TEST_F(TimeServiceTest, TimeTrackerAccess) {
 	// Test accessing time trackers for different time types.
-	TimeTracker *app_tracker = time_service->_get_time_tracker_for_time_type(
-			TimeType::APP_PHYSICS);
-	TimeTracker *play_tracker = time_service->_get_time_tracker_for_time_type(
+	TimeTracker *app_tracker =
+			time_service->get_time_tracker_for_time_type(TimeType::APP_PHYSICS);
+	TimeTracker *play_tracker = time_service->get_time_tracker_for_time_type(
 			TimeType::PLAY_PHYSICS);
 
 	EXPECT_NE(app_tracker, nullptr);
@@ -85,11 +85,11 @@ TEST_F(TimeServiceTest, TimeTrackerAccess) {
 
 TEST_F(TimeServiceTest, ElapsedTimeKeys) {
 	// Test that elapsed time keys are returned correctly.
-	StringName physics_key = time_service->_get_elapsed_time_key_for_time_type(
+	StringName physics_key = time_service->get_elapsed_time_type_for_time_type(
 			TimeType::APP_PHYSICS);
-	StringName clock_key = time_service->_get_elapsed_time_key_for_time_type(
+	StringName clock_key = time_service->get_elapsed_time_type_for_time_type(
 			TimeType::APP_CLOCK);
-	StringName frame_key = time_service->_get_elapsed_time_key_for_time_type(
+	StringName frame_key = time_service->get_elapsed_time_type_for_time_type(
 			TimeType::APP_PHYSICS_FRAME_COUNT);
 
 	EXPECT_EQ(physics_key, "elapsed_physics_time");

@@ -1,4 +1,4 @@
-#include "snore_core/time/time_timeout.h"
+#include "snore_core/time/timeout.h"
 
 #include "snore_core/time/time_service.h"
 
@@ -9,7 +9,7 @@ using namespace godot;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-TimeTimeout::TimeTimeout() {
+Timeout::Timeout() {
 	time_service = nullptr;
 	time_tracker = nullptr;
 	time = 0.0;
@@ -17,11 +17,11 @@ TimeTimeout::TimeTimeout() {
 	parent = nullptr;
 }
 
-TimeTimeout::~TimeTimeout() {
+Timeout::~Timeout() {
 	// Destructor implementation.
 }
 
-void TimeTimeout::initialize(
+void Timeout::initialize(
 		TimeService *p_time_service,
 		Object *p_parent,
 		int p_time_type,
@@ -33,9 +33,9 @@ void TimeTimeout::initialize(
 
 	if (time_service) {
 		time_tracker =
-				time_service->_get_time_tracker_for_time_type(p_time_type);
+				time_service->get_time_tracker_for_time_type(p_time_type);
 		elapsed_time_key =
-				time_service->_get_elapsed_time_key_for_time_type(p_time_type);
+				time_service->get_elapsed_time_type_for_time_type(p_time_type);
 		id = time_service->get_next_task_id();
 
 		if (time_tracker) {
@@ -56,34 +56,35 @@ void TimeTimeout::initialize(
 	arguments = p_arguments;
 }
 
-bool TimeTimeout::get_has_expired() const {
+bool Timeout::get_has_expired() const {
 	if (!time_service || !time_tracker) {
 		return false; // Cannot check expiration without proper setup
 	}
 
 	float elapsed_time = time_service->get_elapsed_time(
-			time_service->_get_time_type_from_key(elapsed_time_key));
+			time_service->get_time_type_from_elapsed_time_type(
+					elapsed_time_key));
 	return elapsed_time >= time;
 }
 
-void TimeTimeout::trigger() {
+void Timeout::trigger() {
 	if (!callback.is_valid()) {
 		return;
 	}
 	callback.callv(arguments);
 }
 
-void TimeTimeout::_bind_methods() {
+void Timeout::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD(
 					"initialize", "time_service", "parent", "time_type",
 					"callback", "delay", "arguments"),
-			&TimeTimeout::initialize);
+			&Timeout::initialize);
 	ClassDB::bind_method(
-			D_METHOD("get_has_expired"), &TimeTimeout::get_has_expired);
-	ClassDB::bind_method(D_METHOD("trigger"), &TimeTimeout::trigger);
-	ClassDB::bind_method(D_METHOD("get_id"), &TimeTimeout::get_id);
-	ClassDB::bind_method(D_METHOD("get_parent"), &TimeTimeout::get_parent);
+			D_METHOD("get_has_expired"), &Timeout::get_has_expired);
+	ClassDB::bind_method(D_METHOD("trigger"), &Timeout::trigger);
+	ClassDB::bind_method(D_METHOD("get_id"), &Timeout::get_id);
+	ClassDB::bind_method(D_METHOD("get_parent"), &Timeout::get_parent);
 
 	ADD_PROPERTY(
 			PropertyInfo(

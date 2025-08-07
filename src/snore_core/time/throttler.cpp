@@ -8,7 +8,7 @@ using namespace godot;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-TimeThrottler::TimeThrottler() {
+Throttler::Throttler() {
 	time_service = nullptr;
 	time_type = 0;
 	time_tracker = nullptr;
@@ -20,11 +20,11 @@ TimeThrottler::TimeThrottler() {
 	is_callback_scheduled = false;
 }
 
-TimeThrottler::~TimeThrottler() {
+Throttler::~Throttler() {
 	// Destructor implementation.
 }
 
-void TimeThrottler::initialize(
+void Throttler::initialize(
 		TimeService *p_time_service,
 		Object *p_parent,
 		int p_time_type,
@@ -37,9 +37,9 @@ void TimeThrottler::initialize(
 
 	if (time_service) {
 		time_tracker =
-				time_service->_get_time_tracker_for_time_type(p_time_type);
+				time_service->get_time_tracker_for_time_type(p_time_type);
 		elapsed_time_key =
-				time_service->_get_elapsed_time_key_for_time_type(p_time_type);
+				time_service->get_elapsed_time_type_for_time_type(p_time_type);
 	} else {
 		time_tracker = nullptr;
 		elapsed_time_key = "elapsed_physics_time";
@@ -50,12 +50,11 @@ void TimeThrottler::initialize(
 	invokes_at_end = p_invokes_at_end;
 }
 
-Callable TimeThrottler::get_on_call() const {
-	return callable_mp(
-			const_cast<TimeThrottler *>(this), &TimeThrottler::on_call);
+Callable Throttler::get_on_call() const {
+	return callable_mp(const_cast<Throttler *>(this), &Throttler::on_call);
 }
 
-void TimeThrottler::on_call() {
+void Throttler::on_call() {
 	if (!is_callback_scheduled) {
 		if (!time_service || !time_tracker) {
 			// Fallback behavior - just trigger immediately
@@ -70,21 +69,21 @@ void TimeThrottler::on_call() {
 			_trigger_callback();
 		} else if (invokes_at_end) {
 			last_timeout_id = time_service->set_timeout(
-					callable_mp(this, &TimeThrottler::_trigger_callback),
+					callable_mp(this, &Throttler::_trigger_callback),
 					next_call_time - current_call_time, Array(), time_type);
 			is_callback_scheduled = true;
 		}
 	}
 }
 
-void TimeThrottler::cancel() {
+void Throttler::cancel() {
 	if (time_service) {
 		time_service->clear_timeout(last_timeout_id);
 	}
 	is_callback_scheduled = false;
 }
 
-void TimeThrottler::_trigger_callback() {
+void Throttler::_trigger_callback() {
 	if (time_service && time_tracker) {
 		last_call_time = time_service->get_elapsed_time(time_type);
 	}
@@ -94,14 +93,14 @@ void TimeThrottler::_trigger_callback() {
 	}
 }
 
-void TimeThrottler::_bind_methods() {
+void Throttler::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD(
 					"initialize", "parent", "time_type", "callback", "interval",
 					"invokes_at_end"),
-			&TimeThrottler::initialize);
-	ClassDB::bind_method(D_METHOD("get_on_call"), &TimeThrottler::get_on_call);
-	ClassDB::bind_method(D_METHOD("on_call"), &TimeThrottler::on_call);
-	ClassDB::bind_method(D_METHOD("cancel"), &TimeThrottler::cancel);
-	ClassDB::bind_method(D_METHOD("get_parent"), &TimeThrottler::get_parent);
+			&Throttler::initialize);
+	ClassDB::bind_method(D_METHOD("get_on_call"), &Throttler::get_on_call);
+	ClassDB::bind_method(D_METHOD("on_call"), &Throttler::on_call);
+	ClassDB::bind_method(D_METHOD("cancel"), &Throttler::cancel);
+	ClassDB::bind_method(D_METHOD("get_parent"), &Throttler::get_parent);
 }
