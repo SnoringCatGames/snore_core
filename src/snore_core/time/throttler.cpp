@@ -7,8 +7,6 @@
 
 using namespace godot;
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 void Throttler::initialize(
 		Object *p_parent,
 		TimeType p_time_type,
@@ -34,9 +32,9 @@ Callable Throttler::get_on_call() const {
 
 void Throttler::on_call() {
 	if (!is_callback_scheduled) {
-		float current_call_time =
+		const float current_call_time =
 				TimeService::get()->get_elapsed_time(time_type);
-		float next_call_time = last_call_time + interval;
+		const float next_call_time = last_call_time + interval;
 
 		if (current_call_time > next_call_time) {
 			trigger_callback();

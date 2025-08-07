@@ -12,8 +12,6 @@ namespace godot {
 
 class Callable;
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 // Represents a repeating callback scheduled at regular intervals.
 class Interval : public RefCounted {
 	GDCLASS(Interval, RefCounted)

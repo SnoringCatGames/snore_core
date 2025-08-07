@@ -11,8 +11,6 @@
 
 using namespace godot;
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 void Timeout::initialize(
 		Object *p_parent,
 		TimeType p_time_type,
@@ -27,25 +25,22 @@ void Timeout::initialize(
 			p_time_type);
 	id = TimeService::get()->get_next_task_id();
 
-	if (time_tracker) {
-		float current_time = TimeService::get()->get_elapsed_time(p_time_type);
-		time = current_time + p_delay_sec;
-	} else {
-		time = p_delay_sec;
-	}
+	const float current_time =
+			TimeService::get()->get_elapsed_time(p_time_type);
+	time = current_time + p_delay_sec;
 
 	callback = p_callback;
 	arguments = p_arguments;
 }
 
 bool Timeout::get_has_expired() const {
-	float elapsed_time = TimeService::get()->get_elapsed_time(
+	const float elapsed_time = TimeService::get()->get_elapsed_time(
 			get_time_type_from_elapsed_time_type(elapsed_time_type));
 	return elapsed_time >= time;
 }
 
 void Timeout::trigger() {
-	if (!callback.is_valid()) {
+	if (!ENSURE_SIMPLE(callback.is_valid())) {
 		return;
 	}
 	callback.callv(arguments);

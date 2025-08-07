@@ -89,9 +89,9 @@ void TimeService::handle_tweens() {
 
 void TimeService::handle_timeouts() {
 	int expired_timeout_id = -1;
-	for (int i = 0; i < timeouts.size(); ++i) {
-		Variant key = timeouts.get_key_list()[i];
-		Timeout *timeout = Object::cast_to<Timeout>(timeouts[key]);
+	for (const auto &p_pair : timeouts) {
+		const int key = p_pair.first;
+		const Timeout *timeout = p_pair.second;
 		if (timeout && timeout->get_has_expired()) {
 			expired_timeout_id = key;
 			break;
@@ -99,8 +99,7 @@ void TimeService::handle_timeouts() {
 	}
 
 	if (expired_timeout_id >= 0) {
-		Timeout *timeout =
-				Object::cast_to<Timeout>(timeouts[expired_timeout_id]);
+		Timeout *timeout = timeouts[expired_timeout_id];
 		if (timeout) {
 			timeout->trigger();
 		}
@@ -110,9 +109,9 @@ void TimeService::handle_timeouts() {
 
 void TimeService::handle_intervals() {
 	int triggered_interval_id = -1;
-	for (int i = 0; i < intervals.size(); ++i) {
-		Variant key = intervals.get_key_list()[i];
-		Interval *interval = Object::cast_to<Interval>(intervals[key]);
+	for (const auto &p_pair : intervals) {
+		const int key = p_pair.first;
+		const Interval *interval = p_pair.second;
 		if (interval && interval->get_has_reached_next_trigger_time()) {
 			triggered_interval_id = key;
 			break;
@@ -120,16 +119,15 @@ void TimeService::handle_intervals() {
 	}
 
 	if (triggered_interval_id >= 0) {
-		Interval *interval =
-				Object::cast_to<Interval>(intervals[triggered_interval_id]);
+		Interval *interval = intervals[triggered_interval_id];
 		if (interval) {
 			interval->trigger();
 		}
 	}
 }
-
 void TimeService::collect_garbage() {
-	Array collections = Array::make(
+	// FIXME: LEFT OFF HERE: ACTUALLY: Don't use Array here.
+	const Array collections = Array::make(
 			timeouts, intervals, tweens, throttled_callbacks,
 			debounced_callbacks);
 
@@ -168,7 +166,7 @@ void TimeService::collect_garbage() {
 }
 
 int TimeService::get_next_task_id() {
-	last_timeout_id += 1;
+	last_timeout_id++;
 	return last_timeout_id;
 }
 
@@ -346,7 +344,7 @@ void TimeService::call_tween_completed_callback(
 }
 
 bool TimeService::clear_tween(int p_tween_id, bool p_triggers_completed) {
-	if (!tweens.has(p_tween_id)) {
+	if (tweens.find(p_tween_id) == tweens.end()) {
 		return false;
 	}
 	// TODO: Implement proper tween handling.
@@ -369,14 +367,14 @@ int TimeService::set_timeout(
 		TimeType p_time_type) {
 	Timeout *timeout = memnew(Timeout);
 	timeout->initialize(
-			this, p_callback.get_object(), p_time_type, p_callback, p_delay_sec,
+			p_callback.get_object(), p_time_type, p_callback, p_delay_sec,
 			p_arguments);
 	timeouts[timeout->get_id()] = timeout;
 	return timeout->get_id();
 }
 
 bool TimeService::clear_timeout(int p_timeout_id, bool p_triggers_timeout) {
-	if (!timeouts.has(p_timeout_id)) {
+	if (timeouts.find(p_timeout_id) == timeouts.end()) {
 		return false;
 	}
 	if (p_triggers_timeout) {
@@ -396,14 +394,14 @@ int TimeService::set_interval(
 		TimeType p_time_type) {
 	Interval *interval = memnew(Interval);
 	interval->initialize(
-			this, p_callback.get_object(), p_time_type, p_callback, p_period,
+			p_callback.get_object(), p_time_type, p_callback, p_period,
 			p_arguments);
 	intervals[interval->get_id()] = interval;
 	return interval->get_id();
 }
 
 bool TimeService::clear_interval(int p_interval_id, bool p_triggers_interval) {
-	if (!intervals.has(p_interval_id)) {
+	if (intervals.find(p_interval_id) == intervals.end()) {
 		return false;
 	}
 	if (p_triggers_interval) {
@@ -424,14 +422,15 @@ Callable TimeService::throttle(
 		TimeType p_time_type) {
 	Throttler *throttler = memnew(Throttler);
 	throttler->initialize(
-			p_callback.get_object(), this, p_time_type, p_callback, p_interval,
+			p_callback.get_object(), p_time_type, p_callback, p_interval,
 			p_invokes_at_end);
 	throttled_callbacks[throttler->get_on_call()] = throttler;
 	return throttler->get_on_call();
 }
 
 bool TimeService::clear_throttle(const Callable &p_throttled_callback) {
-	if (!throttled_callbacks.has(p_throttled_callback)) {
+	if (throttled_callbacks.find(p_throttled_callback) ==
+		throttled_callbacks.end()) {
 		return false;
 	}
 	Throttler *throttler = Object::cast_to<Throttler>(
@@ -450,14 +449,15 @@ Callable TimeService::debounce(
 		TimeType p_time_type) {
 	Debouncer *debouncer = memnew(Debouncer);
 	debouncer->initialize(
-			p_callback.get_object(), this, p_time_type, p_callback, p_interval,
+			p_callback.get_object(), p_time_type, p_callback, p_interval,
 			p_invokes_at_start);
 	debounced_callbacks[debouncer->get_on_call()] = debouncer;
 	return debouncer->get_on_call();
 }
 
 bool TimeService::clear_debounce(const Callable &p_debounced_callback) {
-	if (!debounced_callbacks.has(p_debounced_callback)) {
+	if (debounced_callbacks.find(p_debounced_callback) ==
+		debounced_callbacks.end()) {
 		return false;
 	}
 	Debouncer *debouncer = Object::cast_to<Debouncer>(

@@ -12,8 +12,6 @@ namespace godot {
 class Callable;
 class TimeTracker;
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 // Represents a one-shot callback scheduled for a specific delay.
 class Timeout : public RefCounted {
 	GDCLASS(Timeout, RefCounted)

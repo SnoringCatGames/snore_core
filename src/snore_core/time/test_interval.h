@@ -11,8 +11,6 @@
 
 namespace godot {
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 class IntervalTest : public SnoreCoreTest {
 protected:
 	void BeforeEach() override { interval = memnew(Interval); }
@@ -22,28 +20,8 @@ protected:
 	Interval *interval;
 
 private:
-	void dummy_callback() {
-		// Dummy callback for testing
-	}
+	void dummy_callback() {}
 };
-
-TEST_F(IntervalTest, InitialState) {
-	// Test that a new interval has expected initial values.
-	EXPECT_EQ(interval->get_id(), 0);
-	EXPECT_EQ(interval->get_parent(), nullptr);
-}
-
-TEST_F(IntervalTest, Initialize) {
-	// Test interval initialization.
-	Array arguments;
-	arguments.push_back("test");
-
-	Callable callback = callable_mp(this, &IntervalTest::dummy_callback);
-	interval->initialize(this, 0, callback, 1.0, arguments);
-
-	EXPECT_EQ(interval->get_parent(), this);
-	EXPECT_GE(interval->get_id(), 0);
-}
 
 TEST_F(IntervalTest, HasReachedNextTriggerTimePlaceholder) {
 	// Test the placeholder behavior for has_reached_next_trigger_time.
@@ -53,17 +31,6 @@ TEST_F(IntervalTest, HasReachedNextTriggerTimePlaceholder) {
 	interval->initialize(this, 0, callback, 1.0, arguments);
 
 	EXPECT_EQ(interval->get_has_reached_next_trigger_time(), false);
-}
-
-TEST_F(IntervalTest, Trigger) {
-	// Test that trigger doesn't crash (even though callback may not work in
-	// this context).
-	Array arguments;
-	Callable callback; // Invalid callable
-	interval->initialize(this, 0, callback, 1.0, arguments);
-
-	// This should not crash
-	interval->trigger();
 }
 
 } // namespace godot

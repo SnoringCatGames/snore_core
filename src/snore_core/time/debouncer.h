@@ -1,6 +1,7 @@
 #ifndef DEBOUNCER_H
 #define DEBOUNCER_H
 
+#include "snore_core/geometry_constants.h"
 #include "snore_core/time/time_tracker.h"
 #include "snore_core/time/time_type.h"
 
@@ -10,8 +11,6 @@
 namespace godot {
 
 class Callable;
-
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
 // Debounces callback execution to prevent rapid successive calls.
 class Debouncer : public RefCounted {

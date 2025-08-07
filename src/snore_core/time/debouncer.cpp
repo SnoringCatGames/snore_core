@@ -7,8 +7,6 @@
 
 using namespace godot;
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 void Debouncer::initialize(
 		Object *p_parent,
 		TimeType p_time_type,
@@ -31,7 +29,8 @@ Callable Debouncer::get_on_call() const {
 }
 
 void Debouncer::on_call() {
-	float current_call_time = TimeService::get()->get_elapsed_time(time_type);
+	const float current_call_time =
+			TimeService::get()->get_elapsed_time(time_type);
 
 	if (invokes_at_start && !is_callback_scheduled &&
 		current_call_time > last_call_time + interval) {
