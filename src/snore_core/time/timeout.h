@@ -1,54 +1,52 @@
 #ifndef TIMEOUT_H
 #define TIMEOUT_H
 
-#include "snore_core/time/time_tracker.h"
+#include "snore_core/time/elapsed_time_type.h"
+#include "snore_core/time/time_type.h"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/variant/callable.hpp>
 
 namespace godot {
 
+class Callable;
+class TimeTracker;
+
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
-// Represents a one-shot callback scheduled for a specific time.
+// Represents a one-shot callback scheduled for a specific delay.
 class Timeout : public RefCounted {
 	GDCLASS(Timeout, RefCounted)
 
-private:
-	TimeTracker *time_tracker;
-	StringName elapsed_time_key;
-	Callable callback;
-	float time;
-	Array arguments;
-	int id;
-	Object *parent;
-
 public:
-	Timeout();
-	~Timeout();
+	Timeout() = default;
+	~Timeout() = default;
 
-	// Initializes the timeout.
 	void initialize(
 			Object *p_parent,
-			int p_time_type,
+			TimeType p_time_type,
 			const Callable &p_callback,
-			float p_delay,
+			float p_delay_sec,
 			const Array &p_arguments);
 
-	// Checks if the timeout has expired.
 	bool get_has_expired() const;
 
-	// Triggers the timeout callback.
 	void trigger();
 
-	// Gets the timeout ID.
 	int get_id() const { return id; }
-	// Gets the parent object.
 	Object *get_parent() const { return parent; }
 
 protected:
-	static void _bind_methods();
+	static void _bind_methods() {}
+
+private:
+	TimeTracker *time_tracker = nullptr;
+	ElapsedTimeType elapsed_time_type = ElapsedTimeType::ELAPSED_PHYSICS_TIME;
+	Callable callback;
+	float time = 0.0;
+	Array arguments;
+	int id = 0;
+	Object *parent = nullptr;
 };
 
 } // namespace godot

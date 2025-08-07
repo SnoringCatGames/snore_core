@@ -2,12 +2,14 @@
 #define THROTTLER_H
 
 #include "snore_core/time/time_tracker.h"
+#include "snore_core/time/time_type.h"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/variant/callable.hpp>
 
 namespace godot {
+
+class Callable;
 
 // FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
@@ -15,48 +17,42 @@ namespace godot {
 class Throttler : public RefCounted {
 	GDCLASS(Throttler, RefCounted)
 
-private:
-	int time_type;
-	TimeTracker *time_tracker;
-	StringName elapsed_time_key;
-	Callable callback;
-	float interval;
-	bool invokes_at_end;
-	Object *parent;
-
-	int last_timeout_id;
-	float last_call_time;
-	bool is_callback_scheduled;
-
-	// Triggers the throttled callback.
-	void _trigger_callback();
-
 public:
-	Throttler();
-	~Throttler();
+	Throttler() = default;
+	~Throttler() = default;
 
-	// Initializes the throttler.
 	void initialize(
 			Object *p_parent,
-			int p_time_type,
+			TimeType p_time_type,
 			const Callable &p_callback,
 			float p_interval,
 			bool p_invokes_at_end);
 
-	// The callable that should be used to trigger the throttled execution.
 	Callable get_on_call() const;
 
-	// Called when the throttled function should be executed.
 	void on_call();
 
-	// Cancels any pending throttled callback.
 	void cancel();
 
-	// Gets the parent object.
 	Object *get_parent() const { return parent; }
 
 protected:
 	static void _bind_methods();
+
+private:
+	TimeType time_type = TimeType::APP_PHYSICS;
+	TimeTracker *time_tracker = nullptr;
+	ElapsedTimeType elapsed_time_type = ElapsedTimeType::ELAPSED_PHYSICS_TIME;
+	Callable callback;
+	float interval = 0.0;
+	bool invokes_at_end = true;
+	Object *parent = nullptr;
+
+	int last_timeout_id = -1;
+	float last_call_time = -infinity;
+	bool is_callback_scheduled = false;
+
+	void trigger_callback();
 };
 
 } // namespace godot

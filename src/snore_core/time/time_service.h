@@ -62,56 +62,41 @@ public:
 
 	void handle_frame(double p_delta);
 
-	// Cleans up stale timeouts, intervals, tweens, throttles, and debounces.
+	// Cleans up stale internal time tasks.
 	void collect_garbage();
 
-	// Gets the next unique task ID.
 	int get_next_task_id();
 
-	// Gets the app time (total time since app started).
+	// Total time since app started.
 	float get_app_time() const;
-	// Gets the clock time (real-world time since app started).
+	// Real-world time since app started.
 	float get_clock_time() const;
-	// Gets the play time (unpaused time).
+	// Unpaused time.
 	float get_play_time() const;
-	// Gets the scaled play time.
 	float get_scaled_play_time() const;
 
-	// Gets the play physics frame count.
 	int get_play_physics_frame_count() const;
 
-	// Gets elapsed time for a specific time type.
 	float get_elapsed_time(TimeType p_time_type) const;
 
-	// Gets the time tracker for a specific time type.
 	TimeTracker *get_time_tracker_for_time_type(TimeType p_time_type) const;
-	// Gets the elapsed time key for a specific time type.
 	ElapsedTimeType get_elapsed_time_type_for_time_type(
 			TimeType p_time_type) const;
-	// Gets a time type that uses the given elapsed time key.
 	int get_time_type_from_elapsed_time_type(
 			ElapsedTimeType p_elapsed_key) const;
 
-	// Gets the combined time scale.
 	float get_combined_scale() const;
-	// Scales a duration by the combined time scale.
 	float scale_delta(float p_duration_sec) const;
-	// Gets the scaled time step.
 	float get_scaled_time_step() const;
 
-	// Gets the time scale.
 	float get_time_scale() const { return time_scale; }
-	// Sets the time scale.
 	void set_time_scale(float p_value);
 
-	// Gets the additional debug time scale.
 	float get_additional_debug_time_scale() const {
 		return additional_debug_time_scale;
 	}
-	// Sets the additional debug time scale.
 	void set_additional_debug_time_scale(float p_value);
 
-	// Tweens a method call over time.
 	int tween_method(
 			Object *p_object,
 			const StringName &p_key,
@@ -124,7 +109,6 @@ public:
 			const Callable &p_on_completed_callback = Callable(),
 			const Array &p_arguments = Array());
 
-	// Tweens a property over time.
 	int tween_property(
 			Object *p_object,
 			const StringName &p_key,
@@ -137,7 +121,6 @@ public:
 			const Callable &p_on_completed_callback = Callable(),
 			const Array &p_arguments = Array());
 
-	// Internal tween implementation.
 	int tween(
 			Object *p_object,
 			const StringName &p_key,
@@ -151,52 +134,42 @@ public:
 			const Callable &p_on_completed_callback,
 			const Array &p_arguments);
 
-	// Callback for tween completion.
 	void call_tween_completed_callback(
 			const Callable &p_on_completed_callback,
 			const Array &p_arguments);
 
-	// Clears a tween.
 	bool clear_tween(int p_tween_id, bool p_triggers_completed = false);
 
-	// Sets a timeout.
 	int set_timeout(
 			const Callable &p_callback,
 			float p_delay_sec,
 			const Array &p_arguments = Array(),
 			TimeType p_time_type = TimeType::APP_PHYSICS);
 
-	// Clears a timeout.
 	bool clear_timeout(int p_timeout_id, bool p_triggers_timeout = false);
 
-	// Sets an interval.
 	int set_interval(
 			const Callable &p_callback,
 			float p_period,
 			const Array &p_arguments = Array(),
 			TimeType p_time_type = TimeType::APP_PHYSICS);
 
-	// Clears an interval.
 	bool clear_interval(int p_interval_id, bool p_triggers_interval = false);
 
-	// Creates a throttled callback.
 	Callable throttle(
 			const Callable &p_callback,
 			float p_interval,
 			bool p_invokes_at_end = true,
 			TimeType p_time_type = TimeType::APP_PHYSICS);
 
-	// Clears a throttled callback.
 	bool clear_throttle(const Callable &p_throttled_callback);
 
-	// Creates a debounced callback.
 	Callable debounce(
 			const Callable &p_callback,
 			float p_interval,
 			bool p_invokes_at_start = false,
 			TimeType p_time_type = TimeType::APP_PHYSICS);
 
-	// Clears a debounced callback.
 	bool clear_debounce(const Callable &p_debounced_callback);
 
 protected:
@@ -220,11 +193,8 @@ private:
 	std::unordered_map<Callable, Throttler *> throttled_callbacks;
 	std::unordered_map<Callable, Debouncer *> debounced_callbacks;
 
-	// Handles tween processing.
 	void handle_tweens();
-	// Handles timeout processing.
 	void handle_timeouts();
-	// Handles interval processing.
 	void handle_intervals();
 };
 

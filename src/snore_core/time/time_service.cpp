@@ -285,13 +285,13 @@ int TimeService::tween_method(
 		const Variant &p_final_val,
 		float p_duration,
 		EaseType p_ease_type,
-		float p_delay,
+		float p_delay_sec,
 		TimeType p_time_type,
 		const Callable &p_on_completed_callback,
 		const Array &p_arguments) {
 	return tween(
 			p_object, p_key, false, p_initial_val, p_final_val, p_duration,
-			p_ease_type, p_delay, p_time_type, p_on_completed_callback,
+			p_ease_type, p_delay_sec, p_time_type, p_on_completed_callback,
 			p_arguments);
 }
 
@@ -302,13 +302,13 @@ int TimeService::tween_property(
 		const Variant &p_final_val,
 		float p_duration,
 		EaseType p_ease_type,
-		float p_delay,
+		float p_delay_sec,
 		TimeType p_time_type,
 		const Callable &p_on_completed_callback,
 		const Array &p_arguments) {
 	return tween(
 			p_object, p_key, true, p_initial_val, p_final_val, p_duration,
-			p_ease_type, p_delay, p_time_type, p_on_completed_callback,
+			p_ease_type, p_delay_sec, p_time_type, p_on_completed_callback,
 			p_arguments);
 }
 
@@ -320,14 +320,14 @@ int TimeService::tween(
 		const Variant &p_final_val,
 		float p_duration,
 		EaseType p_ease_type,
-		float p_delay,
+		float p_delay_sec,
 		TimeType p_time_type,
 		const Callable &p_on_completed_callback,
 		const Array &p_arguments) {
 	// TODO: Implement ScaffolderTween creation and management.
 	// ScaffolderTween *tween = memnew(ScaffolderTween(p_object, false));
 	// tween->_interpolate(p_object, p_key, p_is_property, p_initial_val,
-	// p_final_val, p_duration, p_ease_type, p_delay, p_time_type); if
+	// p_final_val, p_duration, p_ease_type, p_delay_sec, p_time_type); if
 	// (p_on_completed_callback.is_valid()) {
 	//     tween->connect("tween_all_completed", callable_mp(this,
 	//     &TimeService::call_tween_completed_callback).bind(p_on_completed_callback,
@@ -364,12 +364,12 @@ bool TimeService::clear_tween(int p_tween_id, bool p_triggers_completed) {
 
 int TimeService::set_timeout(
 		const Callable &p_callback,
-		float p_delay,
+		float p_delay_sec,
 		const Array &p_arguments,
 		TimeType p_time_type) {
 	Timeout *timeout = memnew(Timeout);
 	timeout->initialize(
-			this, p_callback.get_object(), p_time_type, p_callback, p_delay,
+			this, p_callback.get_object(), p_time_type, p_callback, p_delay_sec,
 			p_arguments);
 	timeouts[timeout->get_id()] = timeout;
 	return timeout->get_id();
@@ -470,11 +470,6 @@ bool TimeService::clear_debounce(const Callable &p_debounced_callback) {
 }
 
 void TimeService::_bind_methods() {
-	ClassDB::bind_method(
-			D_METHOD("collect_garbage"), &TimeService::collect_garbage);
-	ClassDB::bind_method(
-			D_METHOD("get_next_task_id"), &TimeService::get_next_task_id);
-
 	ClassDB::bind_method(D_METHOD("get_app_time"), &TimeService::get_app_time);
 	ClassDB::bind_method(
 			D_METHOD("get_clock_time"), &TimeService::get_clock_time);

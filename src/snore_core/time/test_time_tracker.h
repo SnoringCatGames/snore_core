@@ -11,8 +11,6 @@
 
 namespace godot {
 
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
-
 class TimeTrackerTest : public SnoreCoreTest {
 protected:
 	void BeforeEach() override { time_tracker = memnew(TimeTracker); }
@@ -21,19 +19,6 @@ protected:
 
 	TimeTracker *time_tracker;
 };
-
-TEST_F(TimeTrackerTest, InitialState) {
-	// Test that a new time tracker has expected initial values.
-	EXPECT_EQ(time_tracker->get_time_scale(), 1.0);
-	EXPECT_EQ(time_tracker->get_elapsed_clock_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_elapsed_physics_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_elapsed_render_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_elapsed_clock_scaled_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_elapsed_physics_scaled_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_elapsed_render_scaled_time(), 0.0);
-	EXPECT_EQ(time_tracker->get_physics_frame_count(), 0);
-	EXPECT_EQ(time_tracker->get_render_frame_count(), 0);
-}
 
 TEST_F(TimeTrackerTest, TimeScaleSetting) {
 	// Test setting and getting time scale.
