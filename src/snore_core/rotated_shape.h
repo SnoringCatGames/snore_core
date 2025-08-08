@@ -28,9 +28,7 @@ public:
 
 	Vector2 get_half_width_height() const { return half_width_height; }
 
-	void set_up(
-			const Ref<Shape2D> &p_shape = nullptr,
-			double p_rotation = infinity);
+	void set_up(const Ref<Shape2D> &p_shape = nullptr, double p_rotation = inf);
 
 	void reset();
 
@@ -39,7 +37,7 @@ protected:
 
 private:
 	Ref<Shape2D> shape;
-	double rotation = infinity;
+	double rotation = inf;
 	Vector2 half_width_height = vector2_invalid;
 };
 

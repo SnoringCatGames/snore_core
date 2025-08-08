@@ -38,7 +38,7 @@ bool Interval::get_has_reached_next_trigger_time() const {
 }
 
 void Interval::trigger() {
-	if (!callback.is_valid()) {
+	if (!is_valid(callback)) {
 		return;
 	}
 

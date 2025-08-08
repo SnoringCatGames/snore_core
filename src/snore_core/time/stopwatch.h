@@ -4,6 +4,8 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/string_name.hpp>
 
+#include <godot_cpp/core/binder_common.hpp>
+
 namespace godot {
 
 class Stopwatch : public RefCounted {

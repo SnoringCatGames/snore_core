@@ -22,13 +22,11 @@ void Debouncer::initialize(
 	callback = p_callback;
 	interval = p_interval;
 	invokes_at_start = p_invokes_at_start;
+	client_callback = callable_mp(
+			const_cast<Debouncer *>(this), &Debouncer::trigger_limited_call);
 }
 
-Callable Debouncer::get_on_call() const {
-	return callable_mp(const_cast<Debouncer *>(this), &Debouncer::on_call);
-}
-
-void Debouncer::on_call() {
+void Debouncer::trigger_limited_call() {
 	const float current_call_time =
 			TimeService::get()->get_elapsed_time(time_type);
 
@@ -55,7 +53,7 @@ void Debouncer::trigger_callback() {
 
 	last_call_time = TimeService::get()->get_elapsed_time(time_type);
 	is_callback_scheduled = false;
-	if (callback.is_valid()) {
+	if (is_valid(callback)) {
 		callback.call();
 	}
 }

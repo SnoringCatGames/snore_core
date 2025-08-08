@@ -8,7 +8,6 @@
 
 #include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/canvas_item.hpp>
-#include <godot_cpp/classes/control.hpp>
 #include <godot_cpp/classes/dir_access.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/image.hpp>
@@ -40,7 +39,7 @@
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
-#include <unordered_set>
+#include <unordered_map>
 
 using namespace godot;
 
@@ -66,7 +65,7 @@ bool SnoreCoreUtils::ensure(bool p_condition, const String &p_message) {
 }
 
 void SnoreCoreUtils::splice(
-		Array &p_result,
+		Array p_result,
 		int p_start,
 		int p_delete_count,
 		const Array &p_items_to_insert) {
@@ -110,48 +109,44 @@ void SnoreCoreUtils::splice(
 }
 
 Array SnoreCoreUtils::dedup(const Array &p_array) {
-	std::unordered_set<Variant> set;
+	std::unordered_map<uint32_t, Variant> map;
 	for (int i = 0; i < p_array.size(); i++) {
-		set.insert(p_array[i]);
+		map.emplace(p_array[i].hash(), p_array[i]);
 	}
-	const int deduped_size = set.size();
-	set.clear();
+	const int deduped_size = map.size();
+	map.clear();
 	Array result;
 	result.resize(deduped_size);
 	for (int i = 0; i < p_array.size(); i++) {
-		if (set.find(p_array[i]) == set.end()) {
+		if (map.find(p_array[i].hash()) == map.end()) {
 			result[i++] = p_array[i];
-			set.insert(p_array[i]);
+			map.emplace(p_array[i].hash(), p_array[i]);
 		}
 	}
 	return result;
 }
 
 void SnoreCoreUtils::subtract_nested_arrays(
-		Dictionary *p_result,
-		const Dictionary *p_other,
+		Dictionary p_result,
+		const Dictionary &p_other,
 		bool p_expects_no_missing_matches) {
-	CHECK_SIMPLE(p_result != nullptr);
-	CHECK_SIMPLE(p_other != nullptr);
-	Array keys = p_other->keys();
+	Array keys = p_other.keys();
 	for (int i = 0; i < keys.size(); i++) {
 		const Variant &key = keys[i];
-		if (p_result->has(key)) {
-			Variant &result_value = (*p_result)[key];
-			const Variant &other_value = (*p_other)[key];
+		if (p_result.has(key)) {
+			Variant &result_value = p_result[key];
+			const Variant &other_value = p_other[key];
 			if (result_value.get_type() == Variant::DICTIONARY &&
 				other_value.get_type() == Variant::DICTIONARY) {
-				Dictionary *result_dict =
-						Object::cast_to<Dictionary>(result_value);
-				const Dictionary *other_dict =
-						Object::cast_to<Dictionary>(other_value);
+				Dictionary result_dict = Dictionary(result_value);
+				const Dictionary other_dict = Dictionary(other_value);
 				subtract_nested_arrays(
 						result_dict, other_dict, p_expects_no_missing_matches);
 			} else if (
 					result_value.get_type() == Variant::ARRAY &&
 					other_value.get_type() == Variant::ARRAY) {
-				Array *result_array = Object::cast_to<Array>(result_value);
-				const Array *other_array = Object::cast_to<Array>(other_value);
+				Array result_array = Array(result_value);
+				const Array other_array = Array(other_value);
 				subtract_arrays(
 						result_array, other_array,
 						p_expects_no_missing_matches);
@@ -179,14 +174,14 @@ void SnoreCoreUtils::subtract_nested_arrays(
 }
 
 void SnoreCoreUtils::subtract_arrays(
-		Array *p_result,
-		const Array *p_other,
+		Array p_result,
+		const Array &p_other,
 		bool p_expects_no_missing_matches) {
-	for (int i = 0; i < p_other->size(); i++) {
-		const Variant &element = (*p_other)[i];
-		const int result_index = p_result->find(element);
+	for (int i = 0; i < p_other.size(); i++) {
+		const Variant &element = p_other[i];
+		const int result_index = p_result.find(element);
 		if (result_index >= 0) {
-			p_result->remove_at(result_index);
+			p_result.remove_at(result_index);
 		} else if (!ENSURE(!p_expects_no_missing_matches,
 						   vformat("Missing match: "
 								   "\n    element=%s,\n    result=%s,\n    "
@@ -226,7 +221,7 @@ void SnoreCoreUtils::clear_children(Node *p_node) {
 	Array children = p_node->get_children();
 	for (int i = 0; i < children.size(); i++) {
 		Node *child = Object::cast_to<Node>(children[i]);
-		if (is_instance_valid(child)) {
+		if (is_valid(child)) {
 			child->queue_free();
 		}
 	}
@@ -262,7 +257,7 @@ float SnoreCoreUtils::ease_type_to_param(EaseType p_type) {
 			return -1.8;
 		default:
 			ENSURE(false, "Unknown ease type: " + ease_type_to_string(p_type));
-			return infinity;
+			return inf;
 	}
 }
 
@@ -606,7 +601,7 @@ Variant SnoreCoreUtils::get_property_value_from_scene_state_node(
 
 bool SnoreCoreUtils::check_whether_sub_classes_are_tools(Object *p_object) {
 	Ref<Script> script = p_object->get_script();
-	while (script.is_valid()) {
+	while (is_valid(script)) {
 		if (!script->is_tool()) {
 			return false;
 		}

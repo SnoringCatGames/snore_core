@@ -2,12 +2,11 @@
 #define REF_UTILS_H
 
 #include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/core/object.hpp>
 
 namespace godot {
 
-#define IS_VALID_REF(m_ref)                                                    \
-	((m_ref).is_valid() && IS_VALID_OBJECT((m_ref).ptr()))
-#define IS_VALID_OBJECT(m_object_ptr) ((m_object_ptr) != nullptr)
+class Callable;
 
 template <typename T> Ref<T> instantiate_ref() {
 	Ref<T> ref;
@@ -30,13 +29,15 @@ template <typename T, typename... Args> Ref<T> set_up_ref(Args... args) {
 	return ref;
 }
 
-bool is_instance_valid(const Object *p_object) {
+bool is_valid(const Object *p_object) {
 	return p_object && ObjectDB::get_instance(p_object->get_instance_id());
 }
 
-template <typename T> bool is_instance_valid(const Ref<T> &p_ref) {
+template <typename T> bool is_valid(const Ref<T> &p_ref) {
 	return p_ref.is_valid() && ObjectDB::get_instance(p_ref->get_instance_id());
 }
+
+bool is_valid(const Callable &p_callable);
 
 } //namespace godot
 

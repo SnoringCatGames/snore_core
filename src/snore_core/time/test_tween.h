@@ -36,9 +36,6 @@ protected:
 	Node *parent_node;
 	SnoreCoreTween *tween;
 	Node *target_object;
-
-private:
-	void dummy_callback() {}
 };
 
 TEST_F(TweenTest, InterpolateProperty) {

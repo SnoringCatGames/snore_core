@@ -190,8 +190,8 @@ private:
 	std::unordered_map<int, Timeout *> timeouts;
 	std::unordered_map<int, Interval *> intervals;
 	std::unordered_map<int, SnoreCoreTween *> tweens;
-	std::unordered_map<Callable, Throttler *> throttled_callbacks;
-	std::unordered_map<Callable, Debouncer *> debounced_callbacks;
+	std::unordered_map<int64_t, Throttler *> throttled_callbacks;
+	std::unordered_map<int64_t, Debouncer *> debounced_callbacks;
 
 	void handle_tweens();
 	void handle_timeouts();

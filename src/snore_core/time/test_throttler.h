@@ -18,9 +18,6 @@ protected:
 	void AfterEach() override { memdelete(throttler); }
 
 	Throttler *throttler;
-
-private:
-	void dummy_callback() {}
 };
 
 } // namespace godot

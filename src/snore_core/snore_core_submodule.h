@@ -59,11 +59,11 @@ public:                                                                        \
                                                                                \
 	virtual void instantiate_node() override {                                 \
 		node = memnew(m_node_type);                                            \
-		SnoreCore::get()->add_utility_node(node, m_node_name);                 \
+		SnoreCoreSubmoduleInternal::add_utility_node(node, m_node_name);       \
 	}                                                                          \
                                                                                \
 	virtual void reset_node() override {                                       \
-		if (is_instance_valid(node)) {                                         \
+		if (is_valid(node)) {                                                  \
 			node->queue_free();                                                \
 			node = nullptr;                                                    \
 		}                                                                      \
@@ -73,6 +73,13 @@ private:                                                                       \
 	m_node_type *node = nullptr;
 
 namespace godot {
+
+class Node;
+class StringName;
+
+namespace SnoreCoreSubmoduleInternal {
+void add_utility_node(Node *p_node, const StringName &p_name);
+} // namespace SnoreCoreSubmoduleInternal
 
 class SnoreCoreSubmodule : public Object {
 	GDCLASS(SnoreCoreSubmodule, Object)

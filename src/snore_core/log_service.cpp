@@ -22,7 +22,7 @@ void LogService::set_up() {
 
 void LogService::reset() { recent_logs.unref(); }
 
-void LogService::script_print(const Variant &p_message = Variant()) {
+void LogService::script_print(const Variant &p_message) {
 	String message;
 	if (p_message.get_type() == Variant::STRING) {
 		message = p_message;
@@ -78,13 +78,13 @@ void LogService::print_helper(
 		bool p_is_rich) {
 	const String message = prepend_time(p_message);
 
-	if (recent_logs.is_valid()) {
+	if (is_valid(recent_logs)) {
 		recent_logs->push(message);
 	}
 
 	// FIXME: Integrate with the in-game logs display widget. Refactor this to
 	//        broadcast an event though, for the display to listen to.
-	// if (is_instance_valid(S) && is_instance_valid(S.super_hud)):
+	// if (is_valid(S) && is_valid(S.super_hud)):
 	//     S.logs_display.add_log(message, MAX_LOG_COUNT)
 
 	if (p_print_to_console && !SnoreCore::get_are_tests_running()) {
@@ -98,7 +98,7 @@ void LogService::print_helper(
 
 void LogService::error_helper(const String &p_message, bool p_should_assert) {
 	// FIXME: Integrate with the TimeService submodule.
-	// float play_time = S.time.get_play_time() if is_instance_valid(S.time)
+	// float play_time = S.time.get_play_time() if is_valid(S.time)
 	// else -1.0;
 	const float play_time = -1.0;
 

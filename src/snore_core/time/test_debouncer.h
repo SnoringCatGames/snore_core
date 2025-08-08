@@ -18,9 +18,6 @@ protected:
 	void AfterEach() override { memdelete(debouncer); }
 
 	Debouncer *debouncer;
-
-private:
-	void dummy_callback() {}
 };
 
 } // namespace godot

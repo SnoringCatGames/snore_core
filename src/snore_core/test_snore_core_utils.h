@@ -30,11 +30,11 @@ namespace godot {
 
 class SnoreCoreUtilsTest : public SnoreCoreTest {
 protected:
-	void BeforeEach() override { utils.instantiate(); }
+	void BeforeEach() override { utils = memnew(SnoreCoreUtils); }
 
-	void AfterEach() override { utils.unref(); }
+	void AfterEach() override { memdelete(utils); }
 
-	Ref<SnoreCoreUtils> utils;
+	SnoreCoreUtils *utils;
 };
 
 TEST_F(SnoreCoreUtilsTest, Ensure) {
@@ -91,7 +91,7 @@ TEST_F(SnoreCoreUtilsTest, SubtractNestedArrays) {
 	result["items"] = Array({ "a", "b", "c" });
 	Dictionary other;
 	other["items"] = Array({ "b" });
-	utils->subtract_nested_arrays(&result, &other, false);
+	utils->subtract_nested_arrays(result, other, false);
 	EXPECT_EQ(Array(result["items"]), Array({ "a", "c" }));
 
 	// Test nested dictionary subtraction.
@@ -103,7 +103,7 @@ TEST_F(SnoreCoreUtilsTest, SubtractNestedArrays) {
 	Dictionary inner_other;
 	inner_other["numbers"] = Array({ 2 });
 	other_nested["nested"] = inner_other;
-	utils->subtract_nested_arrays(&result_nested, &other_nested, false);
+	utils->subtract_nested_arrays(result_nested, other_nested, false);
 	Dictionary expected_inner = result_nested["nested"];
 	EXPECT_EQ(expected_inner["numbers"], Array({ 1, 3 }));
 
@@ -113,7 +113,7 @@ TEST_F(SnoreCoreUtilsTest, SubtractNestedArrays) {
 	Dictionary other_missing;
 	other_missing["different_key"] = Array({ "y" });
 	// This should not cause an error since expects_no_missing_matches = false.
-	utils->subtract_nested_arrays(&result_missing, &other_missing, false);
+	utils->subtract_nested_arrays(result_missing, other_missing, false);
 	// The result should remain unchanged since no matching key was found.
 	EXPECT_EQ(result_missing["items"], Array({ "x" }));
 
@@ -123,7 +123,7 @@ TEST_F(SnoreCoreUtilsTest, SubtractNestedArrays) {
 	Dictionary other_not_found;
 	other_not_found["items"] = Array({ "z" }); // Element not in result array.
 	// This should not cause an error since expects_no_missing_matches = false.
-	utils->subtract_nested_arrays(&result_not_found, &other_not_found, false);
+	utils->subtract_nested_arrays(result_not_found, other_not_found, false);
 	// The result should remain unchanged since no matching element was found.
 	EXPECT_EQ(result_not_found["items"], Array({ "a" }));
 }
@@ -171,48 +171,50 @@ TEST_F(SnoreCoreUtilsTest, RoundVector) {
 }
 
 TEST_F(SnoreCoreUtilsTest, GetTypeString) {
-	EXPECT_EQ(SnoreCoreUtils::get_type_string(Variant::INT), "TYPE_INT");
-	EXPECT_EQ(SnoreCoreUtils::get_type_string(Variant::FLOAT), "TYPE_FLOAT");
-	EXPECT_EQ(SnoreCoreUtils::get_type_string(Variant::STRING), "TYPE_STRING");
-	EXPECT_EQ(
+	EXPECT_STRING_EQ(SnoreCoreUtils::get_type_string(Variant::INT), "TYPE_INT");
+	EXPECT_STRING_EQ(
+			SnoreCoreUtils::get_type_string(Variant::FLOAT), "TYPE_FLOAT");
+	EXPECT_STRING_EQ(
+			SnoreCoreUtils::get_type_string(Variant::STRING), "TYPE_STRING");
+	EXPECT_STRING_EQ(
 			SnoreCoreUtils::get_type_string(Variant::VECTOR2), "TYPE_VECTOR2");
 }
 
 TEST_F(SnoreCoreUtilsTest, GetSpaces) {
 	String result = utils->get_spaces(0);
-	EXPECT_EQ(result, "");
+	EXPECT_STRING_EQ(result, "");
 
 	result = utils->get_spaces(5);
-	EXPECT_EQ(result, "     ");
+	EXPECT_STRING_EQ(result, "     ");
 	EXPECT_EQ(result.length(), 5);
 }
 
 TEST_F(SnoreCoreUtilsTest, PadString) {
 	String result = utils->pad_string("test", 8, true, false);
-	EXPECT_EQ(result, "test    ");
+	EXPECT_STRING_EQ(result, "test    ");
 	EXPECT_EQ(result.length(), 8);
 
 	result = utils->pad_string("test", 8, false, false);
-	EXPECT_EQ(result, "    test");
+	EXPECT_STRING_EQ(result, "    test");
 	EXPECT_EQ(result.length(), 8);
 }
 
 TEST_F(SnoreCoreUtilsTest, ResizeString) {
 	String result = utils->resize_string("test", 8, true);
-	EXPECT_EQ(result, "test    ");
+	EXPECT_STRING_EQ(result, "test    ");
 
 	result = utils->resize_string("verylongstring", 5, true);
-	EXPECT_EQ(result, "veryl");
+	EXPECT_STRING_EQ(result, "veryl");
 	EXPECT_EQ(result.length(), 5);
 
 	result = utils->resize_string("exact", 5, true);
-	EXPECT_EQ(result, "exact");
+	EXPECT_STRING_EQ(result, "exact");
 }
 
 TEST_F(SnoreCoreUtilsTest, GetVectorString) {
 	const Vector2 input(3.14159, 2.71828);
 	const String result = utils->get_vector_string(input, 2);
-	EXPECT_EQ(result, "(3.14,2.72)");
+	EXPECT_STRING_EQ(result, "(3.14,2.72)");
 }
 
 TEST_F(SnoreCoreUtilsTest, Mix) {
@@ -300,35 +302,35 @@ TEST_F(SnoreCoreUtilsTest, GetTimeStringFromSeconds) {
 	// Test basic seconds formatting.
 	String result =
 			utils->get_time_string_from_seconds(65.0, false, false, false);
-	EXPECT_EQ(result, "01:05");
+	EXPECT_STRING_EQ(result, "01:05");
 
 	// Test with milliseconds.
 	result = utils->get_time_string_from_seconds(65.123, true, false, false);
-	EXPECT_EQ(result, "01:05.123");
+	EXPECT_STRING_EQ(result, "01:05.123");
 
 	// Test with hours.
 	result = utils->get_time_string_from_seconds(3661.0, false, true, true);
-	EXPECT_EQ(result, "01:01:01");
+	EXPECT_STRING_EQ(result, "01:01:01");
 
 	// Test with empty hours and minutes.
 	result = utils->get_time_string_from_seconds(5.0, false, true, true);
-	EXPECT_EQ(result, "00:00:05");
+	EXPECT_STRING_EQ(result, "00:00:05");
 
-	// Test undefined time (infinity).
-	result = utils->get_time_string_from_seconds(infinity, false, true, true);
-	EXPECT_EQ(result, "--:--:--");
+	// Test undefined time (inf).
+	result = utils->get_time_string_from_seconds(inf, false, true, true);
+	EXPECT_STRING_EQ(result, "--:--:--");
 
 	// Test undefined time with milliseconds.
-	result = utils->get_time_string_from_seconds(infinity, true, true, true);
-	EXPECT_EQ(result, "--:--:--.---");
+	result = utils->get_time_string_from_seconds(inf, true, true, true);
+	EXPECT_STRING_EQ(result, "--:--:--.---");
 
 	// Test zero seconds.
 	result = utils->get_time_string_from_seconds(0.0, false, false, false);
-	EXPECT_EQ(result, "00");
+	EXPECT_STRING_EQ(result, "00");
 
 	// Test large values.
 	result = utils->get_time_string_from_seconds(7265.456, true, true, true);
-	EXPECT_EQ(result, "02:01:05.456");
+	EXPECT_STRING_EQ(result, "02:01:05.456");
 }
 
 } //namespace godot

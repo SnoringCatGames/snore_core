@@ -8,9 +8,9 @@
 using namespace godot;
 
 // TODO: Update the demo settings to use the default values from the old
-// manifest.gd.
+//       manifest.gd.
 
-SC_SETTINGS_CLASS_DEFINITION(SnoreCoreMainSettings, SnoreCore)
+SC_SETTINGS_CLASS_DEFINITION_ON_MODULE(SnoreCoreMainSettings, SnoreCore)
 
 void SnoreCoreMainSettings::_bind_methods() {
 	ClassDB::bind_method(

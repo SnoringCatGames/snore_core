@@ -53,7 +53,7 @@ void CanvasLayerService::set_up() {
 }
 
 void CanvasLayerService::reset() {
-	if (is_instance_valid(root)) {
+	if (is_valid(root)) {
 		root->queue_free();
 		root = nullptr;
 	}

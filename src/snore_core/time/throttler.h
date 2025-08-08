@@ -27,9 +27,7 @@ public:
 			float p_interval,
 			bool p_invokes_at_end);
 
-	Callable get_on_call() const;
-
-	void on_call();
+	Callable get_client_callback() const { return client_callback; }
 
 	void cancel();
 
@@ -47,10 +45,13 @@ private:
 	bool invokes_at_end = true;
 	Object *parent = nullptr;
 
+	Callable client_callback;
+
 	int last_timeout_id = -1;
-	float last_call_time = -infinity;
+	float last_call_time = -inf;
 	bool is_callback_scheduled = false;
 
+	void trigger_limited_call();
 	void trigger_callback();
 };
 

@@ -10,8 +10,8 @@
 
 namespace godot {
 
-class CanvasLayerService : public SnoreCoreSubmoduleWithNode {
-	GDCLASS(CanvasLayerService, SnoreCoreSubmoduleWithNode)
+class CanvasLayerService : public SnoreCoreSubmodule {
+	GDCLASS(CanvasLayerService, SnoreCoreSubmodule)
 	SC_SUBMODULE_CLASS(CanvasLayerService, SnoreCore)
 
 public:

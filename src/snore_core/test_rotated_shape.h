@@ -33,13 +33,13 @@ protected:
 
 		// Create RotatedShape objects with different rotations.
 		rect_0_degrees = set_up_ref<RotatedShape>(rectangle, 0.0);
-		rect_90_degrees = set_up_ref<RotatedShape>(rectangle, HALF_PI);
+		rect_90_degrees = set_up_ref<RotatedShape>(rectangle, half_pi);
 		rect_180_degrees = set_up_ref<RotatedShape>(rectangle, pi);
-		rect_270_degrees = set_up_ref<RotatedShape>(rectangle, -HALF_PI);
+		rect_270_degrees = set_up_ref<RotatedShape>(rectangle, -half_pi);
 		capsule_0_degrees = set_up_ref<RotatedShape>(capsule, 0.0);
-		capsule_90_degrees = set_up_ref<RotatedShape>(capsule, HALF_PI);
+		capsule_90_degrees = set_up_ref<RotatedShape>(capsule, half_pi);
 		circle_0_degrees = set_up_ref<RotatedShape>(circle, 0.0);
-		circle_90_degrees = set_up_ref<RotatedShape>(circle, HALF_PI);
+		circle_90_degrees = set_up_ref<RotatedShape>(circle, half_pi);
 	}
 
 	void AfterEach() override {

@@ -140,7 +140,7 @@ Vector2 Geometry::get_closest_point_on_polyline_to_polyline(
 	}
 
 	Vector2 closest_point = vector2_invalid;
-	float closest_distance_squared = infinity;
+	float closest_distance_squared = inf;
 
 	for (const auto &vertex_b : p_b) {
 		Vector2 current_point =
@@ -338,9 +338,9 @@ bool Geometry::does_rectangle_and_circle_intersect(
 	const Vector2 rectangle_center = p_rectangle_min + rectangle_extents;
 
 	const float centers_distance_x =
-			ABS(p_circle_center.x - rectangle_center.x);
+			Math::abs(p_circle_center.x - rectangle_center.x);
 	const float centers_distance_y =
-			ABS(p_circle_center.y - rectangle_center.y);
+			Math::abs(p_circle_center.y - rectangle_center.y);
 
 	if (centers_distance_x >= rectangle_extents.x + p_circle_radius) {
 		return false;
@@ -468,7 +468,7 @@ bool Geometry::do_segment_and_polygon_intersect(
 		const float d = polygon_segment.y * segment_diff.x -
 				polygon_segment.x * segment_diff.y;
 
-		if (ABS(d) < float_epsilon) {
+		if (Math::abs(d) < float_epsilon) {
 			if (n < 0) {
 				return false;
 			} else {
@@ -679,8 +679,9 @@ bool Geometry::are_points_collinear(
 		const Vector2 &p_p2,
 		const Vector2 &p_p3,
 		float p_epsilon) {
-	return ABS((p_p2.x - p_p1.x) * (p_p3.y - p_p1.y) -
-			   (p_p3.x - p_p1.x) * (p_p2.y - p_p1.y)) < p_epsilon;
+	return Math::abs(
+				   (p_p2.x - p_p1.x) * (p_p3.y - p_p1.y) -
+				   (p_p3.x - p_p1.x) * (p_p2.y - p_p1.y)) < p_epsilon;
 }
 
 bool Geometry::do_point_and_segment_intersect(
@@ -691,7 +692,7 @@ bool Geometry::do_point_and_segment_intersect(
 	const float cross_product =
 			(p_segment_a.x - p_point.x) * (p_segment_b.y - p_point.y) -
 			(p_segment_b.x - p_point.x) * (p_segment_a.y - p_point.y);
-	if (ABS(cross_product) >= p_epsilon) {
+	if (Math::abs(cross_product) >= p_epsilon) {
 		return false;
 	}
 
@@ -763,7 +764,7 @@ float Geometry::distance_squared_from_point_to_rect(
 float Geometry::calculate_manhattan_distance(
 		const Vector2 &p_a,
 		const Vector2 &p_b) {
-	return ABS(p_b.x - p_a.x) + ABS(p_b.y - p_a.y);
+	return Math::abs(p_b.x - p_a.x) + Math::abs(p_b.y - p_a.y);
 }
 
 bool Geometry::is_point_inf(const Vector2 &p_point) {
@@ -1052,7 +1053,7 @@ float Geometry::get_radius(const Ref<Shape2D> &p_shape) {
 		return capsule->get_radius();
 	} else {
 		ENSURE(false, "Geometry.get_radius: Invalid shape.");
-		return infinity;
+		return inf;
 	}
 }
 

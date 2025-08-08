@@ -135,7 +135,7 @@ void TimeService::collect_garbage() {
 
 		// Check parent validity for timeout objects
 		Object *parent = timeout->get_parent();
-		if (parent && !is_instance_valid(parent)) {
+		if (parent && !is_valid(parent)) {
 			if (!Object::cast_to<RefCounted>(timeout)) {
 				timeout->call("free");
 			}
@@ -155,7 +155,7 @@ void TimeService::collect_garbage() {
 
 		// Check parent validity for interval objects
 		Object *parent = interval->get_parent();
-		if (parent && !is_instance_valid(parent)) {
+		if (parent && !is_valid(parent)) {
 			if (!Object::cast_to<RefCounted>(interval)) {
 				interval->call("free");
 			}
@@ -173,7 +173,7 @@ void TimeService::collect_garbage() {
 			continue;
 		}
 
-		if (!is_instance_valid(tween->get_parent_node())) {
+		if (!is_valid(tween->get_parent_node())) {
 			tween->queue_free();
 			it = tweens.erase(it);
 		} else {
@@ -380,7 +380,7 @@ int TimeService::tween(
 				p_ease_type, p_delay_sec, p_time_type);
 	}
 
-	if (p_on_completed_callback.is_valid()) {
+	if (is_valid(p_on_completed_callback)) {
 		tween->connect(
 				"tween_all_completed",
 				callable_mp(this, &TimeService::call_tween_completed_callback)
@@ -476,20 +476,20 @@ Callable TimeService::throttle(
 	throttler->initialize(
 			p_callback.get_object(), p_time_type, p_callback, p_interval,
 			p_invokes_at_end);
-	throttled_callbacks[throttler->get_on_call()] = throttler;
-	return throttler->get_on_call();
+	throttled_callbacks[throttler->get_client_callback().hash()] = throttler;
+	return throttler->get_client_callback();
 }
 
 bool TimeService::clear_throttle(const Callable &p_throttled_callback) {
-	if (throttled_callbacks.find(p_throttled_callback) ==
+	if (throttled_callbacks.find(p_throttled_callback.hash()) ==
 		throttled_callbacks.end()) {
 		return false;
 	}
-	Throttler *throttler = throttled_callbacks[p_throttled_callback];
+	Throttler *throttler = throttled_callbacks[p_throttled_callback.hash()];
 	if (throttler) {
 		throttler->cancel();
 	}
-	throttled_callbacks.erase(p_throttled_callback);
+	throttled_callbacks.erase(p_throttled_callback.hash());
 	return true;
 }
 
@@ -502,20 +502,20 @@ Callable TimeService::debounce(
 	debouncer->initialize(
 			p_callback.get_object(), p_time_type, p_callback, p_interval,
 			p_invokes_at_start);
-	debounced_callbacks[debouncer->get_on_call()] = debouncer;
-	return debouncer->get_on_call();
+	debounced_callbacks[debouncer->get_client_callback().hash()] = debouncer;
+	return debouncer->get_client_callback();
 }
 
 bool TimeService::clear_debounce(const Callable &p_debounced_callback) {
-	if (debounced_callbacks.find(p_debounced_callback) ==
+	if (debounced_callbacks.find(p_debounced_callback.hash()) ==
 		debounced_callbacks.end()) {
 		return false;
 	}
-	Debouncer *debouncer = debounced_callbacks[p_debounced_callback];
+	Debouncer *debouncer = debounced_callbacks[p_debounced_callback.hash()];
 	if (debouncer) {
 		debouncer->cancel();
 	}
-	debounced_callbacks.erase(p_debounced_callback);
+	debounced_callbacks.erase(p_debounced_callback.hash());
 	return true;
 }
 

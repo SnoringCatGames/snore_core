@@ -5,7 +5,6 @@
 #include "snore_core/time/time_type.h"
 
 #include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
@@ -27,7 +26,7 @@ public:
 	SnoreCoreTween() = default;
 	~SnoreCoreTween();
 
-	void _init(Ref<Node> p_parent, bool p_adds_self_as_child_of_parent = true);
+	void _init(Node *p_parent, bool p_adds_self_as_child_of_parent = true);
 	void _destroy();
 
 	bool is_active() const;
@@ -60,14 +59,14 @@ public:
 			float p_delay = 0.0,
 			TimeType p_time_type = TimeType::APP_PHYSICS);
 
-	Ref<Node> get_parent_node() const { return parent; }
+	Node *get_parent_node() const { return parent; }
 	int get_id() const { return id; }
 
 protected:
 	static void _bind_methods() {}
 
 private:
-	Ref<Node> parent = nullptr;
+	Node *parent = nullptr;
 	int id = -1;
 
 	std::vector<Ref<SubTween>> pending_sub_tweens;

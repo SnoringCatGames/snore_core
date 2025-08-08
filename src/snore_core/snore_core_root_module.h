@@ -6,6 +6,8 @@
 #include "snore_core/snore_core_settings.h"
 #include "snore_core/snore_core_submodule.h"
 
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/object.hpp>
@@ -39,19 +41,19 @@ public:                                                                        \
 		return m_settings_class::get_class_static();                           \
 	}                                                                          \
                                                                                \
-	virtual m_settings_class *cast_to_settings(Object *p_object)               \
-			const override {                                                   \
-		return Object::cast_to<m_settings_class>(p_object);                    \
+	virtual Ref<m_settings_class> cast_to_settings(                            \
+			const Ref<RefCounted> &p_object) const override {                  \
+		return Object::cast_to<m_settings_class>(p_object.ptr());              \
 	}                                                                          \
                                                                                \
-	virtual void set_settings(m_settings_class *p_settings) {                  \
-		settings = Ref<m_settings_class>(p_settings);                          \
+	virtual void set_settings(const Ref<m_settings_class> &p_settings) {       \
+		settings = p_settings;                                                 \
 	}                                                                          \
                                                                                \
 	/* TODO: This probably shouldn't be needed, but the Binding logic          \
 			 complains about duplicates when binding to the generic parent     \
 			 version. */                                                       \
-	m_settings_class *get_settings() const { return settings.ptr(); }          \
+	Ref<m_settings_class> get_settings() const { return settings; }            \
                                                                                \
 	virtual void set_up() override;                                            \
                                                                                \
@@ -88,8 +90,9 @@ public:
 
 	virtual const StringName &get_name() const = 0;
 	virtual const StringName &get_settings_class_name() const = 0;
-	virtual SettingsType *cast_to_settings(Object *p_object) const = 0;
-	virtual void set_settings(SettingsType *p_settings) = 0;
+	virtual Ref<SettingsType> cast_to_settings(
+			const Ref<RefCounted> &p_object) const = 0;
+	virtual void set_settings(const Ref<SettingsType> &p_settings) = 0;
 
 	// This is called during game runtime, after settings are loaded.
 	virtual void set_up() = 0;
@@ -106,7 +109,7 @@ public:
 	}
 
 	// This sets some tracking state before calling set_up().
-	void set_up_base(SettingsType *p_settings) {
+	void set_up_base(Ref<SettingsType> &p_settings) {
 		reset_base();
 		set_up_phase = SET_UP_PHASE::IN_PROGRESS;
 		set_settings(p_settings);
@@ -141,7 +144,7 @@ protected:
 
 	Ref<SettingsType> settings;
 
-	std::unordered_map<const StringName, SnoreCoreSubmodule *> submodules;
+	std::unordered_map<StringName, SnoreCoreSubmodule *> submodules;
 
 	static void _bind_methods() {}
 

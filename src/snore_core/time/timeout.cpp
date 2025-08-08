@@ -1,5 +1,6 @@
 #include "snore_core/time/timeout.h"
 
+#include "snore_core/internal/ref_utils.h"
 #include "snore_core/time/time_service.h"
 #include "snore_core/time/time_tracker.h"
 
@@ -40,7 +41,7 @@ bool Timeout::get_has_expired() const {
 }
 
 void Timeout::trigger() {
-	if (!ENSURE_SIMPLE(callback.is_valid())) {
+	if (!ENSURE_SIMPLE(is_valid(callback))) {
 		return;
 	}
 	callback.callv(arguments);

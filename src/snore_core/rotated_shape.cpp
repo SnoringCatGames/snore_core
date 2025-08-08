@@ -2,6 +2,7 @@
 
 #include "snore_core/geometry.h"
 #include "snore_core/internal/debug_utils.h"
+#include "snore_core/internal/ref_utils.h"
 
 #include <godot_cpp/core/class_db.hpp>
 
@@ -9,7 +10,7 @@ using namespace godot;
 
 bool RotatedShape::get_is_rotated_90_degrees() const {
 	return !Math::is_inf(rotation) &&
-			ABS(fmod(rotation + tau, pi) - HALF_PI) < float_epsilon;
+			Math::abs(fmod(rotation + tau, pi) - half_pi) < float_epsilon;
 }
 
 bool RotatedShape::get_is_axially_aligned() const {
@@ -17,19 +18,19 @@ bool RotatedShape::get_is_axially_aligned() const {
 		return false;
 	}
 	const float remainder = fmod(rotation + tau, pi);
-	return ABS(remainder) < float_epsilon ||
-			ABS(remainder - HALF_PI) < float_epsilon;
+	return Math::abs(remainder) < float_epsilon ||
+			Math::abs(remainder - half_pi) < float_epsilon;
 }
 
 void RotatedShape::set_up(const Ref<Shape2D> &p_shape, double p_rotation) {
-	if (p_shape.is_valid()) {
+	if (is_valid(p_shape)) {
 		shape = p_shape;
 	}
 	if (!Math::is_inf(p_rotation)) {
 		rotation = p_rotation;
 	}
 
-	if (!shape.is_valid() || Math::is_inf(rotation)) {
+	if (!is_valid(shape) || Math::is_inf(rotation)) {
 		return;
 	}
 
@@ -48,7 +49,7 @@ void RotatedShape::set_up(const Ref<Shape2D> &p_shape, double p_rotation) {
 
 void RotatedShape::reset() {
 	shape.unref();
-	rotation = infinity;
+	rotation = inf;
 	half_width_height = vector2_invalid;
 }
 
@@ -98,6 +99,6 @@ void RotatedShape::_bind_methods() {
 
 	ClassDB::bind_method(
 			D_METHOD("set_up", "shape", "rotation"), &RotatedShape::set_up,
-			DEFVAL(Ref<Shape2D>()), DEFVAL(infinity));
+			DEFVAL(Ref<Shape2D>()), DEFVAL(inf));
 	ClassDB::bind_method(D_METHOD("reset"), &RotatedShape::reset);
 }

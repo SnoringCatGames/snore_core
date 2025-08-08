@@ -5,16 +5,7 @@
 
 #include <vector>
 
-#define CANVAS_LAYER_NAME(m_name)                                              \
-	namespace Internal {                                                       \
-	static const constexpr char *m_name##_canvas_layer_name = #m_name;         \
-	} /*namespace Internal*/                                                   \
-                                                                               \
-	const StringName &m_name() {                                               \
-		static const StringName string_name =                                  \
-				StringName(Internal::m_name##_canvas_layer_name);              \
-		return string_name;                                                    \
-	}
+#define CANVAS_LAYER_NAME(m_name) const StringName m_name = #m_name;
 
 namespace godot {
 namespace CanvasLayerName {

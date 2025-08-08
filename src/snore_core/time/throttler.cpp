@@ -24,13 +24,12 @@ void Throttler::initialize(
 	callback = p_callback;
 	interval = p_interval;
 	invokes_at_end = p_invokes_at_end;
+
+	client_callback = callable_mp(
+			const_cast<Throttler *>(this), &Throttler::trigger_limited_call);
 }
 
-Callable Throttler::get_on_call() const {
-	return callable_mp(const_cast<Throttler *>(this), &Throttler::on_call);
-}
-
-void Throttler::on_call() {
+void Throttler::trigger_limited_call() {
 	if (!is_callback_scheduled) {
 		const float current_call_time =
 				TimeService::get()->get_elapsed_time(time_type);
@@ -55,7 +54,7 @@ void Throttler::cancel() {
 void Throttler::trigger_callback() {
 	last_call_time = TimeService::get()->get_elapsed_time(time_type);
 	is_callback_scheduled = false;
-	if (callback.is_valid()) {
+	if (is_valid(callback)) {
 		callback.call();
 	}
 }

@@ -46,16 +46,6 @@ public:
 	FakeSnoreCoreModule() = default;
 	virtual ~FakeSnoreCoreModule() = default;
 
-	virtual void set_up() override {
-		set_up_called = true;
-		on_set_up_finished();
-	}
-
-	virtual void reset() override {
-		reset_called = true;
-		set_up_called = false;
-	}
-
 	bool get_set_up_called() const { return set_up_called; }
 	bool get_reset_called() const { return reset_called; }
 
@@ -77,6 +67,16 @@ private:
 	bool set_up_called = false;
 	bool reset_called = false;
 };
+
+void FakeSnoreCoreModule::set_up() {
+	set_up_called = true;
+	on_set_up_finished();
+}
+
+void FakeSnoreCoreModule::reset() {
+	reset_called = true;
+	set_up_called = false;
+}
 
 // Test fixtures for SnoreCore module testing.
 class SnoreCoreModuleTest : public SnoreCoreTest {
@@ -121,7 +121,7 @@ TEST_F(SnoreCoreModuleTest, GetSettingsClassName) {
 TEST_F(SnoreCoreModuleTest, SetUpBase) {
 	test_settings->set_test_flag(true);
 
-	test_module->set_up_base(test_settings.ptr());
+	test_module->set_up_base(test_settings);
 
 	EXPECT_EQ(
 			SnoreCoreRootModule<FakeSnoreCoreSettings>::SET_UP_PHASE::FINISHED,
@@ -131,14 +131,14 @@ TEST_F(SnoreCoreModuleTest, SetUpBase) {
 	EXPECT_TRUE(test_module->get_set_up_called());
 	EXPECT_TRUE(test_module->get_reset_called());
 
-	FakeSnoreCoreSettings *retrieved_settings = test_module->get_settings();
-	EXPECT_TRUE(retrieved_settings);
+	Ref<FakeSnoreCoreSettings> retrieved_settings = test_module->get_settings();
+	EXPECT_TRUE(is_valid(retrieved_settings));
 	EXPECT_TRUE(retrieved_settings->get_test_flag());
 }
 
 TEST_F(SnoreCoreModuleTest, ResetBase) {
 	// First set up the module.
-	test_module->set_up_base(test_settings.ptr());
+	test_module->set_up_base(test_settings);
 	EXPECT_TRUE(test_module->get_is_set_up_finished());
 
 	// Reset should change state back to NOT_STARTED.

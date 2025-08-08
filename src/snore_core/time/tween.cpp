@@ -17,12 +17,12 @@ using namespace godot;
 SnoreCoreTween::~SnoreCoreTween() {
 	// Clean up any remaining sub-tweens.
 	for (Ref<SubTween> sub_tween : pending_sub_tweens) {
-		if (sub_tween.is_valid()) {
+		if (is_valid(sub_tween)) {
 			sub_tween->unreference();
 		}
 	}
 	for (Ref<SubTween> sub_tween : active_sub_tweens) {
-		if (sub_tween.is_valid()) {
+		if (is_valid(sub_tween)) {
 			sub_tween->unreference();
 		}
 	}
@@ -31,9 +31,9 @@ SnoreCoreTween::~SnoreCoreTween() {
 }
 
 void SnoreCoreTween::_init(
-		Ref<Node> p_parent,
+		Node *p_parent,
 		bool p_adds_self_as_child_of_parent) {
-	if (!ENSURE(p_parent.is_valid(), "Parent node cannot be null.") ||
+	if (!ENSURE(p_parent, "Parent node cannot be null.") ||
 		!ENSURE(p_parent->is_inside_tree(),
 				"Parent node must be inside the scene tree.")) {
 		return;
@@ -91,9 +91,8 @@ float SnoreCoreTween::get_progress() const {
 	if (active_sub_tweens.empty()) {
 		return 0.0;
 	}
-	return active_sub_tweens[0].is_valid()
-			? active_sub_tweens[0]->get_progress()
-			: 0.0;
+	return is_valid(active_sub_tweens[0]) ? active_sub_tweens[0]->get_progress()
+										  : 0.0;
 }
 
 bool SnoreCoreTween::start() {
@@ -222,8 +221,7 @@ bool SubTween::get_is_finished() const {
 	}
 
 	const float current_time = time_service->get_elapsed_time(time_type);
-	return (current_time >= start_time + duration + delay) ||
-			!is_instance_valid(object);
+	return (current_time >= start_time + duration + delay) || !is_valid(object);
 }
 
 void SubTween::start() {
@@ -234,7 +232,7 @@ void SubTween::start() {
 }
 
 void SubTween::end() {
-	if (is_instance_valid(object)) {
+	if (is_valid(object)) {
 		update_with_value(final_val);
 	}
 }
@@ -261,7 +259,7 @@ void SubTween::step() {
 }
 
 void SubTween::update_with_value(const Variant &p_value) {
-	if (!is_instance_valid(object)) {
+	if (!is_valid(object)) {
 		return;
 	}
 

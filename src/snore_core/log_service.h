@@ -24,7 +24,7 @@ public:
 
 	template <typename... VarArgs>
 	void print(const String &p_message = String(), const VarArgs... p_args) {
-		print_helper(vformat(p_message, p_args...), true);
+		print_helper(vformat(p_message, p_args...), true, false);
 	}
 
 	void print_rich(const String &p_message);

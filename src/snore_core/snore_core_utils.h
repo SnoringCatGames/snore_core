@@ -3,24 +3,25 @@
 
 #include "snore_core/snore_core_main_module.h"
 #include "snore_core/snore_core_submodule.h"
+#include "snore_core/time/ease_type.h"
+
+#include <godot_cpp/classes/control.hpp>
 
 namespace godot {
 
 class Array;
 class Color;
 class Dictionary;
-template <typename T> class TypedArray;
-class PackedVector2Array;
-class Vector2;
 class Node;
+class Object;
+class PackedVector2Array;
+class SceneState;
+class ScrollContainer;
 class String;
 class StringName;
+template <typename T> class TypedArray;
 class Variant;
-class Control;
-enum Control::MouseFilter;
-class ScrollContainer;
-class Object;
-class SceneState;
+class Vector2;
 
 class SnoreCoreUtils : public SnoreCoreSubmodule {
 	GDCLASS(SnoreCoreUtils, SnoreCoreSubmodule)
@@ -35,7 +36,7 @@ public:
 	static bool ensure(bool p_condition, const String &p_message = "");
 
 	static void splice(
-			Array &p_result,
+			Array p_result,
 			int p_start,
 			int p_delete_count,
 			const Array &p_items_to_insert);
@@ -43,13 +44,13 @@ public:
 	static Array dedup(const Array &p_array);
 
 	static void subtract_nested_arrays(
-			Dictionary *p_result,
-			const Dictionary *p_other,
+			Dictionary p_result,
+			const Dictionary &p_other,
 			bool p_expects_no_missing_matches = false);
 
 	static void subtract_arrays(
-			Array *p_result,
-			const Array *p_other,
+			Array p_result,
+			const Array &p_other,
 			bool p_expects_no_missing_matches = false);
 
 	static Dictionary array_to_set(const Array &p_array);
@@ -132,7 +133,7 @@ public:
 	static bool get_were_screenshots_taken() { return were_screenshots_taken; }
 
 protected:
-	void _bind_methods();
+	static void _bind_methods();
 
 private:
 	Control *focus_releaser = nullptr;

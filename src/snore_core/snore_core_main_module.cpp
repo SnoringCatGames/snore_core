@@ -156,9 +156,9 @@ void SnoreCore::set_up_main(
 	last_set_up_time_msec = current_time_msec;
 
 	for (int i = 0; i < p_all_settings.size(); ++i) {
-		SnoreCoreSettings *settings =
+		Ref<SnoreCoreSettings> settings =
 				Object::cast_to<SnoreCoreSettings>(p_all_settings[i]);
-		if (!ENSURE(settings,
+		if (!ENSURE(is_valid(settings),
 					"Element in settings array is not a SnoreCoreSettings.")) {
 			continue;
 		}
@@ -280,7 +280,7 @@ Viewport *SnoreCore::get_viewport() const {
 
 void SnoreCore::add_utility_node(Node *p_node, const StringName &p_name) {
 	p_node->set_name(p_name);
-	CanvasLayerService::get()->add_to_layer(CanvasLayerName::utils(), p_node);
+	CanvasLayerService::get()->add_to_layer(CanvasLayerName::utils, p_node);
 }
 
 bool SnoreCore::are_tests_enabled() {

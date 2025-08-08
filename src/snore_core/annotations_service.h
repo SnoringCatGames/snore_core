@@ -10,7 +10,11 @@ namespace godot {
 
 class AnnotationsService : public SnoreCoreSubmoduleWithNode {
 	GDCLASS(AnnotationsService, SnoreCoreSubmoduleWithNode)
-	SC_SUBMODULE_CLASS(AnnotationsService, SnoreCore)
+	SC_SUBMODULE_WITH_NODE_CLASS(
+			AnnotationsService,
+			SnoreCore,
+			"Annotations",
+			Node2D)
 
 public:
 	AnnotationsService() = default;

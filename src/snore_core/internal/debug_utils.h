@@ -43,19 +43,19 @@ void print(const String &p_message = String(), const VarArgs... p_args) {
 }
 
 template <typename... VarArgs>
-String warning(const String &p_message, const VarArgs... p_args) {
+void warning(const String &p_message, const VarArgs... p_args) {
 	const String message = vformat(p_message, p_args...);
 	Internal::warning(message);
 }
 
 template <typename... VarArgs>
-String error(const String &p_message, const VarArgs... p_args) {
+void error(const String &p_message, const VarArgs... p_args) {
 	const String message = vformat(p_message, p_args...);
 	Internal::error(message);
 }
 
 template <typename... VarArgs>
-String error_skip_assert(const String &p_message, const VarArgs... p_args) {
+void error_skip_assert(const String &p_message, const VarArgs... p_args) {
 	const String message = vformat(p_message, p_args...);
 	Internal::error_skip_assert(message);
 }

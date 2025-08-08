@@ -8,27 +8,33 @@
 #include "snore_core/internal/test_utils.h"
 
 #include <gtest/gtest.h>
+#include <godot_cpp/variant/callable.hpp>
 
 namespace godot {
 
 class IntervalTest : public SnoreCoreTest {
 protected:
-	void BeforeEach() override { interval = memnew(Interval); }
+	void BeforeEach() override {
+		interval = memnew(Interval);
+		parent = memnew(Object);
+	}
 
-	void AfterEach() override { memdelete(interval); }
+	void AfterEach() override {
+		memdelete(interval);
+		memdelete(parent);
+	}
 
 	Interval *interval;
-
-private:
-	void dummy_callback() {}
+	Object *parent;
 };
 
 TEST_F(IntervalTest, HasReachedNextTriggerTimePlaceholder) {
 	// Test the placeholder behavior for has_reached_next_trigger_time.
 	// Since we don't have a real time tracker, this should return false.
 	Array arguments;
-	Callable callback = callable_mp(this, &IntervalTest::dummy_callback);
-	interval->initialize(this, 0, callback, 1.0, arguments);
+	Callable callback;
+	interval->initialize(
+			parent, TimeType::APP_PHYSICS, callback, 1.0, arguments);
 
 	EXPECT_EQ(interval->get_has_reached_next_trigger_time(), false);
 }

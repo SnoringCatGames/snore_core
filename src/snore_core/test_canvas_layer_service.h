@@ -14,11 +14,11 @@ namespace godot {
 
 class CanvasLayerServiceTest : public SnoreCoreTest {
 protected:
-	void BeforeEach() override { service.instantiate(); }
+	void BeforeEach() override { service = memnew(CanvasLayerService); }
 
-	void AfterEach() override { service.unref(); }
+	void AfterEach() override { memdelete(service); }
 
-	Ref<CanvasLayerService> service;
+	CanvasLayerService *service;
 };
 
 } //namespace godot
