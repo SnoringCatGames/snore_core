@@ -22,6 +22,7 @@
 #include "snore_core/time/time_service.h"
 #include "snore_core/time/time_tracker.h"
 #include "snore_core/time/timeout.h"
+#include "snore_core/time/tween.h"
 
 #include <godot_cpp/classes/Node.hpp>
 #include <godot_cpp/classes/engine.hpp>
@@ -58,6 +59,7 @@
 #include "snore_core/time/test_time_service.h"
 #include "snore_core/time/test_time_tracker.h"
 #include "snore_core/time/test_timeout.h"
+#include "snore_core/time/test_tween.h"
 #endif // SC_TESTS_ENABLED
 
 using namespace godot;
@@ -98,6 +100,8 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(Throttler);
 	GDREGISTER_CLASS(Timeout);
 	GDREGISTER_CLASS(TimeTracker);
+	GDREGISTER_CLASS(SnoreCoreTween);
+	GDREGISTER_CLASS(SubTween);
 
 	// Only include test classes in debug builds.
 #ifdef SC_TESTS_ENABLED

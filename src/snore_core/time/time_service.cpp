@@ -13,15 +13,16 @@
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/callable.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
+#include <functional>
 #include <unordered_map>
+#include <vector>
 
 using namespace godot;
-
-// FIXME: LEFT OFF HERE: FINISH PORTING ---------------------------------------
 
 const float TimeService::physics_fps = 60.0;
 const float TimeService::physics_time_step = 1.0 / physics_fps;
@@ -68,22 +69,20 @@ void TimeService::handle_frame(double p_delta) {
 }
 
 void TimeService::handle_tweens() {
-	Array finished_tween_ids;
-	for (int i = 0; i < tweens.size(); ++i) {
-		Variant key = tweens.get_key_list()[i];
-		// FIXME: LEFT OFF HERE: Implement ScaffolderTween and proper handling.
-
-		// ScaffolderTween *tween =
-		// Object::cast_to<ScaffolderTween>(tweens[key]); if (tween) {
-		//     tween->step();
-		//     if (!tween->is_active()) {
-		//         finished_tween_ids.push_back(key);
-		//     }
-		// }
+	std::vector<int> finished_tween_ids;
+	for (auto &pair : tweens) {
+		int key = pair.first;
+		SnoreCoreTween *tween = pair.second;
+		if (tween) {
+			tween->step();
+			if (!tween->is_active()) {
+				finished_tween_ids.push_back(key);
+			}
+		}
 	}
 
-	for (int i = 0; i < finished_tween_ids.size(); ++i) {
-		tweens.erase(finished_tween_ids[i]);
+	for (int id : finished_tween_ids) {
+		tweens.erase(id);
 	}
 }
 
@@ -126,41 +125,81 @@ void TimeService::handle_intervals() {
 	}
 }
 void TimeService::collect_garbage() {
-	// FIXME: LEFT OFF HERE: ACTUALLY: Don't use Array here.
-	const Array collections = Array::make(
-			timeouts, intervals, tweens, throttled_callbacks,
-			debounced_callbacks);
+	// Timeouts.
+	for (auto it = timeouts.begin(); it != timeouts.end();) {
+		Timeout *timeout = it->second;
+		if (!timeout) {
+			it = timeouts.erase(it);
+			continue;
+		}
 
-	for (int i = 0; i < collections.size(); ++i) {
-		Dictionary collection = collections[i];
-		Array keys = collection.keys();
-
-		for (int j = 0; j < keys.size(); ++j) {
-			Variant key = keys[j];
-			Object *obj = Object::cast_to<Object>(collection[key]);
-
-			if (!obj || !is_instance_valid(obj)) {
-				collection.erase(key);
-				continue;
+		// Check parent validity for timeout objects
+		Object *parent = timeout->get_parent();
+		if (parent && !is_instance_valid(parent)) {
+			if (!Object::cast_to<RefCounted>(timeout)) {
+				timeout->call("free");
 			}
+			it = timeouts.erase(it);
+		} else {
+			++it;
+		}
+	}
 
-			// Check parent validity for timeout/interval objects
-			Timeout *timeout = Object::cast_to<Timeout>(obj);
-			Interval *interval = Object::cast_to<Interval>(obj);
+	// Intervals.
+	for (auto it = intervals.begin(); it != intervals.end();) {
+		Interval *interval = it->second;
+		if (!interval) {
+			it = intervals.erase(it);
+			continue;
+		}
 
-			Object *parent = nullptr;
-			if (timeout) {
-				parent = timeout->get_parent();
-			} else if (interval) {
-				parent = interval->get_parent();
+		// Check parent validity for interval objects
+		Object *parent = interval->get_parent();
+		if (parent && !is_instance_valid(parent)) {
+			if (!Object::cast_to<RefCounted>(interval)) {
+				interval->call("free");
 			}
+			it = intervals.erase(it);
+		} else {
+			++it;
+		}
+	}
 
-			if (parent && !is_instance_valid(parent)) {
-				if (!Object::cast_to<RefCounted>(obj)) {
-					obj->call("free");
-				}
-				collection.erase(key);
-			}
+	// Tweens.
+	for (auto it = tweens.begin(); it != tweens.end();) {
+		SnoreCoreTween *tween = it->second;
+		if (!tween) {
+			it = tweens.erase(it);
+			continue;
+		}
+
+		if (!is_instance_valid(tween->get_parent_node())) {
+			tween->queue_free();
+			it = tweens.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	// Throttles.
+	for (auto it = throttled_callbacks.begin();
+		 it != throttled_callbacks.end();) {
+		Throttler *throttler = it->second;
+		if (!throttler) {
+			it = throttled_callbacks.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	// Debounces.
+	for (auto it = debounced_callbacks.begin();
+		 it != debounced_callbacks.end();) {
+		Debouncer *debouncer = it->second;
+		if (!debouncer) {
+			it = debounced_callbacks.erase(it);
+		} else {
+			++it;
 		}
 	}
 }
@@ -238,8 +277,7 @@ TimeTracker *TimeService::get_time_tracker_for_time_type(
 		case TimeType::PLAY_RENDER_FRAME_COUNT:
 			return play_time_tracker;
 		default:
-			// TODO: Implement access to S.log.error().
-			// S.log.error("Unrecognized time_type: %d", p_time_type);
+			ENSURE(false, vformat("Unrecognized time_type: %d", p_time_type));
 			return nullptr;
 	}
 }
@@ -322,19 +360,36 @@ int TimeService::tween(
 		TimeType p_time_type,
 		const Callable &p_on_completed_callback,
 		const Array &p_arguments) {
-	// TODO: Implement ScaffolderTween creation and management.
-	// ScaffolderTween *tween = memnew(ScaffolderTween(p_object, false));
-	// tween->_interpolate(p_object, p_key, p_is_property, p_initial_val,
-	// p_final_val, p_duration, p_ease_type, p_delay_sec, p_time_type); if
-	// (p_on_completed_callback.is_valid()) {
-	//     tween->connect("tween_all_completed", callable_mp(this,
-	//     &TimeService::call_tween_completed_callback).bind(p_on_completed_callback,
-	//     p_arguments));
-	// }
-	// tween->start();
-	// tweens[tween->get_id()] = tween;
-	// return tween->get_id();
-	return -1; // Placeholder
+	SnoreCoreTween *tween = memnew(SnoreCoreTween);
+
+	// Try to cast to Node first, otherwise use the node as parent if available
+	Node *parent_node = Object::cast_to<Node>(p_object);
+	if (!parent_node && node) {
+		parent_node = node;
+	}
+
+	tween->_init(parent_node, false);
+
+	if (p_is_property) {
+		tween->interpolate_property(
+				p_object, NodePath(p_key), p_initial_val, p_final_val,
+				p_duration, p_ease_type, p_delay_sec, p_time_type);
+	} else {
+		tween->interpolate_method(
+				p_object, p_key, p_initial_val, p_final_val, p_duration,
+				p_ease_type, p_delay_sec, p_time_type);
+	}
+
+	if (p_on_completed_callback.is_valid()) {
+		tween->connect(
+				"tween_all_completed",
+				callable_mp(this, &TimeService::call_tween_completed_callback)
+						.bind(p_on_completed_callback, p_arguments));
+	}
+
+	tween->start();
+	tweens[tween->get_id()] = tween;
+	return tween->get_id();
 }
 
 void TimeService::call_tween_completed_callback(
@@ -347,15 +402,13 @@ bool TimeService::clear_tween(int p_tween_id, bool p_triggers_completed) {
 	if (tweens.find(p_tween_id) == tweens.end()) {
 		return false;
 	}
-	// TODO: Implement proper tween handling.
-	// ScaffolderTween *tween =
-	// Object::cast_to<ScaffolderTween>(tweens[p_tween_id]); if
-	// (p_triggers_completed && tween) {
-	//     tween->trigger_completed();
-	// }
-	// if (tween) {
-	//     tween->free();
-	// }
+	SnoreCoreTween *tween = Object::cast_to<SnoreCoreTween>(tweens[p_tween_id]);
+	if (p_triggers_completed && tween) {
+		tween->trigger_completed();
+	}
+	if (tween) {
+		tween->queue_free();
+	}
 	tweens.erase(p_tween_id);
 	return true;
 }
@@ -378,7 +431,7 @@ bool TimeService::clear_timeout(int p_timeout_id, bool p_triggers_timeout) {
 		return false;
 	}
 	if (p_triggers_timeout) {
-		Timeout *timeout = Object::cast_to<Timeout>(timeouts[p_timeout_id]);
+		Timeout *timeout = timeouts[p_timeout_id];
 		if (timeout) {
 			timeout->trigger();
 		}
@@ -405,8 +458,7 @@ bool TimeService::clear_interval(int p_interval_id, bool p_triggers_interval) {
 		return false;
 	}
 	if (p_triggers_interval) {
-		Interval *interval =
-				Object::cast_to<Interval>(intervals[p_interval_id]);
+		Interval *interval = intervals[p_interval_id];
 		if (interval) {
 			interval->trigger();
 		}
@@ -433,8 +485,7 @@ bool TimeService::clear_throttle(const Callable &p_throttled_callback) {
 		throttled_callbacks.end()) {
 		return false;
 	}
-	Throttler *throttler = Object::cast_to<Throttler>(
-			throttled_callbacks[p_throttled_callback]);
+	Throttler *throttler = throttled_callbacks[p_throttled_callback];
 	if (throttler) {
 		throttler->cancel();
 	}
@@ -460,8 +511,7 @@ bool TimeService::clear_debounce(const Callable &p_debounced_callback) {
 		debounced_callbacks.end()) {
 		return false;
 	}
-	Debouncer *debouncer = Object::cast_to<Debouncer>(
-			debounced_callbacks[p_debounced_callback]);
+	Debouncer *debouncer = debounced_callbacks[p_debounced_callback];
 	if (debouncer) {
 		debouncer->cancel();
 	}

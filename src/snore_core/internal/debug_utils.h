@@ -159,6 +159,40 @@ void report_ensure(
 #define CHECK_SIMPLE(m_cond)
 #endif // DEBUG_ENABLED
 
+// FIXME: Move this to another file.
+Variant lerp(Variant p_start, Variant p_end, float p_progress) {
+	const Variant::Type start_type = p_start.get_type();
+	const Variant::Type final_type = p_end.get_type();
+	ENSURE_SIMPLE(start_type == final_type);
+	switch (start_type) {
+		case Variant::FLOAT:
+			return Math::lerp((float)p_start, (float)p_end, p_progress);
+		case Variant::INT:
+			return Math::lerp(
+					(float)(int)p_start, (float)(int)p_end, p_progress);
+		case Variant::VECTOR2:
+			return ((Vector2)p_start).lerp((Vector2)p_end, p_progress);
+		case Variant::VECTOR3:
+			return ((Vector3)p_start).lerp((Vector3)p_end, p_progress);
+		case Variant::VECTOR4:
+			return ((Vector4)p_start).lerp((Vector4)p_end, p_progress);
+		case Variant::QUATERNION:
+			return ((Quaternion)p_start).slerp((Quaternion)p_end, p_progress);
+		case Variant::TRANSFORM2D:
+			return ((Transform2D)p_start)
+					.interpolate_with((Transform2D)p_end, p_progress);
+		case Variant::TRANSFORM3D:
+			return ((Transform3D)p_start)
+					.interpolate_with((Transform3D)p_end, p_progress);
+		case Variant::BASIS:
+			return ((Basis)p_start).slerp((Basis)p_end, p_progress);
+		default:
+			// For unsupported types, just use initial or final value based
+			// on progress
+			return p_progress < 0.5f ? p_start : p_end;
+	}
+}
+
 } //namespace godot
 
 #endif // DEBUG_UTILS_H
