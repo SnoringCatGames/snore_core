@@ -80,10 +80,6 @@ public:
 	float get_elapsed_time(TimeType p_time_type) const;
 
 	TimeTracker *get_time_tracker_for_time_type(TimeType p_time_type) const;
-	ElapsedTimeType get_elapsed_time_type_for_time_type(
-			TimeType p_time_type) const;
-	int get_time_type_from_elapsed_time_type(
-			ElapsedTimeType p_elapsed_key) const;
 
 	float get_combined_scale() const;
 	float scale_delta(float p_duration_sec) const;

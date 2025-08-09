@@ -20,15 +20,14 @@ namespace godot {
 	EXPECT_EQ(String(m_expected), String(m_actual))
 
 namespace TestUtilsInternal {
+
 extern std::vector<String> recent_ensures;
 
 extern bool was_an_ensure_expected;
+
 } //namespace TestUtilsInternal
 
-void clear_recent_ensures() {
-	TestUtilsInternal::recent_ensures.clear();
-	TestUtilsInternal::was_an_ensure_expected = false;
-}
+void clear_recent_ensures();
 
 #define EXPECT_ENSURE_WITH_SUBSTRING(m_message_substring)                      \
 	do {                                                                       \

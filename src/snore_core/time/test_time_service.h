@@ -69,14 +69,11 @@ TEST_F(TimeServiceTest, TimeTrackerAccess) {
 TEST_F(TimeServiceTest, ElapsedTimeKeys) {
 	// Test that elapsed time keys are returned correctly.
 	const ElapsedTimeType physics_type =
-			time_service->get_elapsed_time_type_for_time_type(
-					TimeType::APP_PHYSICS);
+			get_elapsed_time_type_for_time_type(TimeType::APP_PHYSICS);
 	const ElapsedTimeType clock_type =
-			time_service->get_elapsed_time_type_for_time_type(
-					TimeType::APP_CLOCK);
-	const ElapsedTimeType frame_type =
-			time_service->get_elapsed_time_type_for_time_type(
-					TimeType::APP_PHYSICS_FRAME_COUNT);
+			get_elapsed_time_type_for_time_type(TimeType::APP_CLOCK);
+	const ElapsedTimeType frame_type = get_elapsed_time_type_for_time_type(
+			TimeType::APP_PHYSICS_FRAME_COUNT);
 
 	EXPECT_EQ(physics_type, ElapsedTimeType::ELAPSED_PHYSICS_TIME);
 	EXPECT_EQ(clock_type, ElapsedTimeType::ELAPSED_CLOCK_TIME);

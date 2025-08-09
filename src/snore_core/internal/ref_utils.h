@@ -29,13 +29,11 @@ template <typename T, typename... Args> Ref<T> set_up_ref(Args... args) {
 	return ref;
 }
 
-bool is_valid(const Object *p_object) {
-	return p_object && ObjectDB::get_instance(p_object->get_instance_id());
-}
-
 template <typename T> bool is_valid(const Ref<T> &p_ref) {
 	return p_ref.is_valid() && ObjectDB::get_instance(p_ref->get_instance_id());
 }
+
+bool is_valid(const Object *p_object);
 
 bool is_valid(const Callable &p_callable);
 

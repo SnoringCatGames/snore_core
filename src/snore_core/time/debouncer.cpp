@@ -17,8 +17,7 @@ void Debouncer::initialize(
 	time_type = p_time_type;
 	time_tracker =
 			TimeService::get()->get_time_tracker_for_time_type(p_time_type);
-	elapsed_time_type = TimeService::get()->get_elapsed_time_type_for_time_type(
-			p_time_type);
+	elapsed_time_type = get_elapsed_time_type_for_time_type(p_time_type);
 	callback = p_callback;
 	interval = p_interval;
 	invokes_at_start = p_invokes_at_start;

@@ -78,6 +78,11 @@ void FakeSnoreCoreModule::reset() {
 	set_up_called = false;
 }
 
+std::vector<SnoreCoreSubmodule *> FakeSnoreCoreModule::
+		instantiate_submodules() {
+	return {};
+}
+
 // Test fixtures for SnoreCore module testing.
 class SnoreCoreModuleTest : public SnoreCoreTest {
 protected:

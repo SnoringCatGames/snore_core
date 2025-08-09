@@ -24,7 +24,6 @@ namespace Log {
 namespace Internal {
 void print(const String &p_message);
 void warning(const String &p_message);
-void error(const String &p_message);
 void error_skip_assert(const String &p_message);
 } // namespace Internal
 
@@ -46,12 +45,6 @@ template <typename... VarArgs>
 void warning(const String &p_message, const VarArgs... p_args) {
 	const String message = vformat(p_message, p_args...);
 	Internal::warning(message);
-}
-
-template <typename... VarArgs>
-void error(const String &p_message, const VarArgs... p_args) {
-	const String message = vformat(p_message, p_args...);
-	Internal::error(message);
 }
 
 template <typename... VarArgs>
@@ -101,23 +94,7 @@ void report_ensure(
 		const char *p_file,
 		int p_line,
 		const char *p_condition,
-		const String &p_message = String()) {
-	const String message_delimiter = p_message.is_empty() ? "" : "\n";
-	const String message_formatted = vformat(
-			"%s [%s:%s]\nENSURE failed `%s` is false.%s%s", p_function, p_file,
-			p_line, _STR(p_condition), message_delimiter, p_message);
-#ifdef SC_TESTS_ENABLED
-	godot::TestUtilsInternal::recent_ensures.push_back(message_formatted);
-#endif // SC_TESTS_ENABLED
-	Log::error_skip_assert(message_formatted);
-	Log::stack_trace();
-	// FIXME: LEFT OFF HERE: Remove this after verifying the format of the new
-	// 						 string above.
-	// ::godot::_err_print_error(
-	// 		p_function, p_file, p_line,
-	// 		"ENSURE failed  \"" _STR(p_condition) "\" is false.", p_message);
-	// ::godot::_err_flush_stdout();
-}
+		const String &p_message = String());
 
 // Ensures `m_cond` is true.
 // - If `m_cond` is false, this prints `m_msg`, pauses execution, and returns
@@ -160,38 +137,7 @@ void report_ensure(
 #endif // DEBUG_ENABLED
 
 // FIXME: Move this to another file.
-Variant lerp(Variant p_start, Variant p_end, float p_progress) {
-	const Variant::Type start_type = p_start.get_type();
-	const Variant::Type final_type = p_end.get_type();
-	ENSURE_SIMPLE(start_type == final_type);
-	switch (start_type) {
-		case Variant::FLOAT:
-			return Math::lerp((float)p_start, (float)p_end, p_progress);
-		case Variant::INT:
-			return Math::lerp(
-					(float)(int)p_start, (float)(int)p_end, p_progress);
-		case Variant::VECTOR2:
-			return ((Vector2)p_start).lerp((Vector2)p_end, p_progress);
-		case Variant::VECTOR3:
-			return ((Vector3)p_start).lerp((Vector3)p_end, p_progress);
-		case Variant::VECTOR4:
-			return ((Vector4)p_start).lerp((Vector4)p_end, p_progress);
-		case Variant::QUATERNION:
-			return ((Quaternion)p_start).slerp((Quaternion)p_end, p_progress);
-		case Variant::TRANSFORM2D:
-			return ((Transform2D)p_start)
-					.interpolate_with((Transform2D)p_end, p_progress);
-		case Variant::TRANSFORM3D:
-			return ((Transform3D)p_start)
-					.interpolate_with((Transform3D)p_end, p_progress);
-		case Variant::BASIS:
-			return ((Basis)p_start).slerp((Basis)p_end, p_progress);
-		default:
-			// For unsupported types, just use initial or final value based
-			// on progress
-			return p_progress < 0.5f ? p_start : p_end;
-	}
-}
+Variant lerp(Variant p_start, Variant p_end, float p_progress);
 
 } //namespace godot
 
