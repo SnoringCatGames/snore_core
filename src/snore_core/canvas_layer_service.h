@@ -15,8 +15,6 @@ class CanvasLayerService : public SnoreCoreSubmodule {
 	SC_SUBMODULE_CLASS(CanvasLayerService, SnoreCore)
 
 public:
-	static const std::vector<CanvasLayerConfig> layer_configs;
-
 	CanvasLayerService() = default;
 	virtual ~CanvasLayerService() = default;
 
@@ -27,6 +25,8 @@ protected:
 	static void _bind_methods();
 
 private:
+	static const std::vector<CanvasLayerConfig> get_layer_configs();
+
 	Container *root = nullptr;
 
 	std::unordered_map<StringName, CanvasLayer *> layers;

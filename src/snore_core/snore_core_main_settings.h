@@ -48,11 +48,6 @@ public:
 		render_debug_annotations = p_value;
 	}
 
-	StringName get_user_settings_path() const { return user_settings_path; }
-	void set_user_settings_path(StringName p_value) {
-		user_settings_path = p_value;
-	}
-
 protected:
 	static void _bind_methods();
 
@@ -66,8 +61,6 @@ private:
 
 	double debug_time_scale = 1.0;
 	bool render_debug_annotations = false;
-
-	StringName user_settings_path = "user://user_settings.tres";
 };
 
 } // namespace godot

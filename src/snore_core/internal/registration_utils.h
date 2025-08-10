@@ -31,6 +31,12 @@ constexpr uint64_t PROPERTY_USAGE_EXPORTED_ITEM = PROPERTY_USAGE_STORAGE |
 				"set_log_" #m_category, "get_log_" #m_category);               \
 	} while (false)
 
+#define STATIC_STRING_NAME(m_name, m_value)                                    \
+	static const StringName &m_name() {                                        \
+		static const StringName string_name = StringName(m_value);             \
+		return string_name;                                                    \
+	}
+
 } //namespace godot
 
 #endif // REGISTRATION_UTILS_H

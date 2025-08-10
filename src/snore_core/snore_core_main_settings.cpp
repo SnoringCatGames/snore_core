@@ -51,13 +51,4 @@ void SnoreCoreMainSettings::_bind_methods() {
 	BIND_LOGGING_FLAG(SnoreCoreMainSettings, initialization_events);
 
 	ADD_GROUP("Advanced", "");
-	ClassDB::bind_method(
-			D_METHOD("get_user_settings_path"),
-			&SnoreCoreMainSettings::get_user_settings_path);
-	ClassDB::bind_method(
-			D_METHOD("set_user_settings_path", "p_value"),
-			&SnoreCoreMainSettings::set_user_settings_path);
-	ADD_PROPERTY(
-			EXPORTED_PROPERTY_INFO(Variant::STRING_NAME, "user_settings_path"),
-			"set_user_settings_path", "get_user_settings_path");
 }

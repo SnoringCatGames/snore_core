@@ -562,14 +562,14 @@ void TimeService::_bind_methods() {
 	ClassDB::bind_method(
 			D_METHOD(
 					"tween_method", "object", "key", "initial_val", "final_val",
-					"duration", "ease_name", "delay", "time_type",
+					"duration", "ease_type", "delay", "time_type",
 					"on_completed_callback", "arguments"),
 			&TimeService::tween_method, DEFVAL("ease_in_out"), DEFVAL(0.0),
 			DEFVAL(0), DEFVAL(Callable()), DEFVAL(Array()));
 	ClassDB::bind_method(
 			D_METHOD(
 					"tween_property", "object", "key", "initial_val",
-					"final_val", "duration", "ease_name", "delay", "time_type",
+					"final_val", "duration", "ease_type", "delay", "time_type",
 					"on_completed_callback", "arguments"),
 			&TimeService::tween_property, DEFVAL("ease_in_out"), DEFVAL(0.0),
 			DEFVAL(0), DEFVAL(Callable()), DEFVAL(Array()));

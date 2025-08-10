@@ -13,32 +13,34 @@
 
 using namespace godot;
 
-const std::vector<CanvasLayerConfig> CanvasLayerService::layer_configs = {
-	CanvasLayerConfig(
-			CanvasLayerName::utils,
-			Node::ProcessMode::PROCESS_MODE_ALWAYS),
-	CanvasLayerConfig(
-			CanvasLayerName::top,
-			Node::ProcessMode::PROCESS_MODE_ALWAYS),
-	CanvasLayerConfig(
-			CanvasLayerName::notifications,
-			Node::ProcessMode::PROCESS_MODE_ALWAYS),
-	CanvasLayerConfig(
-			CanvasLayerName::super_hud,
-			Node::ProcessMode::PROCESS_MODE_ALWAYS),
-	CanvasLayerConfig(
-			CanvasLayerName::screens,
-			Node::ProcessMode::PROCESS_MODE_ALWAYS),
-	CanvasLayerConfig(
-			CanvasLayerName::top,
-			Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-	CanvasLayerConfig(
-			CanvasLayerName::annotations,
-			Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-	CanvasLayerConfig(
-			CanvasLayerName::game,
-			Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-};
+const std::vector<CanvasLayerConfig> CanvasLayerService::get_layer_configs() {
+	static const std::vector<CanvasLayerConfig> configs = {
+		CanvasLayerConfig(
+				CanvasLayerName::utils(),
+				Node::ProcessMode::PROCESS_MODE_ALWAYS),
+		CanvasLayerConfig(
+				CanvasLayerName::top(), Node::ProcessMode::PROCESS_MODE_ALWAYS),
+		CanvasLayerConfig(
+				CanvasLayerName::notifications(),
+				Node::ProcessMode::PROCESS_MODE_ALWAYS),
+		CanvasLayerConfig(
+				CanvasLayerName::super_hud(),
+				Node::ProcessMode::PROCESS_MODE_ALWAYS),
+		CanvasLayerConfig(
+				CanvasLayerName::screens(),
+				Node::ProcessMode::PROCESS_MODE_ALWAYS),
+		CanvasLayerConfig(
+				CanvasLayerName::top(),
+				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
+		CanvasLayerConfig(
+				CanvasLayerName::annotations(),
+				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
+		CanvasLayerConfig(
+				CanvasLayerName::game(),
+				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
+	};
+	return configs;
+}
 
 void CanvasLayerService::set_up() {
 	root = memnew(Container);
@@ -68,6 +70,8 @@ void CanvasLayerService::create_canvas_layers() {
 	if (!root) {
 		return;
 	}
+
+	const std::vector<CanvasLayerConfig> layer_configs = get_layer_configs();
 
 	for (int index = 0; index < layer_configs.size(); index++) {
 		const CanvasLayerConfig &config = layer_configs[index];

@@ -80,6 +80,8 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 	are_types_registered = true;
 
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSettings);
+	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSubmodule);
+	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSubmoduleWithNode);
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreRootModule);
 	GDREGISTER_VIRTUAL_CLASS(Annotation);
 
@@ -280,7 +282,7 @@ Viewport *SnoreCore::get_viewport() const {
 
 void SnoreCore::add_utility_node(Node *p_node, const StringName &p_name) {
 	p_node->set_name(p_name);
-	CanvasLayerService::get()->add_to_layer(CanvasLayerName::utils, p_node);
+	CanvasLayerService::get()->add_to_layer(CanvasLayerName::utils(), p_node);
 }
 
 bool SnoreCore::are_tests_enabled() {
