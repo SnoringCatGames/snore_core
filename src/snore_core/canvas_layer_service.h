@@ -25,12 +25,13 @@ protected:
 	static void _bind_methods();
 
 private:
-	static const std::vector<CanvasLayerConfig> get_layer_configs();
+	static const std::vector<Ref<CanvasLayerConfig>> get_layer_configs();
 
-	Container *root = nullptr;
+	Container *node = nullptr;
 
 	std::unordered_map<StringName, CanvasLayer *> layers;
 
+	void create_root_node();
 	void create_canvas_layers();
 };
 

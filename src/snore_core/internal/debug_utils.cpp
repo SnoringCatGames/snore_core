@@ -43,7 +43,7 @@ void godot::Log::empty_line() {
 void godot::Log::stack_trace() {
 	LogService *log_service = LogService::get_maybe();
 	if (log_service) {
-		log_service->error(get_stack_trace(), false);
+		log_service->error_skip_assert(get_stack_trace());
 	} else {
 	}
 }

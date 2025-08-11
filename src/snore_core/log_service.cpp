@@ -23,43 +23,45 @@ void LogService::set_up() {
 void LogService::reset() { recent_logs.unref(); }
 
 void LogService::script_print(const Variant &p_message) {
-	String message;
-	if (p_message.get_type() == Variant::STRING) {
-		message = p_message;
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		String message;
+		if (p_message.get_type() == Variant::STRING) {
+			message = p_message;
+		} else {
+			message = p_message.stringify();
+		}
+		log_service->print_helper(message, true, false);
 	} else {
-		message = p_message.stringify();
 	}
-	print_helper(message, true, false);
 }
 
 void LogService::script_warning(const Variant &p_message) {
-	String message;
-	if (p_message.get_type() == Variant::STRING) {
-		message = p_message;
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		String message;
+		if (p_message.get_type() == Variant::STRING) {
+			message = p_message;
+		} else {
+			message = p_message.stringify();
+		}
+		log_service->warning_helper(message);
 	} else {
-		message = p_message.stringify();
 	}
-	warning_helper(message);
-}
-
-void LogService::script_error(const Variant &p_message) {
-	String message;
-	if (p_message.get_type() == Variant::STRING) {
-		message = p_message;
-	} else {
-		message = p_message.stringify();
-	}
-	error_helper(message, true);
 }
 
 void LogService::script_error_skip_assert(const Variant &p_message) {
-	String message;
-	if (p_message.get_type() == Variant::STRING) {
-		message = p_message;
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		String message;
+		if (p_message.get_type() == Variant::STRING) {
+			message = p_message;
+		} else {
+			message = p_message.stringify();
+		}
+		log_service->error_helper(message, false);
 	} else {
-		message = p_message.stringify();
 	}
-	error_helper(message, false);
 }
 
 void LogService::print_rich(const String &p_message) {
@@ -124,8 +126,12 @@ void LogService::warning_helper(const String &p_message) {
 }
 
 void LogService::report_submodule_initialized(const StringName &p_name) {
-	if (SnoreCoreMainSettings::get()->get_log_initialization_events()) {
-		print("[INITIALIZED] %s", p_name);
+	LogService *log_service = LogService::get_maybe();
+	if (log_service) {
+		if (SnoreCoreMainSettings::get()->get_log_initialization_events()) {
+			log_service->print("[INITIALIZED] %s", p_name);
+		}
+	} else {
 	}
 }
 
@@ -153,22 +159,22 @@ String LogService::prepend_time(const String &p_message) {
 }
 
 void LogService::_bind_methods() {
-	ClassDB::bind_method(
-			D_METHOD("print", "p_message"), &LogService::script_print,
+	ClassDB::bind_static_method(
+			name, D_METHOD("print", "p_message"), &LogService::script_print,
 			DEFVAL(Variant()));
-
-	ClassDB::bind_method(
-			D_METHOD("warning", "p_message"), &LogService::script_warning);
-
-	ClassDB::bind_method(
-			D_METHOD("error", "p_message"), &LogService::script_error);
-
-	ClassDB::bind_method(
-			D_METHOD("error_skip_assert", "p_message"),
+	ClassDB::bind_static_method(
+			name, D_METHOD("warning", "p_message"),
+			&LogService::script_warning);
+	// NOTE: We're rebinding this on Log for convenience.
+	ClassDB::bind_static_method(
+			name, D_METHOD("ensure", "condition", "message"),
+			&SnoreCoreUtils::ensure, DEFVAL(""));
+	ClassDB::bind_static_method(
+			name, D_METHOD("error_skip_assert", "p_message"),
 			&LogService::script_error_skip_assert);
 
-	ClassDB::bind_method(
-			D_METHOD("report_submodule_initialized", "p_name"),
+	ClassDB::bind_static_method(
+			name, D_METHOD("report_submodule_initialized", "p_name"),
 			&LogService::report_submodule_initialized, DEFVAL(true));
 
 	BIND_CONSTANT(MAX_LOG_COUNT);

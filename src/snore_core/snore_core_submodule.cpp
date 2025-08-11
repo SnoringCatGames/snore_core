@@ -16,7 +16,7 @@ void SnoreCoreSubmoduleInternal::add_utility_node(
 void SnoreCoreSubmodule::set_up_base() {
 	instantiate_node();
 	set_up();
-	LogService::get()->report_submodule_initialized(get_name());
+	LogService::report_submodule_initialized(get_name());
 }
 
 void SnoreCoreSubmodule::reset_base() {

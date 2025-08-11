@@ -6,7 +6,7 @@
 
 using namespace godot;
 
-CanvasLayerConfig::CanvasLayerConfig(
+void CanvasLayerConfig::set_up(
 		const StringName &p_name,
 		Node::ProcessMode p_process_mode) {
 	name = p_name;

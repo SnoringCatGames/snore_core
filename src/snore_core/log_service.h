@@ -37,16 +37,11 @@ public:
 	}
 
 	template <typename... VarArgs>
-	void error(const String &p_message, const VarArgs... p_args) {
-		error_helper(vformat(p_message, p_args...), true);
-	}
-
-	template <typename... VarArgs>
 	void error_skip_assert(const String &p_message, const VarArgs... p_args) {
 		error_helper(vformat(p_message, p_args...), false);
 	}
 
-	void report_submodule_initialized(const StringName &p_name);
+	static void report_submodule_initialized(const StringName &p_name);
 
 	const Ref<CircularBuffer> get_recent_logs() const { return recent_logs; }
 
@@ -54,10 +49,9 @@ protected:
 	static void _bind_methods();
 
 private:
-	void script_print(const Variant &p_message = Variant());
-	void script_warning(const Variant &p_message);
-	void script_error(const Variant &p_message);
-	void script_error_skip_assert(const Variant &p_message);
+	static void script_print(const Variant &p_message = Variant());
+	static void script_warning(const Variant &p_message);
+	static void script_error_skip_assert(const Variant &p_message);
 
 	void print_skip_console(const String &p_message = String()) {
 		print_helper(p_message, false, false);

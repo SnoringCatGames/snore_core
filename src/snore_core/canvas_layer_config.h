@@ -13,10 +13,9 @@ class CanvasLayerConfig : public Resource {
 
 public:
 	CanvasLayerConfig() = default;
-	CanvasLayerConfig(
-			const StringName &p_name,
-			Node::ProcessMode p_process_mode);
 	~CanvasLayerConfig() = default;
+
+	void set_up(const StringName &p_name, Node::ProcessMode p_process_mode);
 
 	const StringName &get_name() const { return name; }
 	void set_name(const StringName &p_name) { name = p_name; }

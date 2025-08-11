@@ -13,29 +13,30 @@
 
 using namespace godot;
 
-const std::vector<CanvasLayerConfig> CanvasLayerService::get_layer_configs() {
-	static const std::vector<CanvasLayerConfig> configs = {
-		CanvasLayerConfig(
+const std::vector<Ref<CanvasLayerConfig>> CanvasLayerService::
+		get_layer_configs() {
+	static const std::vector<Ref<CanvasLayerConfig>> configs = {
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::utils(),
 				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::top(), Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::notifications(),
 				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::super_hud(),
 				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::screens(),
 				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		CanvasLayerConfig(
-				CanvasLayerName::top(),
+		set_up_ref<CanvasLayerConfig>(
+				CanvasLayerName::hud(),
 				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::annotations(),
 				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-		CanvasLayerConfig(
+		set_up_ref<CanvasLayerConfig>(
 				CanvasLayerName::game(),
 				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
 	};
@@ -43,25 +44,18 @@ const std::vector<CanvasLayerConfig> CanvasLayerService::get_layer_configs() {
 }
 
 void CanvasLayerService::set_up() {
-	root = memnew(Container);
-	SnoreCore::get()->add_utility_node(root, "CanvasLayers");
-
-	// Make the container fill the screen.
-	root->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-	root->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-	root->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-
+	create_root_node();
 	create_canvas_layers();
 }
 
 void CanvasLayerService::reset() {
-	if (is_valid(root)) {
-		root->queue_free();
-		root = nullptr;
+	if (is_valid(node)) {
+		node->queue_free();
 	}
+	node = nullptr;
 }
 
-void CanvasLayerService::create_canvas_layers() {
+void CanvasLayerService::create_root_node() {
 	SceneTree *tree = SnoreCore::get()->get_scene_tree();
 	if (!tree) {
 		return;
@@ -71,18 +65,30 @@ void CanvasLayerService::create_canvas_layers() {
 		return;
 	}
 
-	const std::vector<CanvasLayerConfig> layer_configs = get_layer_configs();
+	node = memnew(Container);
+	node->set_name("CanvasLayers");
+	root->add_child(node);
+
+	// Make the container fill the screen.
+	node->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
+	node->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+	node->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+}
+
+void CanvasLayerService::create_canvas_layers() {
+	const std::vector<Ref<CanvasLayerConfig>> layer_configs =
+			get_layer_configs();
 
 	for (int index = 0; index < layer_configs.size(); index++) {
-		const CanvasLayerConfig &config = layer_configs[index];
+		const Ref<CanvasLayerConfig> &config = layer_configs[index];
 		const int z_index = layer_configs.size() - index;
 
 		CanvasLayer *layer = memnew(CanvasLayer);
-		layer->set_name("Layer_" + config.get_name());
-		layer->set_process_mode(config.get_process_mode());
+		layer->set_name("Layer_" + config->get_name());
+		layer->set_process_mode(config->get_process_mode());
 		layer->set_layer(z_index);
-		root->add_child(layer);
-		layers.emplace(config.get_name(), layer);
+		node->add_child(layer);
+		layers.emplace(config->get_name(), layer);
 	}
 }
 

@@ -174,10 +174,8 @@ void SnoreCore::set_up_main(
 
 std::vector<SnoreCoreSubmodule *> SnoreCore::instantiate_submodules() {
 	return {
-		memnew(LogService),
-		memnew(SnoreCoreUtils),
-		memnew(TimeService),
-		memnew(AnnotationsService),
+		memnew(LogService),	 memnew(CanvasLayerService), memnew(SnoreCoreUtils),
+		memnew(TimeService), memnew(AnnotationsService),
 	};
 }
 

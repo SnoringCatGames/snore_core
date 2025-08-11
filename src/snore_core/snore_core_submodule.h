@@ -17,7 +17,9 @@ public:                                                                        \
 		}                                                                      \
 		m_class *instance =                                                    \
 				Object::cast_to<m_class>(root->get_submodule(name));           \
-		if (!ENSURE(instance, #m_class " is not initialized.")) {              \
+		if (!ENSURE(instance,                                                  \
+					#m_class " is not initialized (did you add it to "         \
+							 "instantiate_submodules()?).")) {                 \
 			return nullptr;                                                    \
 		}                                                                      \
 		return instance;                                                       \
@@ -65,8 +67,8 @@ public:                                                                        \
 	virtual void reset_node() override {                                       \
 		if (is_valid(node)) {                                                  \
 			node->queue_free();                                                \
-			node = nullptr;                                                    \
 		}                                                                      \
+		node = nullptr;                                                        \
 	}                                                                          \
                                                                                \
 private:                                                                       \

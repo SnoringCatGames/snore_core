@@ -53,7 +53,9 @@ void SnoreCoreUtils::set_up() {
 }
 
 void SnoreCoreUtils::reset() {
-	focus_releaser->queue_free();
+	if (is_valid(focus_releaser)) {
+		focus_releaser->queue_free();
+	}
 	focus_releaser = nullptr;
 }
 
@@ -391,17 +393,17 @@ String SnoreCoreUtils::get_datetime_string() {
 	const Dictionary datetime =
 			Time::get_singleton()->get_datetime_dict_from_system();
 	return vformat(
-			"%s-%s-%s_%s:%s:%s.%s", datetime["year"], datetime["month"],
+			"%s-%s-%s_%s:%s:%s", datetime["year"], datetime["month"],
 			datetime["day"], datetime["hour"], datetime["minute"],
-			datetime["second"], datetime["millisecond"]);
+			datetime["second"]);
 }
 
 String SnoreCoreUtils::get_time_string() {
 	const Dictionary datetime =
 			Time::get_singleton()->get_datetime_dict_from_system();
 	return vformat(
-			"%02d:%02d:%02d.%03d", datetime["hour"], datetime["minute"],
-			datetime["second"], datetime["millisecond"]);
+			"%02d:%02d:%02d", datetime["hour"], datetime["minute"],
+			datetime["second"]);
 }
 
 String SnoreCoreUtils::get_time_string_from_seconds(
