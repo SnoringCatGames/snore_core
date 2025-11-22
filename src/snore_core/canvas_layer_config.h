@@ -15,10 +15,16 @@ public:
 	CanvasLayerConfig() = default;
 	~CanvasLayerConfig() = default;
 
-	void set_up(const StringName &p_name, Node::ProcessMode p_process_mode);
+	void set_up(
+			const StringName &p_name,
+			int p_z_index,
+			Node::ProcessMode p_process_mode);
 
 	const StringName &get_name() const { return name; }
 	void set_name(const StringName &p_name) { name = p_name; }
+
+	const int &get_z_index() const { return z_index; }
+	void set_z_index(const int &p_z_index) { z_index = p_z_index; }
 
 	Node::ProcessMode get_process_mode() const { return process_mode; }
 	void set_process_mode(Node::ProcessMode p_process_mode) {
@@ -30,6 +36,7 @@ protected:
 
 private:
 	StringName name;
+	int z_index = 0;
 	Node::ProcessMode process_mode = Node::PROCESS_MODE_INHERIT;
 };
 

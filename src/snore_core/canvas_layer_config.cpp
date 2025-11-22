@@ -8,8 +8,10 @@ using namespace godot;
 
 void CanvasLayerConfig::set_up(
 		const StringName &p_name,
+		int p_z_index,
 		Node::ProcessMode p_process_mode) {
 	name = p_name;
+	z_index = p_z_index;
 	process_mode = p_process_mode;
 }
 
@@ -19,6 +21,15 @@ void CanvasLayerConfig::_bind_methods() {
 			D_METHOD("set_name", "p_name"), &CanvasLayerConfig::set_name);
 	ADD_PROPERTY(
 			PropertyInfo(Variant::STRING_NAME, "name"), "set_name", "get_name");
+
+	ClassDB::bind_method(
+			D_METHOD("get_z_index"), &CanvasLayerConfig::get_z_index);
+	ClassDB::bind_method(
+			D_METHOD("set_z_index", "p_z_index"),
+			&CanvasLayerConfig::set_z_index);
+	ADD_PROPERTY(
+			PropertyInfo(Variant::INT, "z_index"), "set_z_index",
+			"get_z_index");
 
 	ClassDB::bind_method(
 			D_METHOD("get_process_mode"), &CanvasLayerConfig::get_process_mode);

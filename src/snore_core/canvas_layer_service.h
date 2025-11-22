@@ -10,6 +10,8 @@
 
 namespace godot {
 
+class CanvasLayerConfig;
+
 class CanvasLayerService : public SnoreCoreSubmodule {
 	GDCLASS(CanvasLayerService, SnoreCoreSubmodule)
 	SC_SUBMODULE_CLASS(CanvasLayerService, SnoreCore)
@@ -18,6 +20,7 @@ public:
 	CanvasLayerService() = default;
 	virtual ~CanvasLayerService() = default;
 
+	void add_layer(const CanvasLayerConfig &p_config);
 	void add_to_layer(const StringName &p_layer_name, Node *p_node);
 	void remove_from_layer(const StringName &p_layer_name, Node *p_node);
 
@@ -25,8 +28,6 @@ protected:
 	static void _bind_methods();
 
 private:
-	static const std::vector<Ref<CanvasLayerConfig>> get_layer_configs();
-
 	Container *node = nullptr;
 
 	std::unordered_map<StringName, CanvasLayer *> layers;

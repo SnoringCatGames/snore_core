@@ -13,35 +13,24 @@
 
 using namespace godot;
 
-const std::vector<Ref<CanvasLayerConfig>> CanvasLayerService::
-		get_layer_configs() {
-	static const std::vector<Ref<CanvasLayerConfig>> configs = {
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::utils(),
-				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::top(), Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::notifications(),
-				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::super_hud(),
-				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::screens(),
-				Node::ProcessMode::PROCESS_MODE_ALWAYS),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::hud(),
-				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::annotations(),
-				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-		set_up_ref<CanvasLayerConfig>(
-				CanvasLayerName::game(),
-				Node::ProcessMode::PROCESS_MODE_PAUSABLE),
-	};
-	return configs;
-}
+namespace {
+struct LayerConfig {
+	std::string name;
+	int z_index = 0;
+	Node::ProcessMode process_mode = Node::PROCESS_MODE_INHERIT;
+};
+} // namespace
+
+const std::vector<LayerConfig> default_layer_configs = {
+	{ "top", 8, Node::PROCESS_MODE_ALWAYS },
+	{ "utils", 7, Node::PROCESS_MODE_ALWAYS },
+	{ "notifications", 6, Node::PROCESS_MODE_ALWAYS },
+	{ "super_hud", 5, Node::PROCESS_MODE_ALWAYS },
+	{ "screens", 4, Node::PROCESS_MODE_ALWAYS },
+	{ "hud", 3, Node::PROCESS_MODE_PAUSABLE },
+	{ "annotations", 2, Node::PROCESS_MODE_PAUSABLE },
+	{ "game", 1, Node::PROCESS_MODE_PAUSABLE },
+};
 
 void CanvasLayerService::set_up() {
 	create_root_node();
@@ -76,20 +65,23 @@ void CanvasLayerService::create_root_node() {
 }
 
 void CanvasLayerService::create_canvas_layers() {
-	const std::vector<Ref<CanvasLayerConfig>> layer_configs =
-			get_layer_configs();
-
-	for (int index = 0; index < layer_configs.size(); index++) {
-		const Ref<CanvasLayerConfig> &config = layer_configs[index];
-		const int z_index = layer_configs.size() - index;
-
-		CanvasLayer *layer = memnew(CanvasLayer);
-		layer->set_name("Layer_" + config->get_name());
-		layer->set_process_mode(config->get_process_mode());
-		layer->set_layer(z_index);
-		node->add_child(layer);
-		layers.emplace(config->get_name(), layer);
+	for (int index = 0; index < default_layer_configs.size(); index++) {
+		const LayerConfig &raw_config = default_layer_configs[index];
+		const StringName name = StringName(raw_config.name.c_str());
+		CanvasLayerConfig config;
+		config.set_up(name, raw_config.z_index, raw_config.process_mode);
+		add_layer(config);
 	}
+}
+
+void CanvasLayerService::add_layer(const CanvasLayerConfig &p_config) {
+	CanvasLayer *layer = memnew(CanvasLayer);
+	layer->set_name("Layer_" + String(p_config.get_name()));
+	layer->set_process_mode(p_config.get_process_mode());
+	layer->set_layer(p_config.get_z_index());
+
+	node->add_child(layer);
+	layers.emplace(p_config.get_name(), layer);
 }
 
 void CanvasLayerService::add_to_layer(
