@@ -8,6 +8,8 @@
 
 using namespace godot;
 
+bool godot::Internal::ensure_breakpoint_enabled = true;
+
 void godot::Log::Internal::print(const String &p_message) {
 	LogService *log_service = LogService::get_maybe();
 	if (log_service) {

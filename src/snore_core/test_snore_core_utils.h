@@ -44,6 +44,7 @@ TEST_F(SnoreCoreUtilsTest, Ensure) {
 	EXPECT_NO_ENSURES();
 
 	// Test ensure with false condition.
+	DISABLE_ENSURE_BREAKPOINTS();
 	result = utils->ensure(false, "Test failure message");
 	EXPECT_EQ(result, false);
 	EXPECT_ENSURE_WITH_SUBSTRING("Test failure message");

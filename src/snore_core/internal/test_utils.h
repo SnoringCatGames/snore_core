@@ -53,13 +53,7 @@ protected:
 	virtual void SetUp() override final { BeforeEach(); }
 
 	// Subclasses should override AfterEach instead of the standard TearDown.
-	virtual void TearDown() override final {
-		if (!TestUtilsInternal::was_an_ensure_expected) {
-			EXPECT_TRUE(TestUtilsInternal::recent_ensures.empty());
-		}
-		clear_recent_ensures();
-		AfterEach();
-	}
+	virtual void TearDown() override final;
 };
 
 } //namespace godot

@@ -3,6 +3,7 @@
 #include "snore_core/canvas_layer_config.h"
 #include "snore_core/canvas_layer_name.h"
 #include "snore_core/internal/debug_utils.h"
+#include "snore_core/internal/ref_utils.h"
 #include "snore_core/log_service.h"
 
 #include <godot_cpp/classes/canvas_layer.hpp>
@@ -68,20 +69,20 @@ void CanvasLayerService::create_canvas_layers() {
 	for (int index = 0; index < default_layer_configs.size(); index++) {
 		const LayerConfig &raw_config = default_layer_configs[index];
 		const StringName name = StringName(raw_config.name.c_str());
-		CanvasLayerConfig config;
-		config.set_up(name, raw_config.z_index, raw_config.process_mode);
+		Ref<CanvasLayerConfig> config = set_up_ref<CanvasLayerConfig>(
+				name, raw_config.z_index, raw_config.process_mode);
 		add_layer(config);
 	}
 }
 
-void CanvasLayerService::add_layer(const CanvasLayerConfig &p_config) {
+void CanvasLayerService::add_layer(const Ref<CanvasLayerConfig> p_config) {
 	CanvasLayer *layer = memnew(CanvasLayer);
-	layer->set_name("Layer_" + String(p_config.get_name()));
-	layer->set_process_mode(p_config.get_process_mode());
-	layer->set_layer(p_config.get_z_index());
+	layer->set_name("Layer_" + String(p_config->get_name()));
+	layer->set_process_mode(p_config->get_process_mode());
+	layer->set_layer(p_config->get_z_index());
 
 	node->add_child(layer);
-	layers.emplace(p_config.get_name(), layer);
+	layers.emplace(p_config->get_name(), layer);
 }
 
 void CanvasLayerService::add_to_layer(

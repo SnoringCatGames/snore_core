@@ -20,7 +20,7 @@ public:
 	CanvasLayerService() = default;
 	virtual ~CanvasLayerService() = default;
 
-	void add_layer(const CanvasLayerConfig &p_config);
+	void add_layer(const Ref<CanvasLayerConfig> p_config);
 	void add_to_layer(const StringName &p_layer_name, Node *p_node);
 	void remove_from_layer(const StringName &p_layer_name, Node *p_node);
 

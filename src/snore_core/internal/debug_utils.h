@@ -65,6 +65,14 @@ void print_with_color(const String &p_message, const StringName &p_color);
 
 String get_stack_trace();
 
+namespace Internal {
+extern bool ensure_breakpoint_enabled;
+} // namespace Internal
+
+#define DISABLE_ENSURE_BREAKPOINTS()                                           \
+	(Internal::ensure_breakpoint_enabled = false)
+#define ENABLE_ENSURE_BREAKPOINTS() (Internal::ensure_breakpoint_enabled = true)
+
 // - DEBUG_BREAK pauses execution if this isn't a release version of the
 //   Surfacer framework.
 // - DEBUG_BREAK_OR_FALSE allows us to use breakpoints in the ENSURE
@@ -81,7 +89,8 @@ String get_stack_trace();
 #else
 #define DEBUG_BREAK() __builtin_debugtrap()
 #endif // _MSC_VER
-#define DEBUG_BREAK_OR_FALSE() DEBUG_BREAK()
+#define DEBUG_BREAK_OR_FALSE()                                                 \
+	(Internal::ensure_breakpoint_enabled ? (DEBUG_BREAK(), false) : false)
 #else
 // Disable breakpoints when running in release mode.
 #define DEBUG_BREAK()

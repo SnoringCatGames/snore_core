@@ -195,7 +195,6 @@ protected:
 			submodule->reset_base();
 			submodule->set_up_base();
 		}
-		on_set_up_finished();
 	}
 
 	void reset_submodules() {
