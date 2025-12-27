@@ -13,14 +13,9 @@ void CircularBuffer::push(const Variant &p_value) {
 		return;
 	}
 
-	if (buffer.size() < max_size) {
-		buffer.push_back(p_value);
-		current_size = buffer.size();
-	} else {
-		buffer.write[head] = p_value;
-		head = (head + 1) % max_size;
-		current_size = max_size;
-	}
+	buffer.write[head] = p_value;
+	head = (head + 1) % max_size;
+	current_size = MIN(current_size + 1, max_size);
 }
 
 Variant CircularBuffer::get(int32_t p_index) const {
@@ -49,13 +44,12 @@ void CircularBuffer::set_max_size(int32_t p_max_size) {
 		p_max_size = 0;
 	}
 
+	clear();
+
 	max_size = p_max_size;
-	buffer.clear();
 	if (max_size > 0) {
 		buffer.resize(max_size);
 	}
-	head = 0;
-	current_size = 0;
 }
 
 void CircularBuffer::_bind_methods() {

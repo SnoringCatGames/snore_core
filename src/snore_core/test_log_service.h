@@ -13,13 +13,15 @@ TEST(LogServiceTest, PrintQueue) {
 	LogService *log = memnew(LogService);
 	log->set_up();
 
+	const int setup_log_count = log->get_recent_logs()->size();
+
 	log->print("Test message 1");
 	log->print("Test message 2");
 
-	EXPECT_EQ(log->get_recent_logs()->size(), 2);
+	EXPECT_EQ(log->get_recent_logs()->size(), setup_log_count + 2);
 
-	String first_message = log->get_recent_logs()->get(0);
-	String second_message = log->get_recent_logs()->get(1);
+	String first_message = log->get_recent_logs()->get(setup_log_count);
+	String second_message = log->get_recent_logs()->get(setup_log_count + 1);
 
 	// Check that messages contain timestamps.
 	EXPECT_TRUE(first_message.contains("Test message 1"));

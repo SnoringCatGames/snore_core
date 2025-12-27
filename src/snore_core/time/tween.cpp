@@ -15,17 +15,6 @@
 using namespace godot;
 
 SnoreCoreTween::~SnoreCoreTween() {
-	// Clean up any remaining sub-tweens.
-	for (Ref<SubTween> sub_tween : pending_sub_tweens) {
-		if (is_valid(sub_tween)) {
-			sub_tween->unreference();
-		}
-	}
-	for (Ref<SubTween> sub_tween : active_sub_tweens) {
-		if (is_valid(sub_tween)) {
-			sub_tween->unreference();
-		}
-	}
 	pending_sub_tweens.clear();
 	active_sub_tweens.clear();
 }

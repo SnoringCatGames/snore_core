@@ -300,6 +300,11 @@ bool SnoreCore::run_tests() {
 	char *brief_flag = "--gtest_brief=1";
 #endif // SC_CI_ENABLED
 
+	// Enable breakpoints on failing test assertions.
+#ifndef SC_CI_ENABLED
+	testing::GTEST_FLAG(break_on_failure) = true;
+#endif // SC_CI_ENABLED
+
 	are_tests_running = true;
 
 	int argc = 2;

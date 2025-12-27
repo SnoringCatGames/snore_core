@@ -8,14 +8,21 @@
 #include "snore_core/internal/test_utils.h"
 
 #include <gtest/gtest.h>
+#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 
 namespace godot {
 
 class TweenTest : public SnoreCoreTest {
 protected:
 	void BeforeEach() override {
-		parent_node = memnew(Node);
+		SceneTree *scene_tree = Object::cast_to<SceneTree>(
+				Engine::get_singleton()->get_main_loop());
+		parent_node = scene_tree->get_root();
+		if (scene_tree && scene_tree->get_root()) {
+			scene_tree->get_root()->add_child(parent_node);
+		}
 		tween = memnew(SnoreCoreTween);
 		tween->_init(parent_node, true);
 		target_object = memnew(Node);
@@ -29,7 +36,10 @@ protected:
 			memdelete(tween);
 		}
 		if (parent_node) {
-			memdelete(parent_node);
+			if (parent_node->is_inside_tree()) {
+				parent_node->get_parent()->remove_child(parent_node);
+			}
+			parent_node = nullptr;
 		}
 	}
 

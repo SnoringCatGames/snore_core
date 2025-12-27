@@ -114,7 +114,7 @@ TEST_F(SnoreCoreModuleTest, InitialState) {
 }
 
 TEST_F(SnoreCoreModuleTest, GetName) {
-	StringName expected_name = StringName("TestModule");
+	StringName expected_name = StringName("FakeSnoreCoreModule");
 	EXPECT_EQ(expected_name, test_module->get_name());
 }
 
