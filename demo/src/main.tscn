@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://cko1s7h56f48c"]
-
-[ext_resource type="Script" uid="uid://cec6ff4qv217l" path="res://src/main.gd" id="1_0xm2m"]
-[ext_resource type="SnoreCoreMainSettings" uid="uid://d2jdaphu1qs1f" path="res://src/snore_core_main_settings.tres" id="2_3cfgd"]
-
-[node name="Main" type="Node2D"]
-script = ExtResource("1_0xm2m")
-snore_core_settings = ExtResource("2_3cfgd")
