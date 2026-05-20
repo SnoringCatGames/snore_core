@@ -1,5 +1,19 @@
-# Snore Core
+# snore_core
 
-_This is still under development and not ready for use._
+> **Status: rewrite in progress.** This branch (`main`) is intentionally
+> minimal during active development; the real code lives on `dev`.
 
-This is a GDExtension providing logic that is shared between Snoring Cat's other GDExtensions, such as [Surfacer](https://github.com/SnoringCatGames/surfacer) and [Scaffolder](https://github.com/SnoringCatGames/scaffolder).
+Foundational C++ library for the SnoringCat Godot 4 frameworks
+(logging, geometry, math, services, etc.). Shipped as a GDExtension.
+
+## Branches
+
+| Branch | Content |
+|---|---|
+| `main` (this) | Minimal during the rewrite — just this README. |
+| `dev` | Active Godot 4 + C++/GDExtension development. |
+
+## Where to go next
+
+- Current work in progress: `git checkout dev`
+- Umbrella project: [bootstrapper](https://github.com/SnoringCatGames/bootstrapper)
