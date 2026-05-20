@@ -97,25 +97,30 @@ def pre_setup(
 
     env = localEnv.Clone()
 
-    if not os.path.isdir("submodules/googletest"):
-        print_error("submodules/googletest must be a submodule of the root repository.")
-        sys.exit(1)
-    if not os.path.isdir("submodules/godot-cpp"):
-        print_error("submodules/godot-cpp must be a submodule of the root repository.")
-        sys.exit(1)
-    if not (
-        os.path.isdir("submodules/godot-cpp") and os.listdir("submodules/godot-cpp")
-    ):
+    if not os.path.isdir("../googletest"):
         print_error(
-            """submodules/godot-cpp is not available within this folder, as Git submodules haven't been initialized.
-    Run the following command to download godot-cpp:
-
-        git submodule update --init --recursive"""
+            "../googletest must be a workspace-sibling directory.\n"
+            "Run scripts/bootstrap-workspace.ps1 from the bootstrapper repo "
+            "to clone all required siblings."
+        )
+        sys.exit(1)
+    if not os.path.isdir("../godot-cpp"):
+        print_error(
+            "../godot-cpp must be a workspace-sibling directory.\n"
+            "Run scripts/bootstrap-workspace.ps1 from the bootstrapper repo "
+            "to clone all required siblings."
+        )
+        sys.exit(1)
+    if not (os.path.isdir("../godot-cpp") and os.listdir("../godot-cpp")):
+        print_error(
+            "../godot-cpp exists but is empty.\n"
+            "Run scripts/bootstrap-workspace.ps1 from the bootstrapper repo "
+            "to clone all required siblings."
         )
         sys.exit(1)
 
     env = SConscript(
-        "submodules/godot-cpp/SConstruct", {"env": env, "customs": customs}
+        "../godot-cpp/SConstruct", {"env": env, "customs": customs}
     )
 
     env["is_debug_build"] = ARGUMENTS.get("target", "") in ["editor", "template_debug"]
@@ -205,34 +210,37 @@ def set_up(
     src_path = (
         is_setup_for_self
         and "src/"
-        or "submodules/{}/src/".format(snore_core_addon_dir_name)
+        or "../{}/src/".format(snore_core_addon_dir_name)
     )
     cpp_paths.extend([src_path])
     sources.extend(glob.glob("{}**/*.cpp".format(src_path), recursive=True))
 
-    if env["includes_tests"]:
+    # Gate googletest source inclusion on dev + tests, not tests alone.
+    # Otherwise sc_tests=yes sc_dev=no would ship gtest into a release
+    # artifact.
+    if env["includes_dev"] and env["includes_tests"]:
         cpp_paths.extend(
             [
-                "submodules/googletest/googletest/",
-                "submodules/googletest/googletest/include/",
-                "submodules/googletest/googlemock/",
-                "submodules/googletest/googlemock/include/",
+                "../googletest/googletest/",
+                "../googletest/googletest/include/",
+                "../googletest/googlemock/",
+                "../googletest/googlemock/include/",
             ]
         )
 
         googletest_sources = (
             [
-                "submodules/googletest/googletest/src/gtest-all.cc",
-                "submodules/googletest/googlemock/src/gmock-all.cc",
+                "../googletest/googletest/src/gtest-all.cc",
+                "../googletest/googlemock/src/gmock-all.cc",
             ]
-            # glob.glob("submodules/googletest/googletest/src/*.cc") +
-            # glob.glob("submodules/googletest/googlemock/src/*.cc")
+            # glob.glob("../googletest/googletest/src/*.cc") +
+            # glob.glob("../googletest/googlemock/src/*.cc")
         )
         googletest_exclusions = [
-            # "submodules/googletest/googletest/src/gtest-all.cc",
-            # "submodules/googletest/googletest/src/gtest_main.cc",
-            # "submodules/googletest/googlemock/src/gmock-all.cc",
-            # "submodules/googletest/googlemock/src/gmock_main.cc",
+            # "../googletest/googletest/src/gtest-all.cc",
+            # "../googletest/googletest/src/gtest_main.cc",
+            # "../googletest/googlemock/src/gmock-all.cc",
+            # "../googletest/googlemock/src/gmock_main.cc",
         ]
         sources.extend(
             [x for x in googletest_sources if str(x) not in googletest_exclusions]
@@ -248,7 +256,7 @@ def create_submodule_addons_symlinks(
     """
 
     parent_original_relative_path = (
-        "addon" if is_setup_for_self else "submodules/{}/addon".format(addon_dir_name)
+        "addon" if is_setup_for_self else "../{}/addon".format(addon_dir_name)
     )
     parent_link_relative_path = "demo/addons/{}".format(addon_dir_name)
 
@@ -304,7 +312,7 @@ def add_submodule_to_zip(
     is_setup_for_self=False,
 ) -> None:
     source_path_prefix = (
-        "" if is_setup_for_self else "submodules/{}/".format(addon_dir_name)
+        "" if is_setup_for_self else "../{}/".format(addon_dir_name)
     )
     destination_path_prefix = "addons/{}/".format(addon_dir_name)
 
