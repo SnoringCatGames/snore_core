@@ -1,6 +1,8 @@
 #ifndef SC_STOPWATCH_H
 #define SC_STOPWATCH_H
 
+#include "snore_core/internal/std_hash.h"
+
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/string_name.hpp>
 

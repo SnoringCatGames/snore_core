@@ -2,6 +2,7 @@
 #define CANVAS_LAYER_SERVICE_H
 
 #include "snore_core/canvas_layer_config.h"
+#include "snore_core/internal/std_hash.h"
 #include "snore_core/snore_core_main_module.h"
 #include "snore_core/snore_core_submodule.h"
 

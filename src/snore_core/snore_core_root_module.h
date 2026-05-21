@@ -3,6 +3,7 @@
 
 #include "snore_core/internal/debug_utils.h"
 #include "snore_core/internal/ref_utils.h"
+#include "snore_core/internal/std_hash.h"
 #include "snore_core/snore_core_settings.h"
 #include "snore_core/snore_core_submodule.h"
 
