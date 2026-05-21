@@ -125,11 +125,11 @@ void SnoreCore::unregister_gdextension_types(
 	SnoreCore *main = SnoreCore::get();
 	if (main) {
 		// Unregister all other modules before SnoreCore.
-		for (const std::pair<const StringName, SnoreCoreRootModule *> &pair :
+		for (const KeyValue<StringName, SnoreCoreRootModule *> &pair :
 			 main->modules) {
-			if (pair.first != main->get_name()) {
-				pair.second->reset();
-				unregister_engine_singleton(pair.first);
+			if (pair.key != main->get_name()) {
+				pair.value->reset();
+				unregister_engine_singleton(pair.key);
 			}
 		}
 		unregister_engine_singleton(SnoreCore::name);
@@ -185,8 +185,8 @@ void SnoreCore::reset() {
 	// Clear all modules to ensure proper cleanup.
 	static const StringName snore_core_name = StringName(SnoreCore::name);
 	for (auto &pair : modules) {
-		if (pair.second && pair.first != snore_core_name) {
-			pair.second->reset_base();
+		if (pair.value && pair.key != snore_core_name) {
+			pair.value->reset_base();
 		}
 	}
 }
@@ -207,10 +207,10 @@ void SnoreCore::on_module_set_up_finished(const StringName &p_name) {
 		emit_signal("module_set_up_finished", p_name);
 	}
 
-	for (const std::pair<const StringName, SnoreCoreRootModule *> &pair :
+	for (const KeyValue<StringName, SnoreCoreRootModule *> &pair :
 		 modules) {
-		if (!pair.second->get_is_set_up_finished() &&
-			pair.first != StringName(SnoreCore::name)) {
+		if (!pair.value->get_is_set_up_finished() &&
+			pair.key != StringName(SnoreCore::name)) {
 			return;
 		}
 	}

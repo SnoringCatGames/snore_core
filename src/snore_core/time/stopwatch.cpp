@@ -10,7 +10,7 @@ using namespace godot;
 
 void Stopwatch::start(const StringName &p_metric_key) {
 	const int64_t start_time_usec = Time::get_singleton()->get_ticks_usec();
-	ENSURE(!_start_times_usec.count(p_metric_key) ||
+	ENSURE(!_start_times_usec.has(p_metric_key) ||
 				   _start_times_usec[p_metric_key] == -1,
 		   "Stopwatch already active for metric: " + p_metric_key);
 	_start_times_usec[p_metric_key] = start_time_usec;
@@ -18,7 +18,7 @@ void Stopwatch::start(const StringName &p_metric_key) {
 
 double Stopwatch::stop(const StringName &p_metric_key) {
 	const int64_t stop_time_usec = Time::get_singleton()->get_ticks_usec();
-	if (!ENSURE(_start_times_usec.count(p_metric_key),
+	if (!ENSURE(_start_times_usec.has(p_metric_key),
 				"No start time found for metric: " + p_metric_key)) {
 		return -1.0;
 	}

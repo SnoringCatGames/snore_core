@@ -1,12 +1,10 @@
 #ifndef SC_STOPWATCH_H
 #define SC_STOPWATCH_H
 
-#include "snore_core/internal/std_hash.h"
-
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/string_name.hpp>
-
 #include <godot_cpp/core/binder_common.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 
 namespace godot {
 
@@ -27,7 +25,7 @@ public:
 	double stop(const StringName &p_metric_key);
 
 private:
-	std::unordered_map<StringName, int64_t> _start_times_usec;
+	HashMap<StringName, int64_t> _start_times_usec;
 };
 
 } //namespace godot

@@ -2,12 +2,12 @@
 #define CANVAS_LAYER_SERVICE_H
 
 #include "snore_core/canvas_layer_config.h"
-#include "snore_core/internal/std_hash.h"
 #include "snore_core/snore_core_main_module.h"
 #include "snore_core/snore_core_submodule.h"
 
 #include <godot_cpp/classes/canvas_layer.hpp>
 #include <godot_cpp/classes/container.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 namespace godot {
 
@@ -31,7 +31,7 @@ protected:
 private:
 	Container *node = nullptr;
 
-	std::unordered_map<StringName, CanvasLayer *> layers;
+	HashMap<StringName, CanvasLayer *> layers;
 
 	void create_root_node();
 	void create_canvas_layers();

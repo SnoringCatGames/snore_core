@@ -3,7 +3,6 @@
 
 #include "snore_core/internal/debug_utils.h"
 #include "snore_core/internal/ref_utils.h"
-#include "snore_core/internal/std_hash.h"
 #include "snore_core/snore_core_settings.h"
 #include "snore_core/snore_core_submodule.h"
 
@@ -12,6 +11,7 @@
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/object.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 
 #define SC_ROOT_MODULE_CLASS(m_class, m_settings_class)                        \
@@ -135,7 +135,7 @@ public:
 	SnoreCoreSubmodule *get_submodule(const StringName &p_name) const {
 		auto it = submodules.find(p_name);
 		if (it != submodules.end()) {
-			return it->second;
+			return it->value;
 		}
 		return nullptr;
 	}
@@ -145,7 +145,7 @@ protected:
 
 	Ref<SettingsType> settings;
 
-	std::unordered_map<StringName, SnoreCoreSubmodule *> submodules;
+	HashMap<StringName, SnoreCoreSubmodule *> submodules;
 
 	static void _bind_methods() {}
 
@@ -199,10 +199,10 @@ protected:
 	}
 
 	void reset_submodules() {
-		for (std::pair<const StringName, SnoreCoreSubmodule *> submodule :
+		for (KeyValue<StringName, SnoreCoreSubmodule *> submodule :
 			 submodules) {
-			submodule.second->reset_base();
-			memdelete(submodule.second);
+			submodule.value->reset_base();
+			memdelete(submodule.value);
 		}
 		submodules.clear();
 	}

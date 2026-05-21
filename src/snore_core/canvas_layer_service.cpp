@@ -82,7 +82,7 @@ void CanvasLayerService::add_layer(const Ref<CanvasLayerConfig> p_config) {
 	layer->set_layer(p_config->get_z_index());
 
 	node->add_child(layer);
-	layers.emplace(p_config->get_name(), layer);
+	layers.insert(p_config->get_name(), layer);
 }
 
 void CanvasLayerService::add_to_layer(
