@@ -33,6 +33,12 @@ jobs:
   build:
     name: Build (Linux, x86_64, debug)
     runs-on: ubuntu-latest
+    env:
+      # Opt actions/checkout@v4 (and other Node-20-based actions)
+      # into Node 24 ahead of the June 2026 forced switch. Silences
+      # the deprecation annotation that otherwise appears on every
+      # run. See https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout snore_core
         uses: actions/checkout@v4
