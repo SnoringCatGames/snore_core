@@ -1,0 +1,65 @@
+name: CI
+
+# Build verification on push / PR. The framework expects its
+# dependencies as workspace siblings (godot-cpp at ../godot-cpp,
+# googletest at ../googletest, etc.), so this workflow recreates that
+# layout in the runner by checking out each sibling into the runner
+# workspace root.
+#
+# What this catches: changes to snore_core that break compilation
+# under the canonical sc_dev=yes sc_tests=yes invocation (matches
+# bootstrap-workspace.ps1's "next" hint). It does NOT run tests yet
+# (tests run via the Godot editor against the demo project, which
+# needs a Godot binary — followup).
+
+on:
+  push:
+    branches: [dev, main, master]
+  pull_request:
+    branches: [dev, main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (Linux, x86_64, debug)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout snore_core
+        uses: actions/checkout@v4
+        with:
+          path: snore_core
+
+      - name: Checkout godot-cpp (4.4)
+        uses: actions/checkout@v4
+        with:
+          repository: godotengine/godot-cpp
+          ref: '4.4'
+          path: godot-cpp
+
+      - name: Checkout googletest
+        uses: actions/checkout@v4
+        with:
+          repository: google/googletest
+          path: googletest
+
+      - name: Install SCons
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install scons
+
+      - name: Build snore_core (sc_dev=yes sc_tests=yes)
+        working-directory: snore_core
+        run: scons sc_dev=yes sc_tests=yes
+
+      - name: Verify artifact landed in addon/bin
+        working-directory: snore_core
+        run: |
+          set -e
+          ls -lR addon/bin/
+          # Confirm at least one shared library was produced.
+          find addon/bin -name 'libSnoreCore.*.so' -o -name 'libSnoreCore.*.dylib' \
+              | grep -q . || (echo 'No shared library produced.'; exit 1)
