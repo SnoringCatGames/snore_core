@@ -1,10 +1,10 @@
 name: CI
 
-# Build verification on push / PR. The framework expects its
-# dependencies as workspace siblings (godot-cpp at ../godot-cpp,
-# googletest at ../googletest, etc.), so this workflow recreates that
-# layout in the runner by checking out each sibling into the runner
-# workspace root.
+# Build verification. The framework expects its dependencies as
+# workspace siblings (godot-cpp at ../godot-cpp, googletest at
+# ../googletest, etc.), so this workflow recreates that layout in
+# the runner by checking out each sibling into the runner workspace
+# root.
 #
 # What this catches: changes to snore_core that break compilation
 # under the canonical sc_dev=yes sc_tests=yes invocation (matches
@@ -13,10 +13,16 @@ name: CI
 # needs a Godot binary — followup).
 
 on:
+  # Cost-conscious trigger set (matches hopnbop_private's pattern):
+  # active dev work pushes to `dev` and does NOT trigger CI; the
+  # daily schedule + integration pushes to the slim default branches
+  # do.
   push:
-    branches: [dev, main, master]
+    branches: [main, master]
   pull_request:
-    branches: [dev, main, master]
+    branches: [main, master]
+  schedule:
+    - cron: '0 4 * * *'  # 04:00 UTC daily
   workflow_dispatch:
 
 concurrency:
