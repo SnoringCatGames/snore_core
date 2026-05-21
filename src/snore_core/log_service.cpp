@@ -140,7 +140,7 @@ void LogService::print_front_matter() {
 
 	const Viewport *viewport = SnoreCore::get()->get_viewport();
 	const Vector2i viewport_size =
-			viewport ? viewport->get_visible_rect().size : Vector2i(0, 0);
+			viewport ? Vector2i(viewport->get_visible_rect().size) : Vector2i();
 
 	const OS *os = OS::get_singleton();
 	const String system_info =
