@@ -110,7 +110,7 @@ public:
 	}
 
 	// This sets some tracking state before calling set_up().
-	void set_up_base(Ref<SettingsType> &p_settings) {
+	void set_up_base(const Ref<SettingsType> &p_settings) {
 		reset_base();
 		set_up_phase = SET_UP_PHASE::IN_PROGRESS;
 		set_settings(p_settings);
