@@ -51,9 +51,14 @@ jobs:
           python3 -m pip install --upgrade pip
           pip3 install scons
 
-      - name: Build snore_core (sc_dev=yes sc_tests=yes)
+      - name: Build snore_core (CI mode, dev features + tests)
         working-directory: snore_core
-        run: scons sc_dev=yes sc_tests=yes
+        # sc_ci=yes defines SC_CI_ENABLED, which disables the Clang/MSVC-only
+        # __builtin_debugtrap path in debug_utils.h (CI runs on GCC by
+        # default; the local dev build on Windows uses MSVC). sc_dev=yes
+        # turns on dev features so SC_DEV_ENABLED gates compile in.
+        # sc_tests=yes compiles the test sources and links googletest.
+        run: scons sc_ci=yes sc_dev=yes sc_tests=yes
 
       - name: Verify artifact landed in addon/bin
         working-directory: snore_core
