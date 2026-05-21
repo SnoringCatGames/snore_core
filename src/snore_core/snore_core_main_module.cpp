@@ -24,7 +24,7 @@
 #include "snore_core/time/timeout.h"
 #include "snore_core/time/tween.h"
 
-#include <godot_cpp/classes/Node.hpp>
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/time.hpp>
