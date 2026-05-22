@@ -72,12 +72,30 @@ void SnoreCore::register_gdextension_types(ModuleInitializationLevel p_level) {
 		return;
 	}
 
-	// This method is idempotent, so we check here whether it has been called
-	// already.
+	// Intra-DLL re-entry guard: surf_scaf's chained registration
+	// calls snore_core's registrar; a downstream consumer that also
+	// calls SnoreCore::register_gdextension_types directly would
+	// otherwise re-enter.
 	if (are_types_registered) {
 		return;
 	}
 	are_types_registered = true;
+
+	// Cross-extension guard: if another loaded GDExtension already
+	// registered SnoreCore (e.g., a stray standalone snore_core.gdextension
+	// alongside the surf_scaf bundle), skip the whole registration block
+	// instead of failing per-class with cryptic ClassDB collision errors.
+	// See HANDOVER Phase 2.1 finding (a) — the three redundant per-lib
+	// manifests were deleted on 2026-05-20; this guard hardens against
+	// re-introducing the issue.
+	if (ClassDB::class_exists("SnoreCore")) {
+		WARN_PRINT(
+				"SnoreCore GDExtension classes are already registered "
+				"by another loaded extension; skipping duplicate "
+				"registration. Only one extension (surf_scaf, the "
+				"canonical bundle) should register SnoreCore classes.");
+		return;
+	}
 
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSettings);
 	GDREGISTER_ABSTRACT_CLASS(SnoreCoreSubmodule);
