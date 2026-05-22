@@ -17,9 +17,13 @@ namespace godot {
 class TweenTest : public SnoreCoreTest {
 protected:
 	void BeforeEach() override {
+		// Create a dedicated parent node inside the active scene tree
+		// for this test. Previous version aliased parent_node to the
+		// root viewport and then tried to add it as a child of itself,
+		// which corrupted the tree and crashed in TearDown.
 		SceneTree *scene_tree = Object::cast_to<SceneTree>(
 				Engine::get_singleton()->get_main_loop());
-		parent_node = scene_tree->get_root();
+		parent_node = memnew(Node);
 		if (scene_tree && scene_tree->get_root()) {
 			scene_tree->get_root()->add_child(parent_node);
 		}
@@ -39,6 +43,7 @@ protected:
 			if (parent_node->is_inside_tree()) {
 				parent_node->get_parent()->remove_child(parent_node);
 			}
+			memdelete(parent_node);
 			parent_node = nullptr;
 		}
 	}

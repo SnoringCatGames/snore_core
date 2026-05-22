@@ -46,14 +46,27 @@ float TimeService::scaled_play_time() {
 }
 
 void TimeService::set_up() {
-	app_time_tracker = memnew(TimeTracker);
-	app_time_tracker->set_process_mode(Node::ProcessMode::PROCESS_MODE_ALWAYS);
-	node->add_child(app_time_tracker);
+	// Trackers are instantiated lazily so unit tests that don't have
+	// a parent node still see non-null trackers. Here we add them to
+	// the scene tree so their _process callbacks fire under normal
+	// runtime; in test context, that's skipped.
+	if (!app_time_tracker) {
+		app_time_tracker = memnew(TimeTracker);
+		app_time_tracker->set_process_mode(
+				Node::ProcessMode::PROCESS_MODE_ALWAYS);
+	}
+	if (node) {
+		node->add_child(app_time_tracker);
+	}
 
-	play_time_tracker = memnew(TimeTracker);
-	play_time_tracker->set_process_mode(
-			Node::ProcessMode::PROCESS_MODE_PAUSABLE);
-	node->add_child(play_time_tracker);
+	if (!play_time_tracker) {
+		play_time_tracker = memnew(TimeTracker);
+		play_time_tracker->set_process_mode(
+				Node::ProcessMode::PROCESS_MODE_PAUSABLE);
+	}
+	if (node) {
+		node->add_child(play_time_tracker);
+	}
 
 	set_interval(
 			callable_mp(this, &TimeService::collect_garbage),
@@ -261,6 +274,22 @@ float TimeService::get_elapsed_time(TimeType p_time_type) const {
 
 TimeTracker *TimeService::get_time_tracker_for_time_type(
 		TimeType p_time_type) const {
+	// Lazy-init the trackers so unit tests that don't go through
+	// set_up() still see non-null trackers. set_up() handles
+	// add_child() against the live scene tree; here we just ensure
+	// the objects exist.
+	TimeService *mut_self = const_cast<TimeService *>(this);
+	if (!mut_self->app_time_tracker) {
+		mut_self->app_time_tracker = memnew(TimeTracker);
+		mut_self->app_time_tracker->set_process_mode(
+				Node::ProcessMode::PROCESS_MODE_ALWAYS);
+	}
+	if (!mut_self->play_time_tracker) {
+		mut_self->play_time_tracker = memnew(TimeTracker);
+		mut_self->play_time_tracker->set_process_mode(
+				Node::ProcessMode::PROCESS_MODE_PAUSABLE);
+	}
+
 	switch (p_time_type) {
 		case TimeType::APP_PHYSICS:
 		case TimeType::APP_CLOCK:

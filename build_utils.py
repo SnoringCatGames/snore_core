@@ -189,9 +189,20 @@ def post_setup(
         else "demo/addons/{}/bin/".format(addon_dir_name)
     )
 
-    # Clear the bin directory.
-    if os.path.exists(lib_path_prefix):
-        shutil.rmtree(lib_path_prefix)
+    # Clear stale artifacts in the active platform's bin subdir, but
+    # preserve the platform's .gdignore (keeps Godot from importing the
+    # native binaries as resources) and never touch the parent
+    # addon/bin/ where the .gdextension manifest lives.
+    platform_dir = "{}{}/".format(lib_path_prefix, env["platform"])
+    if os.path.exists(platform_dir):
+        for entry in os.listdir(platform_dir):
+            if entry == ".gdignore":
+                continue
+            entry_path = os.path.join(platform_dir, entry)
+            if os.path.isdir(entry_path):
+                shutil.rmtree(entry_path)
+            else:
+                os.remove(entry_path)
 
     lib_path = "{}{}/{}".format(lib_path_prefix, env["platform"], lib_filename)
     library = env.SharedLibrary(lib_path, source=sources)

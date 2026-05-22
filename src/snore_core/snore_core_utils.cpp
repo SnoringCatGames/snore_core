@@ -111,18 +111,13 @@ void SnoreCoreUtils::splice(
 }
 
 Array SnoreCoreUtils::dedup(const Array &p_array) {
-	std::unordered_map<uint32_t, Variant> map;
-	for (int i = 0; i < p_array.size(); i++) {
-		map.emplace(p_array[i].hash(), p_array[i]);
-	}
-	const int deduped_size = map.size();
-	map.clear();
+	std::unordered_map<uint32_t, Variant> seen;
 	Array result;
-	result.resize(deduped_size);
 	for (int i = 0; i < p_array.size(); i++) {
-		if (map.find(p_array[i].hash()) == map.end()) {
-			result[i++] = p_array[i];
-			map.emplace(p_array[i].hash(), p_array[i]);
+		const uint32_t hash = p_array[i].hash();
+		if (seen.find(hash) == seen.end()) {
+			seen.emplace(hash, p_array[i]);
+			result.push_back(p_array[i]);
 		}
 	}
 	return result;
@@ -392,18 +387,20 @@ Color SnoreCoreUtils::mix_colors(
 String SnoreCoreUtils::get_datetime_string() {
 	const Dictionary datetime =
 			Time::get_singleton()->get_datetime_dict_from_system();
+	const uint64_t msec = Time::get_singleton()->get_ticks_msec() % 1000;
 	return vformat(
-			"%s-%s-%s_%s:%s:%s", datetime["year"], datetime["month"],
-			datetime["day"], datetime["hour"], datetime["minute"],
-			datetime["second"]);
+			"%04d-%02d-%02d_%02d:%02d:%02d.%03d", datetime["year"],
+			datetime["month"], datetime["day"], datetime["hour"],
+			datetime["minute"], datetime["second"], msec);
 }
 
 String SnoreCoreUtils::get_time_string() {
 	const Dictionary datetime =
 			Time::get_singleton()->get_datetime_dict_from_system();
+	const uint64_t msec = Time::get_singleton()->get_ticks_msec() % 1000;
 	return vformat(
-			"%02d:%02d:%02d", datetime["hour"], datetime["minute"],
-			datetime["second"]);
+			"%02d:%02d:%02d.%03d", datetime["hour"], datetime["minute"],
+			datetime["second"], msec);
 }
 
 String SnoreCoreUtils::get_time_string_from_seconds(
